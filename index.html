@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据挖掘与机器学习 — 期末复习</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #162447 100%);
+  min-height: 100vh;
+  color: #e0e0e0;
+  display: flex; flex-direction: column; align-items: center;
+}
+.header {
+  text-align: center; padding: 48px 20px 32px;
+}
+.header h1 {
+  font-size: 2.2em; font-weight: 700;
+  background: linear-gradient(135deg, #64b5f6, #81c784);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header p { margin-top: 8px; color: #90a4ae; font-size: 0.95em; }
+.cards {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 28px; padding: 0 20px 48px; max-width: 1100px;
+}
+.card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px; padding: 36px 32px;
+  width: 320px; text-decoration: none; color: #e0e0e0;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.25);
+}
+.card .icon { font-size: 2.6em; margin-bottom: 16px; }
+.card h2 { font-size: 1.3em; margin-bottom: 10px; font-weight: 600; }
+.card p { color: #90a4ae; font-size: 0.9em; line-height: 1.6; }
+.card.deep  .icon { color: #64b5f6; }
+.card.deep  h2 { color: #64b5f6; }
+.card.exam  .icon { color: #ef5350; }
+.card.exam  h2 { color: #ef5350; }
+.card.test  .icon { color: #81c784; }
+.card.test  h2 { color: #81c784; }
+.card .stats {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.82em; color: #78909c;
+}
+.footer {
+  text-align: center; padding: 32px; color: #546e7a; font-size: 0.85em;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>数据挖掘与机器学习</h1>
+  <p>上海对外经贸大学 · 王昭文 · 2026春季学期 · 期末复习导航</p>
+</div>
+
+<div class="cards">
+  <a class="card deep" href="深度学习模式/index.html">
+    <div class="icon">&#x1F4DA;</div>
+    <h2>深度学习模式</h2>
+    <p>完整知识清单，每个概念从直觉到推导到易错点，读一遍就能理解。</p>
+    <div class="stats">14 章 · 图片 + 公式 + 对比表</div>
+  </a>
+
+  <a class="card exam" href="考试模式/index.html">
+    <div class="icon">&#x1F3AF;</div>
+    <h2>考试模式</h2>
+    <p>浓缩速查手册，只保留公式、结论、考点标注，临考快速过一遍。</p>
+    <div class="stats">14 章 · 干货公式 · 考点标签</div>
+  </a>
+
+  <a class="card test" href="章节测试/index.html">
+    <div class="icon">&#x270D;</div>
+    <h2>章节测试</h2>
+    <p>交互式章节测验，选择题/填空/简答/计算/代码分析，点击查看答案。</p>
+    <div class="stats">14 章 · 5 种题型 · 自动批改</div>
+  </a>
+</div>
+
+<div class="footer">
+  课程：数据挖掘与机器学习 &nbsp;|&nbsp; 教材：薛薇《R语言数据挖掘》第三版 &nbsp;|&nbsp; 生成于 2026年6月9日
+</div>
+
+</body>
+</html>

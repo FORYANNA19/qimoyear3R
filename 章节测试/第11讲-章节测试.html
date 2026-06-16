@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11讲 章节测试 — BP反向传播算法</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+:root {
+  --primary: #1a56db;
+  --primary-light: #e8f0fe;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --danger: #dc2626;
+  --gray-bg: #f9fafb;
+  --border: #e5e7eb;
+  --text: #1f2937;
+  --muted: #6b7280;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; color:var(--text); line-height:1.7; background:var(--gray-bg); }
+.container { max-width:840px; margin:0 auto; padding:22px 18px 60px; }
+
+.breadcrumb { font-size:13px; color:var(--muted); padding:6px 0 16px; }
+.breadcrumb a { color:var(--primary); text-decoration:none; }
+
+h1 { font-size:24px; color:var(--primary); border-bottom:3px solid var(--primary); padding-bottom:8px; margin-bottom:4px; }
+.meta { font-size:12px; color:var(--muted); margin-bottom:24px; }
+
+.section { margin-bottom:28px; }
+.section h2 { font-size:17px; color:var(--primary); border-left:4px solid var(--primary); padding-left:10px; margin-bottom:14px; }
+
+.question { background:#fff; border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:12px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+.q-num { display:inline-block; background:var(--primary); color:#fff; width:24px; height:24px; border-radius:12px; text-align:center; line-height:24px; font-size:13px; font-weight:700; margin-right:8px; }
+.q-text { font-size:14px; display:inline; }
+
+.options { margin:8px 0 4px 32px; font-size:14px; }
+.options li { margin-bottom:3px; list-style:none; }
+
+.btn-answer { display:inline-block; margin-top:10px; padding:5px 16px; border:1px solid var(--primary); border-radius:6px; background:#fff; color:var(--primary); font-size:13px; cursor:pointer; transition:all .15s; }
+.btn-answer:hover { background:var(--primary); color:#fff; }
+
+.answer-box { display:none; margin-top:10px; padding:12px 16px; background:var(--success-light); border-radius:6px; font-size:13px; border-left:3px solid var(--success); }
+.answer-box.show { display:block; }
+.answer-box .ans-label { font-weight:700; color:var(--success); }
+
+.code-block { background:#1e293b; color:#e2e8f0; font-family:Consolas,"Courier New",monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:10px 0; white-space:pre-wrap; overflow-x:auto; line-height:1.5; }
+
+.footer { margin-top:30px; padding:16px 0; border-top:1px solid var(--border); text-align:center; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <a href="#">章节测试</a> / <strong>第11讲-章节测试</strong>
+</div>
+
+<h1>第11讲 章节测试：BP反向传播算法</h1>
+<div class="meta">上海对外经贸大学 · 数据挖掘与机器学习 &nbsp;|&nbsp; 满分：100分 &nbsp;|&nbsp; 建议用时：45分钟</div>
+
+<!-- ====== 一、选择题 (5×4=20) ====== -->
+<div class="section">
+  <h2>一、单项选择题 <span style="font-size:13px;color:var(--muted);">（每题4分，共20分）</span></h2>
+
+  <div class="question">
+    <span class="q-num">1</span><span class="q-text">多层感知机（多层感知机 (MLP)）与单层感知机最本质的区别是什么？</span>
+    <ul class="options">
+      <li>A. 多层感知机 (MLP) 拥有更多的输入特征</li>
+      <li>B. 多层感知机 (MLP) 引入了隐藏层（Hidden Layer），从而能够处理线性不可分问题</li>
+      <li>C. 多层感知机 (MLP) 使用了更大的学习率</li>
+      <li>D. 多层感知机 (MLP) 只能处理回归任务，不能处理分类任务</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：B</span>
+      <p>多层感知机 (MLP) 引入隐藏层及非线性激活函数，使其能学习非线性决策边界，处理线性不可分问题。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">2</span><span class="q-text">如果在 多层感知机 (MLP) 中使用线性激活函数（如 \(f(x)=x\)），这个网络等价于什么？</span>
+    <ul class="options">
+      <li>A. 深度卷积神经网络</li>
+      <li>B. 支持向量机</li>
+      <li>C. 简单的线性模型</li>
+      <li>D. 逻辑回归模型</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：C</span>
+      <p>多层线性变换的复合仍然是线性变换 \(\mathbf{W}_2(\mathbf{W}_1\mathbf{x}) = (\mathbf{W}_2\mathbf{W}_1)\mathbf{x}\)，等价于单层线性模型。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">3</span><span class="q-text">在 反向传播 算法中，更新权重的核心数学工具是什么？</span>
+    <ul class="options">
+      <li>A. 泰勒级数展开</li>
+      <li>B. 蒙特卡洛模拟</li>
+      <li>C. 微积分中的链式法则</li>
+      <li>D. 矩阵的特征值分解</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：C</span>
+      <p>反向传播 算法通过链式法则将损失对权重的梯度分解为多个可计算的局部导数的乘积。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">4</span><span class="q-text">在 反向传播 算法的"反向传播"阶段，主要计算的是什么？</span>
+    <ul class="options">
+      <li>A. 每一层神经元的激活值</li>
+      <li>B. 损失函数对网络中各个权值和偏置的梯度</li>
+      <li>C. 输入数据的特征分布</li>
+      <li>D. 模型的预测准确率</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：B</span>
+      <p>反向传播阶段从输出层到输入层逐层计算损失对各参数的梯度，前向传播才计算激活值和预测值。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">5</span><span class="q-text">假设一个 多层感知机 (MLP) 输入层 10 节点，隐藏层 20 节点，输出层 5 节点（不计偏置），共有多少个可训练权重？</span>
+    <ul class="options">
+      <li>A. 35</li>
+      <li>B. 150</li>
+      <li>C. 300</li>
+      <li>D. 1000</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：C</span>
+      <p>输入→隐层：\(10 \times 20 = 200\)；隐层→输出：\(20 \times 5 = 100\)；合计 300 个权重参数。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">6</span><span class="q-text">关于 Mini-Batch 梯度下降，以下哪项表述是<strong>错误</strong>的？</span>
+    <ul class="options">
+      <li>A. Mini-Batch 是总体梯度的无偏估计</li>
+      <li>B. Batch Size 增大时梯度估计的方差会降低</li>
+      <li>C. Mini-Batch 的噪声可能导致模型陷入更差的局部极小值</li>
+      <li>D. 现代 GPU 并行计算使 Mini-Batch 获得高吞吐量</li>
+    </ul>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：C</span>
+      <p>Mini-Batch 的适度噪声反而帮助模型跳出局部极小值的"浅坑"，找到泛化能力更好的平坦区域，属于噪声正则化效应。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 二、填空题 (3×5=15) ====== -->
+<div class="section">
+  <h2>二、填空题 <span style="font-size:13px;color:var(--muted);">（每题5分，共15分）</span></h2>
+
+  <div class="question">
+    <span class="q-num">7</span><span class="q-text">反向传播 算法中的"批量 (Batch)"概念是指：在更新一次参数之前，计算________的________梯度。</span>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：多个样本；平均</span>
+      <p>Mini-Batch 每次从训练集中抽取一小批样本，计算它们的平均梯度来近似总体梯度。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">8</span><span class="q-text">学习率 \(\eta\) 太大会导致________，\(\eta\) 太小会导致________。</span>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：振荡/不收敛；收敛速度过慢</span>
+      <p>学习率控制参数更新的步长，需要在收敛速度和稳定性之间取得平衡。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">9</span><span class="q-text">Sigmoid 函数的导数为 \(f'(x) = \)________。该性质在 反向传播 推导中用于简化 \(g_j\) 和 \(e_h\) 的计算。</span>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">答案：\(f(x)(1-f(x))\)</span>
+      <p>利用此性质：\(g_j = f(\beta_j-\theta_j)(1-f(\beta_j-\theta_j))(y_j-\hat{y}_j) = \hat{y}_j(1-\hat{y}_j)(y_j-\hat{y}_j)\)。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 三、简答题 (2×10=20) ====== -->
+<div class="section">
+  <h2>三、简答题 <span style="font-size:13px;color:var(--muted);">（每题10分，共20分）</span></h2>
+
+  <div class="question">
+    <span class="q-num">10</span><span class="q-text">简述 反向传播 反向传播算法的两个阶段（前向传播和反向传播）各自完成什么任务。</span>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">参考答案：</span>
+      <p><strong>前向传播 (Forward)：</strong>输入信号依次通过各层神经元处理，逐层计算激活值 \(\alpha_h, b_h, \beta_j, \hat{y}_j\)，最终在输出层产生预测值并计算与真实值的损失 \(E_k\)。</p>
+      <p><strong>反向传播 (Backward)：</strong>从输出层开始，将损失沿网络结构反向传播，利用链式法则逐层计算每一层权重和偏置对损失的贡献（即梯度 \(\partial E_k/\partial w, \partial E_k/\partial v, \partial E_k/\partial \theta, \partial E_k/\partial \gamma\)），并据此更新参数。</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <span class="q-num">11</span><span class="q-text">解释为什么在 多层感知机 (MLP) 中必须使用非线性激活函数？若全部使用线性激活函数会导致什么问题？</span>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">参考答案：</span>
+      <p>非线性激活函数赋予神经网络学习复杂非线性函数的能力，是处理线性不可分问题的关键。</p>
+      <p>若全部使用线性激活函数，多层线性变换的复合 \(\mathbf{y} = \mathbf{W}_L(\dots(\mathbf{W}_1\mathbf{x})) = \mathbf{W}_{\text{eff}}\,\mathbf{x}\) 仍为线性变换，等价于一个单层线性模型，丧失了深度网络的表达能力。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 四、计算题 (1×25=25) ====== -->
+<div class="section">
+  <h2>四、计算题 <span style="font-size:13px;color:var(--muted);">（25分）</span></h2>
+
+  <div class="question">
+    <span class="q-num">12</span><span class="q-text">给定一个简单的两层网络：输入层 2 个神经元 \((x_1, x_2)\)，隐藏层 2 个神经元（Sigmoid 激活），输出层 1 个神经元（Sigmoid 激活）。已知：</span>
+    <p style="font-size:13px; margin:8px 0 4px 32px;">
+      \(\mathbf{x} = [0.5, 0.8]^T\)，真实标签 \(y = 0.3\)，学习率 \(\eta = 0.5\)<br>
+      输入→隐层权重：\(v_{11}=0.2, v_{12}=0.4, v_{21}=-0.3, v_{22}=0.1\)<br>
+      隐层阈值：\(\gamma_1=0.1, \gamma_2=-0.2\)<br>
+      隐→输出权重：\(w_{11}=0.3, w_{21}=-0.5\)<br>
+      输出层阈值：\(\theta_1=0.2\)<br>
+      损失函数：\(E = \frac{1}{2}(\hat{y} - y)^2\)<br>
+    </p>
+    <p style="font-size:13px; margin-left:32px;">
+      <strong>(1)</strong> 完成一次前向传播，计算预测值 \(\hat{y}\) 和损失 \(E\)。（10分）<br>
+      <strong>(2)</strong> 计算输出层误差 \(g_1\)，并更新 \(w_{11}, w_{21}, \theta_1\)。（15分）
+    </p>
+    <button class="btn-answer" onclick="toggleAns(this)">显示答案</button>
+    <div class="answer-box">
+      <span class="ans-label">解：</span>
+      <p><strong>(1) 前向传播</strong></p>
+      <p>
+        \(\alpha_1 = v_{11}x_1 + v_{21}x_2 = 0.2\times 0.5 + (-0.3)\times 0.8 = 0.1 - 0.24 = -0.14\)<br>
+        \(\alpha_2 = v_{12}x_1 + v_{22}x_2 = 0.4\times 0.5 + 0.1\times 0.8 = 0.2 + 0.08 = 0.28\)<br>
+        \(b_1 = \sigma(\alpha_1 - \gamma_1) = \sigma(-0.14 - 0.1) = \sigma(-0.24) \approx 0.4403\)<br>
+        \(b_2 = \sigma(\alpha_2 - \gamma_2) = \sigma(0.28 - (-0.2)) = \sigma(0.48) \approx 0.6177\)<br>
+        \(\beta_1 = w_{11}b_1 + w_{21}b_2 = 0.3 \times 0.4403 + (-0.5) \times 0.6177 = 0.1321 - 0.3089 = -0.1768\)<br>
+        \(\hat{y} = \sigma(\beta_1 - \theta_1) = \sigma(-0.1768 - 0.2) = \sigma(-0.3768) \approx 0.4069\)<br>
+        \(E = \frac{1}{2}(\hat{y} - y)^2 = \frac{1}{2}(0.4069 - 0.3)^2 \approx 0.00571\)
+      </p>
+      <p style="margin-top:10px;"><strong>(2) 梯度计算与更新</strong></p>
+      <p>
+        \(g_1 = \hat{y}(1-\hat{y})(y - \hat{y}) = 0.4069 \times 0.5931 \times (0.3 - 0.4069) \approx -0.0258\)<br><br>
+        更新 \(w_{11}\)：\(\Delta w_{11} = \eta g_1 b_1 = 0.5 \times (-0.0258) \times 0.4403 \approx -0.0057\)<br>
+        &emsp;\(w_{11} \leftarrow 0.3 + (-0.0057) = 0.2943\)<br><br>
+        更新 \(w_{21}\)：\(\Delta w_{21} = \eta g_1 b_2 = 0.5 \times (-0.0258) \times 0.6177 \approx -0.0080\)<br>
+        &emsp;\(w_{21} \leftarrow -0.5 + (-0.0080) = -0.5080\)<br><br>
+        更新 \(\theta_1\)：\(\Delta\theta_1 = -\eta g_1 = -0.5 \times (-0.0258) = 0.0129\)<br>
+        &emsp;\(\theta_1 \leftarrow 0.2 + 0.0129 = 0.2129\)
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 五、编程题 (1×20=20) ====== -->
+<div class="section">
+  <h2>五、编程题 <span style="font-size:13px;color:var(--muted);">（20分）</span></h2>
+
+  <div class="question">
+<span class="q-num">13</span><span class="q-text">阅读以下使用 nnet 包训练神经网络的 R 代码，回答后面问题：</span>
+<pre><code>library(nnet)
+data(iris)
+set.seed(123)
+model <- nnet(Species ~ ., data = iris, 
+              size = 5, maxit = 200, 
+              decay = 0.01, MaxNWts = 2000)
+pred <- predict(model, iris, type = "class")
+conf_matrix <- table(iris$Species, pred)
+cat("混淆矩阵:\n")
+print(conf_matrix)
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat(sprintf("准确率: %.2f%%\n", accuracy * 100))</code></pre>
+<p><strong>问题：</strong></p>
+<ol>
+<li>参数 <code>size = 5</code> 代表什么？它对应网络结构中的哪一部分？（4分）</li>
+<li><code>decay = 0.01</code> 的作用是什么？在期末考试中常提到的"消除过拟合"方法中，这属于哪种方法？（3分）</li>
+<li><code>predict(model, iris, type = "class")</code> 中 type = "class" 的含义是什么？如果不指定会怎样？（3分）</li>
+</ol>
+<button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+<div class="answer-box info">
+<p><strong>参考答案：</strong></p>
+<p><strong>(1)</strong> size=5 表示隐藏层有<strong>5个神经元</strong>。这是单隐藏层网络结构中隐藏层的节点数。默认激活函数为 Sigmoid（logistic）。</p>
+<p><strong>(2)</strong> decay=0.01 是<strong>权重衰减（Weight Decay）正则化参数</strong>，等价于 L2 正则化。在期末考试的简答题中常考："神经网络中消除过拟合一般采用 L2 正则化方法"——nnet 中的 decay 参数正是 L2 正则化的实现。</p>
+<p><strong>(3)</strong> type="class" 返回预测的<strong>类别标签</strong>（如 setosa/versicolor）。如果不指定，默认 type="raw" 返回概率值矩阵。对于评估准确率等场景，需要显式指定 type="class"。</p></div>
+  </div>
+</div>
+
+<div class="footer">
+  第11讲 章节测试 &mdash; BP反向传播算法 &nbsp;|&nbsp; 上海对外经贸大学 · 数据挖掘与机器学习
+</div>
+
+</div>
+
+<script>
+function toggleAns(btn) {
+  var box = btn.nextElementSibling;
+  if (box.classList.contains('show')) {
+    box.classList.remove('show');
+    btn.textContent = '显示答案';
+  } else {
+    box.classList.add('show');
+    btn.textContent = '隐藏答案';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KNN专题-知识清单</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  chtml: { scale: 0.92 }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<!-- ── Breadcrumb ── -->
+<div class="breadcrumb">
+  <div><span class="mode">深度学习模式</span><span class="sep">/</span><strong>KNN专题-知识清单</strong></div>
+  <div class="nav"><a href="#">&#8592;上一章</a> | 下一章(无) &#8594;</div>
+</div>
+
+<h1>KNN专题 — KNN分类模拟分析</h1>
+
+<div class="toc">
+<strong>目录</strong>
+<ol>
+  <li><a href="#sec1">模拟实验概述</a></li>
+  <li><a href="#sec2">KNN分类预测模拟分析</a></li>
+  <li><a href="#sec3">三种评估方法对比</a></li>
+  <li><a href="#sec4">KNN回归预测模拟分析</a></li>
+  <li><a href="#sec5">案例分析：预测顾客消费决策</a></li>
+</ol>
+</div>
+
+<!-- ==================== Section 1 ==================== -->
+<h2 id="sec1">1. 模拟实验概述 <span class="tag-freq">高频</span> <span class="tag-read">细读</span></h2>
+
+<h3>1.1 实验目的与直觉 <span class="tag-read">细读</span></h3>
+<p>
+<span class="kp">核心目标：观察参数 $K$ 取不同值时对K-近邻法分类边界和错判率的影响。</span>
+<span class="exp">KNN的预测结果高度依赖于 $K$ 的选择：$K$ 太小则模型过于敏感、容易过拟合噪声；$K$ 太大则分类边界过度平滑、可能忽略局部模式。本模拟通过计算 $K\in[1,30]$ 范围内的错判率曲线，直观展示这一权衡关系。</span>
+</p>
+<blockquote>直觉类比：$K$ 就像「听取多少人意见」。$K=1$ 只听最近的一个邻居，容易被个别噪音带偏（过拟合）；$K=60$ 听取所有人，结果趋于大多数（欠拟合）。要找的是那个「刚好合适」的邻里规模。</blockquote>
+
+<h3>1.2 数据生成 <span class="tag-freq">高频</span></h3>
+<p>
+<span class="kp">X1 和 X2 均在 $[-1,+1]$ 范围内均匀分布生成60个随机数。</span>
+<span class="exp">两个特征相互独立，覆盖二维平面上的一个正方形区域。</span>
+<span class="kp">Y 按照 0.7:0.3 的比例随机指派类别 1 和 0（偏斜的两类分布）。</span>
+<span class="exp">这意味着类别1约占70%（42个），类别0约占30%（18个）。</span>
+</p>
+
+<pre><code>set.seed(12345)
+x1 &lt;- runif(60, -1, 1)
+x2 &lt;- runif(60, -1, 1)
+y &lt;- sample(c(0, 1), size = 60, replace = TRUE, prob = c(0.3, 0.7))
+data_clf &lt;- data.frame(Fx1 = x1, Fx2 = x2, Fy = as.factor(y))</code></pre>
+
+<h3>1.3 训练集/测试集划分 <span class="tag-read">细读</span></h3>
+<p>
+<span class="kp">从60个样本中随机抽取18个（30%）作为测试集，剩余42个（70%）为训练集。</span>
+<span class="exp">随机抽样的目的是保证训练集和测试集都来自同一分布，使评估结果具有代表性。</span>
+</p>
+<pre><code>sample_id &lt;- sample(x = 1:60, size = 18)
+data_test &lt;- data_clf[sample_id, ]
+data_train &lt;- data_clf[-sample_id, ]</code></pre>
+
+<blockquote>易错：测试集比例通常取 20%~30%，过小则评估方差大、不稳定；过大则训练数据不足、模型学不到位。本实验取30%（18个）是合理的折中。</blockquote>
+
+<!-- ==================== Section 2 ==================== -->
+<h2 id="sec2">2. KNN分类预测模拟分析 <span class="tag-must">必考</span> <span class="tag-read">细读</span></h2>
+<p>本章计算 $K\in[1,30]$ 时使用三种不同评估方式得到的错判率曲线，是理解KNN模型评估的核心内容。</p>
+
+<h3>2.1 三种评估方法详解 <span class="tag-must">必考</span></h3>
+
+<table>
+<tr><th>方法</th><th>中文</th><th>训练数据</th><th>测试数据</th><th>特点</th></tr>
+<tr>
+  <td><strong>Resubstitution</strong></td>
+  <td>回代法</td>
+  <td>全量数据</td>
+  <td>全量数据</td>
+  <td>用同一份数据既训练又测试，<strong>严重低估真实误差</strong>，因为模型已经"见过"测试数据。$K=1$ 时回代误差率为 0%（完美记忆所有样本）。</td>
+</tr>
+<tr>
+  <td><strong>Holdout</strong></td>
+  <td>留出法</td>
+  <td>训练集（42个）</td>
+  <td>测试集（18个）</td>
+  <td>训练和测试数据不重叠，评估<strong>相对客观</strong>。但由于只用了一次划分，误差估计的方差较大，依赖于具体的划分方式。</td>
+</tr>
+<tr>
+  <td><strong>留一交叉验证 (LOOCV)</strong></td>
+  <td>留一交叉验证</td>
+  <td>n-1个样本（循环）</td>
+  <td>剩余1个样本</td>
+  <td>每次留一个样本做测试，其余做训练，重复 $n$ 次取平均。评估<strong>最稳定、偏差最小</strong>，但计算开销大（需训练 $n$ 次）。</td>
+</tr>
+</table>
+
+<p>
+<span class="kp">错判率公式：</span>
+$$
+\text{Error Rate} = \frac{1}{n} \sum_{i=1}^{n} \mathbb{I}(\hat{y}_i \neq y_i) \times 100\%
+$$
+<span class="exp">其中 $\mathbb{I}(\cdot)$ 是指示函数，当预测类别 $\hat{y}_i$ 与真实类别 $y_i$ 不同时取1，否则取0。</span>
+</p>
+
+<h3>2.2 R代码实现：三种方法错判率计算 <span class="tag-key">重点</span></h3>
+<p><span class="kp">核心逻辑：对 $K=1$ 到 $30$ 循环，每种方法各自调用 <code>class::knn</code> 或 <code>knn.cv</code> 进行预测，计算误判比例。</span></p>
+
+<pre><code>err_resub &lt;- numeric(30)
+err_holdout &lt;- numeric(30)
+err_loocv &lt;- numeric(30)
+set.seed(12345)
+
+for(i in 1:30) {
+  # 1. 回代法 (Resubstitution) — 全量数据训练 &amp; 全量数据测试
+  fit_resub &lt;- knn(train = data_clf[, 1:2], test = data_clf[, 1:2],
+                    cl = data_clf[, 3], k = i)
+  err_resub[i] &lt;- mean(fit_resub != data_clf[, 3]) * 100
+
+  # 2. 留出法 (Holdout) — 训练集训练 &amp; 测试集测试
+  fit_holdout &lt;- knn(train = data_train[, 1:2], test = data_test[, 1:2],
+                      cl = data_train[, 3], k = i)
+  err_holdout[i] &lt;- mean(fit_holdout != data_test[, 3]) * 100
+
+  # 3. 留一法 (留一交叉验证 (LOOCV)) — 使用 knn.cv 自动执行 留一交叉验证 (LOOCV)
+  fit_loocv &lt;- knn.cv(train = data_clf[, 1:2], cl = data_clf[, 3], k = i)
+  err_loocv[i] &lt;- mean(fit_loocv != data_clf[, 3]) * 100
+}</code></pre>
+
+<blockquote>易错：<code>knn()</code> 的 <code>train</code> 和 <code>test</code> 参数只接受数值矩阵/数据框，不包含类别列；类别列通过 <code>cl</code> 参数单独传入。回代法中 <code>train</code> 和 <code>test</code> 指向同一数据，这是故意的——就是在同一份数据上评估。</blockquote>
+
+<h3>2.3 结果可视化 <span class="tag-key">重点</span></h3>
+<p>
+<span class="exp">将三条错判率曲线画在同一张图上，横轴为 $K$，纵轴为错误率（%），便于对比三种方法的评估行为差异。</span>
+</p>
+
+<pre><code>error_data &lt;- data.frame(
+  K = 1:30,
+  Resubstitution = err_resub,
+  Holdout = err_holdout,
+  留一交叉验证 (LOOCV) = err_loocv
+) %&gt;% pivot_longer(cols = -K, names_to = "Method", values_to = "ErrorRate")
+
+ggplot(error_data, aes(x = K, y = ErrorRate, color = Method, linetype = Method)) +
+  geom_line(size = 1) + theme_minimal() +
+  labs(title = "Error Rate vs. K Value by Evaluation Method",
+       y = "Error Rate (%)", x = "K") +
+  scale_y_continuous(limits = c(0, 80))</code></pre>
+
+<h3>2.4 K值对错判率的影响规律 <span class="tag-must">必考</span></h3>
+
+<p><strong>三条曲线的典型表现：</strong></p>
+<ul>
+  <li><span class="kp">回代法 (Resubstitution)：</span><span class="exp">$K=1$ 时误判率为 0%，随着 $K$ 增大单调上升。因为 $K=1$ 时每个样本的最近邻就是自己，完美分类自身；$K$ 越大，决策边界越平滑，越难以完美拟合训练数据。</span></li>
+  <li><span class="kp">留出法 (Holdout)：</span><span class="exp">曲线呈 U 形或波动下降后回升。$K$ 很小时方差大（对测试集中的个别点敏感），$K$ 增大到一定程度后误差趋于稳定或轻微上升。曲线波动较大，因为测试集只有18个样本，估�误差的方�本身较高。</span></li>
+  <li><span class="kp">留一法 (留一交叉验证 (LOOCV))：</span><span class="exp">在 $K$ 较小时误差较高（过拟合），随着 $K$ 增加先下降后趋于平坦或缓慢上升。曲线最平滑、最可靠，因为每个样本都被用作测试一次，评估最全面。</span></li>
+</ul>
+
+<blockquote>易错：三条曲线的 <strong>绝对数值不可直接比较</strong>——它们评估的是不同训练/测试配置下的表现。回代法必然给出最乐观的估计（最低误差），LOOCV给出最无偏的估计。考试常问：哪种方法的误差估计最接近真实泛化误差？答案是 留一交叉验证 (LOOCV)。</blockquote>
+
+<p><strong>K值选择的核心权衡：</strong></p>
+<ul>
+  <li><span class="kp">$K$ 太小（如 $K=1\sim3$）：</span><span class="exp">模型方差大，决策边界凹凸不平，容易过拟合训练数据中的随机噪声。在LOOCV和Holdout曲线上表现为高错误率。</span></li>
+  <li><span class="kp">$K$ 太大（如 $K\rightarrow n$）：</span><span class="exp">模型偏差大，决策边界过于平滑，可能忽略真实的局部模式。回代法误差逼近先验概率分布所决定的基础误差率。</span></li>
+  <li><span class="kp">最优 $K$：</span><span class="exp">通常通过交叉验证（如LOOCV）选择使错误率最低的 $K$ 值。本模拟中，LOOCV的优值通常在 $K=5\sim15$ 范围内。</span></li>
+</ul>
+
+<!-- ==================== Section 3 ==================== -->
+<h2 id="sec3">3. 三种评估方法对比 <span class="tag-must">必考</span> <span class="tag-read">细读</span></h2>
+
+<table>
+<tr><th>维度</th><th>回代法 (Resubstitution)</th><th>留出法 (Holdout)</th><th>留一法 (留一交叉验证 (LOOCV))</th></tr>
+<tr>
+  <td><span class="kp">偏差</span></td>
+  <td>严重低估（高偏差）</td>
+  <td>中等（受划分影响）</td>
+  <td>几乎无偏</td>
+</tr>
+<tr>
+  <td><span class="kp">方差</span></td>
+  <td>低（数据量最大）</td>
+  <td>高（依赖单次划分）</td>
+  <td>较高（样本少时）</td>
+</tr>
+<tr>
+  <td><span class="kp">计算开销</span></td>
+  <td>$O(1)$ 次训练</td>
+  <td>$O(1)$ 次训练</td>
+  <td>$O(n)$ 次训练</td>
+</tr>
+<tr>
+  <td><span class="kp">适用场景</span></td>
+  <td>仅作下界参考</td>
+  <td>数据量大、快速评估</td>
+  <td>小样本、需精确评估</td>
+</tr>
+<tr>
+  <td><span class="kp">$K=1$ 时典型误差</span></td>
+  <td>0%（完美记忆）</td>
+  <td>较高（约 40%~60%）</td>
+  <td>较高（约 40%~50%）</td>
+</tr>
+</table>
+
+<blockquote>易错：不要把「回代法误差率低」当作模型好——恰恰相反，回代法误差率越低说明模型过拟合越严重（尤其是 $K=1$ 时回代误差为0）。考试常设陷阱题：给出一张图让学生判断哪条曲线对应哪种方法，关键看 $K=1$ 时哪条在0%附近。</blockquote>
+
+<!-- ==================== Section 4 ==================== -->
+<h2 id="sec4">4. KNN回归预测模拟分析 <span class="tag-key">重点</span> <span class="tag-read">细读</span></h2>
+<p><span class="kp">KNN不仅可以做分类，还可以做回归。回归的目标变量 $Y$ 是连续数值型。</span><span class="exp">与分类的关键区别在于：分类用多数投票决定预测类别，回归用 $K$ 个最近邻的目标值取平均作为预测值。</span></p>
+
+<h3>4.1 回归数据生成 <span class="tag-read">细读</span></h3>
+<ul>
+  <li><span class="kp">X1：</span><span class="exp">$[-1,+1]$ 均匀分布</span></li>
+  <li><span class="kp">X2：</span><span class="exp">标准正态分布 $N(0,1)$</span></li>
+  <li><span class="kp">Y：</span><span class="exp">$[10,20]$ 均匀分布连续值</span></li>
+</ul>
+
+<h3>4.2 回归预测公式 <span class="tag-read">细读</span></h3>
+<p>
+<span class="kp">KNN回归的预测值等于 $K$ 个最近邻目标值的算术平均：</span>
+$$
+\hat{y} = \frac{1}{K} \sum_{i=1}^{K} y_{(i)}
+$$
+<span class="exp">其中 $y_{(i)}$ 是按距离排序后第 $i$ 近的邻居的目标值。也可以使用距离加权平均（如核函数加权），但基础版本就是简单平均。</span>
+</p>
+
+<h3>4.3 R代码（caret::knnreg）<span class="tag-freq">高频</span></h3>
+<p><span class="exp">注意：分类任务使用 <code>class::knn</code>，回归任务必须使用 <code>caret::knnreg</code>（或 <code>FNN::knn.reg</code>），否则 <code>class::knn</code> 会将连续目标变量强制转为无意义的因子。</span></p>
+
+<pre><code>library(caret)
+mse_vector &lt;- numeric(30)
+for(i in 1:30) {
+  knn_reg_model &lt;- knnreg(Fy ~ Fx1 + Fx2, data = data_train_reg, k = i)
+  preds &lt;- predict(knn_reg_model, newdata = data_test_reg)
+  mse_vector[i] &lt;- mean((data_test_reg$Fy - preds)^2)
+}</code></pre>
+
+<h3>4.4 回归评估指标：均方误差 (MSE) <span class="tag-key">重点</span></h3>
+<p>
+<span class="kp">均方误差（Mean Squared Error）：</span>
+$$
+\text{均方误差 (MSE)} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+<span class="exp">均方误差 (MSE) 衡量预测值与真实值之间的平均平方距离。均方误差 (MSE) 越小越好，对异常值敏感（因为平方放大了大误差的影响）。在KNN回归中，均方误差 (MSE) vs K 的曲线通常也呈 U 形，最优 $K$ 取 均方误差 (MSE) 最低点。</span>
+</p>
+
+<blockquote>易错：分类用「错判率」（Error Rate），回归用「均方误差 (MSE)」或 RMSE。两者不可混淆——分类任务的评估指标是0-1损失的比例，回归任务是连续误差的平方均值。考试中若把回归的MSE公式套到分类题上，拿不到分。</blockquote>
+
+<!-- ==================== Section 5 ==================== -->
+<h2 id="sec5">5. 案例分析：预测顾客消费决策 <span class="tag-key">重点</span> <span class="tag-read">细读</span></h2>
+<p><span class="kp">实战KNN建模全流程：数据预处理 → 超参数调优 → 模型评估 → 变量重要性分析。</span></p>
+
+<h3>5.1 数据预处理 <span class="tag-freq">高频</span></h3>
+<p>
+<span class="kp">KNN计算距离时，数值型变量必须先标准化（center + scale），否则量纲大的变量会主导距离计算。</span>
+<span class="exp">例如 Age 的范围是 20~60，Income 的范围是 20000~80000——不标准化的�况下，Income 对距离的贡献远大于 Age，导致模型被 Income 主导。</span>
+</p>
+<pre><code>real_data$Income &lt;- as.factor(real_data$Income)
+real_data$Gender &lt;- as.factor(real_data$Gender)
+real_data$Purchase &lt;- as.factor(real_data$Purchase)</code></pre>
+
+<h3>5.2 使用 caret + kknn 进行超参数调优 <span class="tag-must">必考</span></h3>
+<p>
+<span class="kp">caret 框架提供统一的训练接口，kknn 包支持带核函数加权的KNN。</span>
+<span class="exp">使用 10 折交叉验证（10-fold CV）自动搜索最优的超参数组合。</span>
+</p>
+
+<pre><code>train_control &lt;- trainControl(method = "cv", number = 10)
+set.seed(123)
+
+knn_grid &lt;- expand.grid(
+  kmax = seq(3, 25, by = 2),       # 最大邻居数
+  distance = 2,                     # 闵可夫斯基距离阶数 (2=欧氏距离)
+  kernel = c("rectangular", "triangular", "gaussian")
+)
+
+knn_model &lt;- train(
+  Purchase ~ Age + Gender + Income,
+  data = real_train,
+  method = "kknn",
+  trControl = train_control,
+  tuneGrid = knn_grid,
+  preProcess = c("center", "scale")  # 标准化
+)</code></pre>
+
+<h3>5.3 调优结果解读 <span class="tag-read">细读</span></h3>
+<p>
+<span class="kp">最佳参数组合由 <code>knn_model$bestTune</code> 输出。</span>
+<span class="exp">本例中最佳配置为 kmax=5, kernel=triangular, distance=2。交叉验证准确率曲线随 kmax 增加先升后降，triangular 核通常表现优于 rectangular（不加权）和 gaussian。</span>
+</p>
+
+<h3>5.4 变量重要性 <span class="tag-info">了解</span></h3>
+<p>
+<span class="kp">varImp() 函数基于 ROC 曲线下面积评估各变量对分类的贡献。</span>
+<span class="exp">在本案例中，Income 是最重要的预测变量（重要性约100），其次是 Gender，最后是 Age。这说明顾客的收入水平对消费决策的影响最大。</span>
+</p>
+
+<pre><code>importance &lt;- varImp(knn_model, scale = TRUE)
+plot(importance, main = "kNN Variable Importance (ROC curve area)")</code></pre>
+
+<blockquote>易错：变量重要性在KNN中不如在树模型中可靠。KNN是"懒学习"方法，没有显式的参数权重，varImp 是通过扰动变量的方式间接评估的，结果仅供参考，不可过度解读。</blockquote>
+
+</body>
+</html>

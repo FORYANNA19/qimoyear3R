@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1讲-知识清单 — 课程简介与机器学习概论</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+nav.breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; }
+nav.breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #1a237e; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; }
+.exp { color: #888; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+blockquote.bad { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; }
+blockquote.bad::before { content: "易错："; font-weight: bold; color: #c62828; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; font-family: 'Cambria Math', 'Latin Modern Math', serif; overflow-x: auto; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<nav class="breadcrumb">
+  深度学习模式 / <strong>第1讲-知识清单</strong> | 上一章(无) | <a href="#">下一章 →</a>
+</nav>
+
+<h1>第1讲：课程简介与机器学习概论</h1>
+<p class="subtitle">上海对外经贸大学 · 数据挖掘与机器学习 · 王昭文 · 2026年3月2日</p>
+
+<!-- ── 1. 课程简介 ── -->
+<h2>一、课程简介 <span class="tag-info">了解</span></h2>
+<p>本节概要：介绍课程的基本信息、考核方式与学习目标，帮助建立对课程的整体框架认知。</p>
+
+<h3>1.1 学习目标</h3>
+<ul>
+  <li>理解现有<span class="kp">机器学习模型</span>的基本原理和主要思想：决策树、随机森林、支持向量机等</li>
+  <li>能够为具体实际应用问题提供适当的<span class="kp">模型和算法</span>，为实习实践和竞赛做好准备</li>
+</ul>
+
+<h3>1.2 参考书</h3>
+<ul>
+  <li><span class="kp">ISLR</span>：<span class="exp">Gareth James et al., An Introduction to Statistical Learning with Applications in R, Springer, 2013</span></li>
+  <li><span class="kp">ESL</span>：<span class="exp">Hastie, Tibshirani & Friedman, The Elements of Statistical Learning (2nd Ed.), 2008</span></li>
+  <li><span class="kp">《统计学习方法》</span>：<span class="exp">李航，清华大学出版社，2012</span></li>
+  <li><span class="kp">《机器学习》</span>：<span class="exp">周志华，2016（俗称"西瓜书"）</span></li>
+</ul>
+
+<!-- ── 2. 为什么机器学习 ── -->
+<h2>二、为什么机器学习 <span class="tag-freq">高频</span></h2>
+<h3>2.1 动机：为什么需要机器学习？</h3>
+<ul>
+  <li><span class="kp">海量数据</span>：<span class="exp">信息爆炸时代，人工/手动处理效率极低，传统方法不再适用</span></li>
+  <li><span class="kp">数据特性</span>：<span class="exp">流量大、维数高、数据分布复杂</span></li>
+  <li><span class="kp">技术驱动</span>：<span class="exp">大规模廉价数据无处不在（互联网、金融、生物、天文等）+ 快速处理器使算法实现成为可能</span></li>
+  <li><span class="kp">学科融合</span>：<span class="exp">机器学习是计算机科学与统计学发展的重要组成部分</span></li>
+</ul>
+
+<!-- ── 3. 什么是机器学习 ── -->
+<h2>三、什么是机器学习 <span class="tag-must">必考</span></h2>
+<h3>3.1 AI → ML → DL 的关系</h3>
+<ul>
+  <li><span class="kp">人工智能（AI）</span><span class="tag-key">重点</span>：<span class="exp">由计算机科学、控制论、信息论、神经生理学、心理学、数学、统计学、哲学等交叉形成的综合性学科</span></li>
+  <li><span class="kp">机器学习（ML）</span><span class="tag-key">重点</span>：<span class="exp">从AI中产生的重要学科分支，是实现智能化的关键。ML是AI中的一步，属于程序范畴</span></li>
+  <li><span class="kp">深度学习（DL）</span>：<span class="exp">ML中发展最火热的分支，本质上就是传统的神经网络发展到多隐藏层的情况</span></li>
+</ul>
+
+<div class="note">
+  <strong>关系链</strong>：AI ⊃ ML ⊃ DL，即深度学习 ⊆ 机器学习 ⊆ 人工智能。
+</div>
+
+<h3>3.2 传统编程 vs 机器学习</h3>
+
+<table>
+  <tr><th>维度</th><th>传统编程</th><th>机器学习</th></tr>
+  <tr><td>输入</td><td>数据(Data) + 规则(Rules)</td><td>数据(Data) + 答案(Answers)</td></tr>
+  <tr><td>输出</td><td>答案(Answers)</td><td>规则(Rules)</td></tr>
+  <tr><td>方式</td><td>硬编码规则</td><td>从数据中自动学习规律</td></tr>
+</table>
+
+<h3>3.3 Mitchell 的机器学习定义 <span class="tag-must">必考</span></h3>
+<p><span class="kp">Mitchell (1997) 定义</span>：</p>
+<div class="formula-block">
+  <strong>中文：</strong>假定用P来评估计算机程序在某个任务T上的性能，若一个程序通过利用经验E在T上的任务获得了改善，则我们说关于T和P，该程序对E进行了学习。<br>
+  <strong>英文：</strong>A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.
+</div>
+
+<ul>
+  <li><span class="kp">任务T (Task)</span>：<span class="exp">任务 —— 要完成的事情（如：下围棋、预测天气）</span></li>
+  <li><span class="kp">性能目标P (Performance)</span>：<span class="exp">性能目标 —— 评价做得好不好（如：击败对手的百分比）</span></li>
+  <li><span class="kp">训练经验E (Experience)</span>：<span class="exp">经验 —— 学习的来源（如：与自己对弈、看棋谱）</span></li>
+</ul>
+
+<h4>实例：围棋</h4>
+<ul>
+  <li>T：<span class="exp">下围棋</span></li>
+  <li>P：<span class="exp">比赛中击败对手的百分比</span></li>
+  <li>E：<span class="exp">和自己进行对弈，或看棋谱</span></li>
+</ul>
+
+<blockquote class="bad">很多人混淆 P（性能度量）和 T（任务本身），例如把"预测天气"当作P，而P应该是"预测正确的概率"。</blockquote>
+
+<h3>3.4 实现机器学习的五个步骤</h3>
+<p>机器学习研究的对象是数据，即从数据出发，提取数据的特征或者规律，抽象出数据模型，利用学习的模型对新数据进行预测或分析</p>
+<ol>
+  <li>得到一个有限的<span class="kp">训练数据集合</span></li>
+  <li>确定包含所有可能模型的<span class="kp">假设空间</span>（即学习模型的集合）</li>
+  <li>确定模型选择的准则，即<span class="kp">学习的策略</span></li>
+  <li>通过某种<span class="kp">算法</span>求解最优的模型</li>
+  <li>利用学习的最优模型对<span class="kp">新数据</span>进行预测或分析</li>
+</ol>
+
+<div class="formula-block">
+  <strong>机器学习 = 数据 + 模型 + 策略 + 算法</strong>
+</div>
+
+<!-- ── 4. ML与相关学科 ── -->
+<h2>四、机器学习与相关学科 <span class="tag-freq">高频</span></h2>
+<h3>4.1 机器学习与数据挖掘</h3>
+<table>
+  <tr><th>维度</th><th>机器学习</th><th>数据挖掘</th></tr>
+  <tr><td>核心</td><td>学习算法与模型</td><td>从海量数据中发现知识</td></tr>
+  <tr><td>技术来源</td><td>计算机科学</td><td>数据库、机器学习、统计学</td></tr>
+  <tr><td>角色</td><td>提供数据分析技术</td><td>利用ML和统计学技术</td></tr>
+  <tr><td>关系</td><td colspan="2">数据库为DM提供数据管理技术，ML/统计学为DM提供分析技术</td></tr>
+</table>
+
+<h3>4.2 机器学习与统计学 <span class="tag-key">重点</span></h3>
+<table>
+  <tr><th>维度</th><th>统计学</th><th>机器学习</th></tr>
+  <tr><td>联系</td><td colspan="2">统计学习与机器学习高度重叠；ML中大多数方法来自统计学（如SVM源自统计学）</td></tr>
+  <tr><td>关注点</td><td>统计模型的发展与优化、模型稳定性，<span class="kp">模型驱动</span></td><td>能否解决问题、算法效率与准确性，<span class="kp">算法驱动</span></td></tr>
+  <tr><td>倾向</td><td>偏数学、偏理论</td><td>偏实践、偏工程</td></tr>
+  <tr><td>术语</td><td>Estimation, Data point, Covariate, Response</td><td>Learning, Example/Instance, Feature, Label</td></tr>
+</table>
+
+<h3>4.3 术语对照表 <span class="tag-key">重点</span></h3>
+<table>
+  <tr><th>统计学</th><th>机器学习</th><th>中文</th></tr>
+  <tr><td>Estimation</td><td>Learning</td><td>估计/学习</td></tr>
+  <tr><td>Data point/Sample</td><td>Example/Instance</td><td>数据点/样本/实例</td></tr>
+  <tr><td>Covariate/Predictor</td><td>Feature/Input</td><td>特征/输入变量</td></tr>
+  <tr><td>Response/Dependent var.</td><td>Label/Output</td><td>响应变量/标签</td></tr>
+  <tr><td>Regression/Classification</td><td>Supervised Learning</td><td>回归/分类 → 监督学习</td></tr>
+  <tr><td>Fit a model</td><td>Learn/Train a machine</td><td>拟合模型/训练机器</td></tr>
+</table>
+
+<h3>4.4 机器学习与大数据</h3>
+<p><span class="kp">核心逻辑</span>：<span class="exp">收集、传输、存储大数据的目的是为了利用大数据；没有ML技术分析大数据，"利用"无从谈起。</span></p>
+
+<!-- ── 5. ML应用 ── -->
+<h2>五、机器学习的典型应用 <span class="tag-info">了解</span></h2>
+<p>本节概要：了解ML在各个领域的实际应用案例，建立感性认识。</p>
+
+<ul>
+  <li><span class="kp">AlphaGo</span>：<span class="exp">DeepMind开发，先后击败李世石（4:1）和柯洁（3:0）</span></li>
+  <li><span class="kp">Netflix推荐系统</span>：<span class="exp">利用评分数据、播放数据、喜好数据、社交数据做个性化推荐</span></li>
+  <li><span class="kp">无人驾驶</span>：<span class="exp">Google Waymo、百度Apollo</span></li>
+  <li><span class="kp">奥巴马竞选</span>：<span class="exp">ML团队利用社交网络数据精准定位选民，帮助筹集10亿美元</span></li>
+  <li><span class="kp">垃圾邮件分类</span>：<span class="exp">根据邮件中常见单词和标点符号的相对频率判断是否为垃圾邮件</span></li>
+  <li><span class="kp">手写数字识别</span>：<span class="exp">16×16像素灰度图，识别0-9数字</span></li>
+</ul>
+
+<!-- ── 6. ML分类 ── -->
+<h2>六、机器学习的分类 <span class="tag-must">必考</span></h2>
+<p>本节概要：机器学习按学习方式分为监督学习、无监督学习、半监督学习和强化学习，必须掌握各类型的特征与区别。</p>
+
+<h3>6.1 三大类别 <span class="tag-must">必考</span></h3>
+<ul>
+  <li><span class="kp">监督学习（Supervised Learning）</span>：<span class="exp">有输入(X)也有输出(Y)标签数据，学习从X到Y的映射</span></li>
+  <li><span class="kp">无监督学习（Unsupervised Learning）</span>：<span class="exp">只有输入(X)没有输出标签，任务是描述数据如何组织或聚集</span></li>
+  <li><span class="kp">强化学习（Reinforcement Learning）</span>：<span class="exp">通过与环境交互获得奖励/惩罚来学习策略</span></li>
+</ul>
+
+<h3>6.2 监督学习 <span class="tag-must">必考</span></h3>
+<h4>定义</h4>
+<p>在典型的场景中，我们感兴趣的输出结果通常是<span class="kp">定量的</span>（如股票价格）或<span class="kp">分类的</span>（如购买/不购买），我们根据一组输入/特征来预测输出。</p>
+
+<h4>基本设定</h4>
+<ul>
+  <li><span class="kp">输入变量X</span>：<span class="exp">又称特征向量(feature vector)，输入变量取值的空间称为特征空间</span></li>
+  <li><span class="kp">输出变量Y</span>：<span class="exp">输出变量取值的空间称为输出空间</span></li>
+  <li><span class="kp">训练数据集</span>：<span class="exp">$$\mathcal{T} = \{(\mathbf{x}_1, y_1), (\mathbf{x}_2, y_2), \ldots, (\mathbf{x}_N, y_N)\}$$ 共N个样本，每个样本包含输入x_i和对应输出y_i</span></li>
+  <li><span class="kp">决策函数</span>：<span class="exp">目标是从训练数据中学习一个映射 $$f: \mathcal{X} \to \mathcal{Y}$$，使得对新的输入 $$x_{new}$$，有预测值 $$\hat{y} = f(x_{new})$$</span></li>
+</ul>
+
+<h4>两类问题</h4>
+<ul>
+  <li><span class="kp">分类（Classification）</span>：<span class="exp">输出Y是离散类别标签，如垃圾邮件 vs 正常邮件，数字0-9</span></li>
+  <li><span class="kp">回归（Regression）</span>：<span class="exp">输出Y是连续数值，如股票价格、股价交易量</span></li>
+</ul>
+
+<h4>常见监督学习算法</h4>
+<ul>
+  <li>线性回归 (Linear Regression)</li>
+  <li>逻辑回归 (Logistic Regression)</li>
+  <li>贝叶斯分类 (Naive Bayes)</li>
+  <li>决策树 (Decision Tree)</li>
+  <li>支持向量机)</li>
+  <li>K近邻法 (K-Nearest Neighbors)</li>
+  <li>神经网络 (Neural Network)</li>
+</ul>
+
+<blockquote class="bad">分类和回归的选择依赖于输出变量的类型，不是输入变量的类型。预测"明天是否下雨"是分类问题（Yes/No），预测"明天的降雨量"是回归问题。预测"明天微软股票交易量"是回归问题，因为交易量是连续数值。</blockquote>
+
+<h3>6.3 无监督学习 <span class="tag-key">重点</span></h3>
+<h4>定义</h4>
+<p>在无监督学习中，我们只观察特征向量而没有测量输出。任务是<span class="kp">描述数据是如何组织或聚集的</span>。</p>
+
+<h4>训练集形式</h4>
+<div class="formula-block">
+  $$\mathcal{T} = \{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_N\}, \quad \mathbf{x}_i \in \mathbb{R}^p$$
+  只有输入特征，没有输出标签。
+</div>
+
+<h4>主要类型</h4>
+<ul>
+  <li><span class="kp">聚类（Clustering）</span>：<span class="exp">找到这样的簇 —— 同一族内数据点更"相似"，不同族之间"不太相似"</span>
+    <ul>
+      <li>市场分割：根据客户变量找到相似客户群</li>
+      <li>文档聚类：根据重要术语找出相似文档</li>
+      <li>股票分类：根据每日走势进行分类</li>
+      <li>DNA微阵列分析 / 谷歌新闻专题聚类</li>
+    </ul>
+  </li>
+  <li><span class="kp">降维（Dimensionality Reduction）</span>：<span class="exp">减少特征数量，同时保留主要信息</span></li>
+</ul>
+
+<h3>6.4 半监督学习（Semi-supervised Learning）</h3>
+<p><span class="exp">同时利用有标记数据(labelled)和无标记数据(unlabelled)来建立分类或预测模型。数据：$$\mathcal{T} = \{(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_l, y_l)\} \cup \{\mathbf{x}_{l+1}, \ldots, \mathbf{x}_N\}$$，通常$$l \ll N$$（标记数据远少于未标记数据）。应用：识别网页真假新闻、医学影像分析、网页推荐。</span></p>
+
+<h3>6.5 没有免费的午餐（No Free Lunch Theorem）<span class="tag-key">重点</span></h3>
+<p><span class="kp">核心思想</span>：如果算法A在情况1下表现优于算法B，那么必然存在情况2使得算法B优于算法A —— <span class="kp">理论上没有一致最优的算法！</span></p>
+<p>脱离实际情况而空谈哪个算法好是<span class="kp">没有意义</span>的。</p>
+
+<!-- ── 7. ML三要素 ── -->
+<h2>七、机器学习三要素 <span class="tag-must">必考</span></h2>
+<p>本节概要：任何机器学习方法都由模型、策略、算法三要素构成，是课程最核心的理论框架。</p>
+
+<h3>7.1 模型（Model）<span class="tag-key">重点</span></h3>
+<p>机器学习首先要考虑的是学习什么样的模型。在监督学习中，模型就是要学习的<span class="kp">决策函数</span>或<span class="kp">条件概率分布</span>。</p>
+<div class="formula-block">
+  <strong>假设空间：</strong>$$\mathcal{F} = \{f \mid Y = f(X)\} \quad \text{或} \quad \mathcal{F} = \{P \mid P(Y \mid X)\}$$
+  假设空间包含所有可能的条件概率分布或决策函数的集合。
+</div>
+
+<h3>7.2 策略（Strategy）<span class="tag-must">必考</span></h3>
+<p>策略回答的问题是：按照什么样的<span class="kp">准则</span>从假设空间中选择最优模型。</p>
+
+<h4>损失函数（Loss Function）</h4>
+<p><span class="kp">定义</span>：损失函数用来度量预测错误的程度，是预测值 $$f(X)$$ 与真实值 $$Y$$ 的<span class="kp">非负实值函数</span>，记作 $$L(Y, f(X))$$。</p>
+
+<table>
+  <tr><th>名称</th><th>公式</th><th>说明</th></tr>
+  <tr>
+    <td>0-1损失 (0-1 Loss)</td>
+    <td>$$L(Y, f(X)) = \begin{cases} 0, & Y = f(X) \\ 1, & Y \neq f(X) \end{cases}$$</td>
+    <td>分类问题最基本损失</td>
+  </tr>
+  <tr>
+    <td>平方损失 (Squared Loss)</td>
+    <td>$$L(Y, f(X)) = (Y - f(X))^2$$</td>
+    <td>回归问题最常用</td>
+  </tr>
+  <tr>
+    <td>绝对值损失 (Absolute Loss)</td>
+    <td>$$L(Y, f(X)) = |Y - f(X)|$$</td>
+    <td>对异常值更稳健</td>
+  </tr>
+  <tr>
+    <td>对数损失 (Log Loss)</td>
+    <td>$$L(Y, P(Y \mid X)) = -\log P(Y \mid X)$$</td>
+    <td>分类概率模型</td>
+  </tr>
+  <tr>
+    <td>Huber损失</td>
+    <td>L2和L1的组合</td>
+    <td>综合两者优点</td>
+  </tr>
+  <tr>
+    <td>合页损失 (Hinge Loss)</td>
+    <td>$$L(Y, f(X)) = \max(0, 1 - Y \cdot f(X))$$</td>
+    <td>SVM使用</td>
+  </tr>
+</table>
+
+<h4>期望损失（风险函数）</h4>
+<div class="formula-block">
+  $$R_{\text{exp}}(f) = \mathbb{E}_{(X,Y) \sim P}[L(Y, f(X))] = \int L(y, f(x)) \, dP(x, y)$$
+  理论上决策函数 $$f(X)$$ 关于联合分布 $$P(X,Y)$$ 的平均损失，又称<strong>风险函数 (Risk Function)</strong> 或<strong>期望损失 (Expected Loss)</strong>。
+</div>
+
+<p><span class="kp">理论上最优决策函数</span>：$$f^* = \arg\min_{f \in \mathcal{F}} R_{\text{exp}}(f)$$</p>
+
+<h4>经验损失（经验风险）<span class="tag-must">必考</span></h4>
+<p>由于 $$P(X,Y)$$ 未知，用<span class="kp">训练数据上的平均损失</span>来代替：</p>
+<div class="formula-block">
+  $$R_{\text{emp}}(f) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(\mathbf{x}_i))$$
+  经验风险最小化（ERM）：
+  $$f^* = \arg\min_{f \in \mathcal{F}} R_{\text{emp}}(f)$$
+</div>
+
+<blockquote class="bad">当样本量很小时，经验风险最小化容易产生"过拟合"（over-fitting）！因为模型可能过度拟合训练数据的噪声，导致泛化能力差。</blockquote>
+
+<h4>结构风险最小化（SRM）<span class="tag-must">必考</span></h4>
+<p>为防止过拟合，在经验风险上加入<span class="kp">正则化项（regularizer）/罚项（penalty term）</span>：</p>
+<div class="formula-block">
+  $$R_{\text{str}}(f) = R_{\text{emp}}(f) + \lambda \cdot J(f)$$
+  其中：
+  <ul>
+    <li>$$J(f)$$：模型复杂度，模型越复杂 $$J(f)$$ 越大</li>
+    <li>$$\lambda > 0$$：正则化系数，权衡经验风险和模型复杂度</li>
+  </ul>
+  结构风险最小化：
+  $$f^* = \arg\min_{f \in \mathcal{F}} \left[ \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(\mathbf{x}_i)) + \lambda \cdot J(f) \right]$$
+</div>
+
+<p><span class="kp">本质</span>：<span class="exp">结构风险最小化 = 经验风险最小化 + 正则化（Regularization），在拟合数据和模型复杂度之间取得平衡。</span></p>
+
+<h3>7.3 算法（Algorithm）<span class="tag-key">重点</span></h3>
+<p>算法是指学习模型的<span class="kp">具体计算方法</span>。机器学习问题最终都会归结为<span class="kp">最优化问题</span>。</p>
+<p>机器学习方法的不同主要来自于<span class="kp">模型、策略以及算法</span>的不同。</p>
+
+<!-- ── 8. 线性回归 ── -->
+<h2>八、线性回归模型（三要素实例）<span class="tag-must">必考</span></h2>
+<p>本节概要：以线性回归为例，完整展示ML三要素如何具体落地。</p>
+
+<h3>8.1 模型</h3>
+<div class="formula-block">
+  <strong>决策函数：</strong>$$f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b$$
+  或写成：$$f(\mathbf{x}) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_p x_p$$
+  <strong>假设空间：</strong>$$\mathcal{F} = \{f \mid f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b, \mathbf{w} \in \mathbb{R}^p, b \in \mathbb{R}\}$$
+</div>
+
+<h3>8.2 策略</h3>
+<p>采用<span class="kp">L-2损失</span>（平方损失），通过<span class="kp">最小二乘法</span>求解：</p>
+<div class="formula-block">
+  $$\min_{\beta} \sum_{i=1}^{N} (y_i - \beta_0 - \beta_1 x_{i1} - \cdots - \beta_p x_{ip})^2$$
+  写成矩阵形式（含截距项）：
+  $$\min_{\boldsymbol{\beta}} \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2$$
+  其中 $$\mathbf{X}$$ 是 $$N \times (p+1)$$ 设计矩阵，第一列全为1（截距项）。
+</div>
+
+<h3>8.3 算法</h3>
+<p><span class="kp">解析解</span>（正规方程 Normal Equation）：</p>
+<div class="formula-block">
+  $$\hat{\boldsymbol{\beta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
+  可通过 <strong>QR分解</strong> 或 <strong>Cholesky分解</strong> 求解最小二乘问题。
+</div>
+
+<h3>8.4 梯度下降法 <span class="tag-must">必考</span></h3>
+<p>当数据量大或 $$X^TX$$ 不可逆时，使用迭代优化方法：</p>
+<div class="formula-block">
+  <strong>目标函数：</strong>$$J(\boldsymbol{\beta}) = \frac{1}{N} \sum_{i=1}^{N} (y_i - \mathbf{x}_i^T \boldsymbol{\beta})^2$$
+  <strong>梯度：</strong>$$\nabla J(\boldsymbol{\beta}) = -\frac{2}{N} \mathbf{X}^T (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$$
+  <strong>迭代公式：</strong>$$\boldsymbol{\beta}^{(k+1)} = \boldsymbol{\beta}^{(k)} - \eta \cdot \nabla J(\boldsymbol{\beta}^{(k)})$$
+  其中 $$\eta$$ 为步长/学习率(learning rate)。
+</div>
+
+<h4>梯度下降法步骤</h4>
+<ol>
+  <li>给定初始值 $$\boldsymbol{\beta}^{(0)}$$ 以及步长 $$\eta$$</li>
+  <li>更新：$$\boldsymbol{\beta}^{(k+1)} = \boldsymbol{\beta}^{(k)} - \eta \cdot \nabla J(\boldsymbol{\beta}^{(k)})$$</li>
+  <li>重复步骤2，直到满足收敛标准</li>
+</ol>
+
+<h3>8.5 结构风险：岭回归（Ridge Regression）<span class="tag-key">重点</span></h3>
+<p>在线性回归中加入L-2正则化：</p>
+<div class="formula-block">
+  $$\hat{\boldsymbol{\beta}}_{\text{ridge}} = \arg\min_{\boldsymbol{\beta}} \left[ \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2 + \lambda \|\boldsymbol{\beta}\|_2^2 \right]$$
+  <strong>解析解：</strong>$$\hat{\boldsymbol{\beta}}_{\text{ridge}} = (\mathbf{X}^T \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^T \mathbf{y}$$
+</div>
+
+<!-- ── 9. 逻辑回归 ── -->
+<h2>九、逻辑回归（Logistic Regression）<span class="tag-must">必考</span></h2>
+<p>本节概要：逻辑回归是分类问题的基础模型，通过Sigmoid函数将线性输出映射为概率。</p>
+
+<h3>9.1 模型</h3>
+<p><span class="kp">核心思想</span>：构造输入X与输出Y（取0/1值）的<span class="kp">条件概率模型</span> $$P(Y \mid X)$$。</p>
+
+<h4>Sigmoid函数 <span class="tag-must">必考</span></h4>
+<div class="formula-block">
+  $$P(Y = 1 \mid \mathbf{x}) = \frac{1}{1 + e^{-(\mathbf{w}^T \mathbf{x} + b)}} = \sigma(\mathbf{w}^T \mathbf{x} + b)$$
+  其中 $$\sigma(z) = \frac{1}{1 + e^{-z}}$$ 为 Sigmoid 函数。
+</div>
+
+<p><span class="kp">设计原则</span>：<span class="exp">① 将线性输出映射到[0,1]区间（作为概率）；② 线性输出越大，变换后的概率越大。</span></p>
+
+<h3>9.2 对数几率（Logit）<span class="tag-key">重点</span></h3>
+
+<div class="formula-block">
+  <strong>几率（Odds）：</strong>$$\text{odds} = \frac{P(Y=1)}{P(Y=0)} = \frac{p}{1-p}$$
+  <strong>对数几率（Logit）：</strong>$$\log\frac{p}{1-p} = \mathbf{w}^T \mathbf{x} + b$$
+</div>
+
+<p>这解释了名称由来：<span class="kp">Logistic回归实际上是在用线性回归模型的预测结果去逼近真实标记的对数几率</span>，因此又被称为"<span class="kp">对数几率回归</span>"。</p>
+
+<h3>9.3 参数求解</h3>
+
+<h4>似然函数</h4>
+<p>记 $$p_i = P(Y = 1 \mid \mathbf{x}_i) = \sigma(\mathbf{w}^T \mathbf{x}_i + b)$$，则：</p>
+<div class="formula-block">
+  <strong>似然函数：</strong>$$L(\mathbf{w}) = \prod_{i=1}^{N} p_i^{y_i} (1 - p_i)^{1 - y_i}$$
+  <strong>负对数似然（损失函数）：</strong>
+  $$\ell(\mathbf{w}) = -\sum_{i=1}^{N} \left[ y_i \log p_i + (1 - y_i) \log (1 - p_i) \right]$$
+</div>
+
+<p>逻辑回归的优化问题：</p>
+<div class="formula-block">
+  $$\min_{\mathbf{w}} \ell(\mathbf{w}) = \min_{\mathbf{w}} -\sum_{i=1}^{N} \left[ y_i \log \sigma(\mathbf{w}^T \mathbf{x}_i) + (1 - y_i) \log (1 - \sigma(\mathbf{w}^T \mathbf{x}_i)) \right]$$
+  <strong>注：没有显式解析解！</strong>需要用迭代优化方法。
+</div>
+
+<h4>梯度下降法求解</h4>
+<div class="formula-block">
+  <strong>梯度：</strong>$$\nabla \ell(\mathbf{w}) = -\sum_{i=1}^{N} (y_i - p_i) \mathbf{x}_i = -\mathbf{X}^T (\mathbf{y} - \mathbf{p})$$
+  <strong>迭代公式：</strong>$$\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \eta \cdot \nabla \ell(\mathbf{w}^{(k)})$$
+</div>
+
+<h3>9.4 分类决策 <span class="tag-key">重点</span></h3>
+<p>学到模型后，对新输入x的分类决策：</p>
+<div class="formula-block">
+  $$\hat{y} = \begin{cases} 1, & \text{if } P(Y=1 \mid \mathbf{x}) \geq 0.5 \\ 0, & \text{otherwise} \end{cases}$$
+  等价于：$$\hat{y} = 1 \iff \mathbf{w}^T \mathbf{x} + b \geq 0$$
+</div>
+
+<p><span class="kp">结论</span>：<span class="exp">本质上，逻辑回归是<strong>线性分类器</strong>！决策边界为 $$\mathbf{w}^T \mathbf{x} + b = 0$$。</span></p>
+
+<blockquote class="bad">很多人误以为逻辑回归是非线性分类器，因为它用了Sigmoid变换。实际上Sigmoid只是将线性输出映射到概率，决策边界 $$\mathbf{w}^T \mathbf{x} + b = 0$$ 仍然是一条直线（超平面）。</blockquote>
+
+<!-- ── 10. 小结 ── -->
+<h2>十、本讲小结</h2>
+<ul>
+  <li>机器学习定义（Mitchell 1997）：T（任务）、P（性能度量）、E（经验）</li>
+  <li>机器学习分类：监督学习 vs 无监督学习 vs 强化学习</li>
+  <li>监督学习 vs 无监督学习的核心区别：是否有输出标签Y</li>
+  <li>分类 vs 回归：输出Y是离散还是连续</li>
+  <li>机器学习三要素：模型、策略、算法</li>
+  <li>损失函数：0-1损失、平方损失、对数损失等</li>
+  <li>经验风险 vs 期望风险 vs 结构风险</li>
+  <li>结构风险 = 经验风险 + λ·模型复杂度（正则化）</li>
+  <li>线性回归：模型=线性函数，策略=最小二乘(L2损失)，算法=正规方程/梯度下降</li>
+  <li>逻辑回归：Sigmoid函数 → 对数几率 → 负对数似然 → 梯度下降 → 线性分类器</li>
+  <li>No Free Lunch Theorem：没有一致最优的算法</li>
+</ul>
+
+</body>
+</html>

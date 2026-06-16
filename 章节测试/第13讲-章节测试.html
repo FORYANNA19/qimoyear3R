@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>第13讲 · SVM回顾与关联规则 — 章节测试</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root {
+  --paper: #fdf6e3; --paper-dark: #f5ecd7; --ink: #2c2c2c; --ink-light: #555;
+  --accent: #2563eb; --accent-hover: #1d4ed8; --divider: #d6c8a8;
+  --card-bg: #fef9ef; --card-border: #e8dcc8;
+  --correct: #22c55e; --correct-bg: #f0fdf4;
+  --wrong: #ef4444; --wrong-bg: #fef2f2;
+  --radius: 6px;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+}
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef; padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* Questions */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0; transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em; background: #fefcf5;
+}
+.option:hover { background: #f0ede0; }
+.option input { margin-right: 6px; }
+.option.selected { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); }
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+.q-code {
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 0.88em; line-height: 1.5; background: #1e1e2e; color: #e0e0e0;
+  tab-size: 4; white-space: pre;
+}
+.badge-partial { background: #fef3c7; color: #92400e; }
+.q-card.partial { border-color: #f59e0b; }
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover { background: var(--accent-hover); }
+.grading-bar button:disabled { background: #bbb; cursor: not-allowed; }
+.fill-input { border: 1px solid var(--card-border); padding: 2px 6px; border-radius: 3px; font-size: 0.93em; margin: 0 4px; }
+.fill-ok { border-color: var(--correct) !important; background: var(--correct-bg) !important; }
+.fill-no { border-color: var(--wrong) !important; background: var(--wrong-bg) !important; }
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>第13讲 · SVM回顾与关联规则 — 章节测试</h1>
+<p style="text-align:center;color:var(--ink-light);font-size:0.9em;">满分 100 分 | 建议 60 分钟 | 选择答案后点击「提交批改」</p>
+
+<div id="score-box">
+  <div class="score-label">总分</div>
+  <div class="score-num" id="score-num"></div>
+</div>
+
+<div id="questions-container"></div>
+
+<div class="grading-bar">
+  <button id="grade-btn" onclick="gradeAll()">提交批改</button>
+</div>
+
+<script>
+var Q = [];
+var LABELS = {
+  "section": {
+    "choice": "一、选择题（每题3分，共15分）",
+    "fill": "二、填空题（每题4分，共12分）",
+    "short": "三、简答题（每题7分，共14分）",
+    "calc": "四、计算题（每题9分，共18分）",
+    "code": "五、代码题（10分）",
+    "essay": "六、问答题（每题10分，共20分）",
+    "comprehensive": "七、综合题（11分）"
+  },
+  "section_order": ["choice","fill","short","calc","code","essay","comprehensive"],
+  "points_suffix": "分",
+  "true_label": "正确",
+  "false_label": "错误",
+  "placeholder": "在此作答...",
+  "code_placeholder": "在此编写代码...",
+  "pitfall_prefix": "易错提醒：",
+  "correct_label": "正确",
+  "wrong_label": "错误",
+  "partial_label": "部分正确",
+  "answer_prefix": "正确答案：",
+  "reference_label": "参考答案",
+  "graded_label": "已批改",
+  "grade_button": "提交批改",
+  "score_label": "总分"
+};
+
+// === Questions ===
+Q.push(
+// 选择题 x5
+{"type":"choice","points":3,"question":"支持向量机 中，对偶问题的核心优势是什么？","options":["将原问题转为无约束优化问题","使优化变量数量从特征维度变为样本数量，且内积形式便于引入核函数","消除了所有约束条件","将非线性问题直接转为线性问题"],"answer":1,"explanation":"对偶问题的变量数是样本数 N 而非特征维数 d，且目标函数和决策函数都只依赖内积，因此可直接用核函数替代。","pitfall":"混淆：对偶问题并没有消除约束，约束从原问题的 N 个不等价变成了对偶的 N+1 个约束。"},
+{"type":"choice","points":3,"question":"在软间隔 支持向量机 的对偶问题中，拉格朗日乘子 $\\alpha_i$ 的取值范围是？","options":["$\\alpha_i \\geq 0$","$0 \\leq \\alpha_i \\leq C$","$-C \\leq \\alpha_i \\leq C$","$\\alpha_i = C$"],"answer":1,"explanation":"软间隔对偶中 $\\alpha_i$ 有上界 C，这是与原硬间隔对偶（$\\alpha_i \\geq 0$）唯一的形式差异。","pitfall":"注意硬间隔（$\\alpha_i \\ge 0$）与软间隔（$0 \\le \\alpha_i \\le C$）的区别，考题常在此设陷阱。"},
+{"type":"choice","points":3,"question":"关于 Apriori 算法原理，以下哪项描述是正确的？","options":["频繁项集的超集也是频繁的","非频繁项集的子集也是非频繁的","非频繁项集的超集也是非频繁的","频繁项集的所有子集都是最大频繁项集"],"answer":2,"explanation":"Apriori 原理：非频繁项集的超集也是非频繁的（即反单调性）。","pitfall":"容易把方向和包含关系搞反。记住：频繁→子集频繁（向下封闭），非频繁→超集非频繁（向上封闭）。"},
+{"type":"choice","points":3,"question":"提升度 Lift 的取值判断中，Lift > 1 代表什么？","options":["A 和 B 之间没有关联","A 和 B 负相关（替代关系）","A 和 B 正相关（A的出现提升了B的出现概率）","规则置信度不足"],"answer":2,"explanation":"Lift > 1 表示 P(B|A) > P(B)，即 A 的出现提升了 B 发生的概率，属于有效规则。","pitfall":"不要只用 Support 和 Confidence 判断规则优劣，Lift 才是区分真关联和随机共现的关键。"},
+{"type":"choice","points":3,"question":"关于序列关联规则与简单关联规则的区别，以下说法正确的是？","options":["简单关联规则考虑了时间顺序","序列关联规则不考虑商品购买顺序","在 SPADE 中 A→B 频繁，意味着 B→A 也频繁","序列挖掘关注购买顺序，简单关联规则只关注共现关系"],"answer":3,"explanation":"序列关联规则关注时间顺序（先买A后买B），简单关联规则只关注哪些商品一起出现。","pitfall":"SPADE 中 A→B 频繁 ≠ B→A 频繁，因为序列有方向性。"},
+// 填空题 x3
+{"type":"fill","points":4,"question":"支持向量机 的对偶问题中，对应于 $\\alpha_i > 0$ 的样本点称为 ____，它们落在间隔边界上，且决定了最终的超平面。","answer":"支持向量","explanation":"支持向量（Support Vector）是对应于 $\\alpha_i > 0$ 的实例点，最终超平面仅由支持向量决定。","pitfall":"不要把「支持向量」（在间隔边界上）和「落在分类面上」混淆。"},
+{"type":"fill","points":4,"question":"关联规则 $A \\rightarrow B$ 的置信度公式为 $\\text{Confidence} = \\frac{\\text{____}(A \\cup B)}{\\text{____}(A)}$，衡量在 A 发生的条件下 B 也发生的概率。","answer":["Support","Support"],"explanation":"Confidence = Support(A∪B) / Support(A) = count(A∪B) / count(A)，即条件概率 P(B|A)。","pitfall":"分子分母顺序不要写反。Confidence(A→B) = P(B|A)，分母是前提 A 的支持度。"},
+{"type":"fill","points":4,"question":"Eclat 算法采用 ____ 数据格式，通过 ____ 的交集运算计算支持度，只需扫描 ____ 次完整数据库。","answer":["垂直","Tidset","1"],"explanation":"Eclat 使用垂直数据格式（Item → Tidset），通过 Tidset 交集计算支持度，仅需一次数据库扫描。","pitfall":"Eclat 只需要扫描一次（数据转换时），后续都通过集合运算。"},
+// 简答题 x2
+{"type":"short","points":7,"question":"简述软间隔 支持向量机 中支持向量的三种情况及其几何位置。","answer":-1,"explanation":"<strong>参考答案：</strong><br>(1) $0 < \\alpha_i < C$：样本落在间隔边界上，分类正确（正常支持向量）。<br>(2) $\\alpha_i = C,\\; 0 < \\xi_i < 1$：样本在间隔边界与超平面之间，分类正确但在间隔内部。<br>(3) $\\alpha_i = C,\\; \\xi_i > 1$：样本被错误地分到超平面的另一侧。<br><br><strong>评分要点</strong>：三种情况各2分，能结合 $\\alpha_i$ 与 $\\xi_i$ 的值说明位置得1分。","pitfall":"容易漏掉第(2)种情况——样本分类正确但落在间隔内部。"},
+{"type":"short","points":7,"question":"Apriori 算法的核心剪枝原理是什么？并说明它如何减少候选项集数量。","answer":-1,"explanation":"<strong>参考答案：</strong><br>Apriori 原理：频繁项集的子集也是频繁的（或其等价逆否命题：非频繁项集的超集也是非频繁的）。<br><br>剪枝方式：在生成候选 k-项集时，检查其所有 (k-1)-子集是否都在频繁集中。如果任一子集不在频繁集中，则剪掉该候选项集。这避免了扫描数据库去验证一些必然非频繁的项集，大幅减少候选项集数量。<br><br><strong>评分要点</strong>：Apriori 原理陈述 3 分，剪枝过程说明 4 分。","pitfall":"剪枝发生在连接之后、扫描数据库之前——不要搞错顺序。"},
+// 计算题 x2
+{"type":"calc","points":9,"question":"给出如下5笔交易数据，设最小支持度 min_sup = 60%，最小置信度 min_conf = 80%。<br><br>T1: {牛奶,面包,尿布}<br>T2: {牛奶,面包,啤酒}<br>T3: {牛奶,尿布,啤酒}<br>T4: {面包,尿布,啤酒}<br>T5: {牛奶,面包,尿布,啤酒}<br><br>(1) 计算规则「牛奶 → 啤酒」的支持度、置信度和提升度。<br>(2) 判断该规则是否是强关联规则。","answer":-1,"explanation":"<strong>解：</strong><br><br><strong>(1) 计算：</strong><br>N = 5<br>count(牛奶) = 4（T1,T2,T3,T5）<br>count(啤酒) = 4（T2,T3,T4,T5）<br>count(牛奶∪啤酒) = 3（T2,T3,T5）<br><br>Support(牛奶→啤酒) = 3/5 = 60% ≥ min_sup ✔<br>Confidence(牛奶→啤酒) = 3/4 = 75% < min_conf = 80% ✘<br>Lift = Confidence / Support(啤酒) = 75% / (4/5) = 0.75 / 0.8 = 0.9375 < 1<br><br><strong>(2) 判断：</strong>虽然支持度达标，但置信度 75% < 80%，不是强关联规则。此外提升度 < 1 表明牛奶和啤酒轻微负相关。<br><br><strong>评分要点</strong>：支持度 2 分，置信度 2 分，提升度 2 分，判断并说明理由 3 分。","pitfall":"提升度计算时分母是 Support(B) 不是 Support(A)。常见错误：用 Conf / Support(A) 算提升度。"},
+{"type":"calc","points":9,"question":"设某电商数据中，Support(A) = 10%，Support(B) = 10%，Support(A→B) = 8%（即序列支持度）。请计算序列规则 A⇒B 的置信度。如果将序列方向反过来，Support(B→A) = 5%，此时 B⇒A 的置信度是多少？为什么两个方向不等？","answer":-1,"explanation":"<strong>解：</strong><br><br>Conf(A⇒B) = Support(A→B) / Support(A) = 8% / 10% = 80%<br><br>Conf(B⇒A) = Support(B→A) / Support(B) = 5% / 10% = 50%<br><br>两个方向不等是因为序列有方向性：Support(A→B) ≠ Support(B→A)。在序列挖掘中，先买A后买B和先买B后买A是完全不同的序列模式，支持度可能完全不同。这与 SPM 中的项集不同（{A,B} 和 {B,A} 是同一个项集）。<br><br><strong>评分要点</strong>：置信度计算各 3 分，解释方向性原因 3 分。","pitfall":"常见错误：用 Apriori 思维套到 SPADE 上，误认为 {A,B} = {B,A}。序列有严格的时间顺序约束。"},
+// 代码题 x1
+{"type":"code","points":10,"question":"阅读以下使用 arules 包进行关联规则挖掘的 R 代码，回答后面问题：<br><pre><code>library(arules)\ndata(\"Groceries\")\nrules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.5, maxlen = 3))\nrules_sorted <- sort(rules, by = \"lift\", decreasing = TRUE)\ninspect(head(rules_sorted, 5))\nspecific_rules <- subset(rules, lhs %in% \"whole milk\")\ncat(\"包含whole milk作为前件的规则数:\", length(specific_rules))</code></pre><p>(1) <code>supp = 0.001</code> 的含义是什么？如果某个项集的支持度低于这个值会怎样？（3分）<br>(2) <code>sort(rules, by = \"lift\", decreasing = TRUE)</code> 的目的是什么？Lift=1 表示什么含义？（3分）<br>(3) <code>subset(rules, lhs %in% \"whole milk\")</code> 筛选的是什么规则？（4分）</p>","answer":-1,"explanation":"<strong>参考答案：</strong><br><br><strong>(1)</strong> supp=0.001 表示最小支持度阈值为 0.1%。项集必须在至少 0.1% 的事务中出现才能被视为频繁项集。低于此阈值的项集会被 Apriori 算法剪枝，不参与后续规则生成。<br><br><strong>(2)</strong> sort(rules, by=\"lift\", decreasing=TRUE) 按<strong>提升度从高到低排序</strong>，目的是找到最显著的关联规则——提升度越高，前件对后件的提升效果越强。Lift=1 表示前件和后件<strong>相互独立</strong>，前件的出现不影响后件的概率（P(B|A) = P(B)）。<br><br><strong>(3)</strong> subset(rules, lhs %in% \"whole milk\") 筛选的是<strong>前件（左部）包含 whole milk 的所有关联规则</strong>，即\"如果购买了 whole milk，还会买什么？\"这类规则。这有助于了解 whole milk 的连带销售潜力。<br><br><strong>评分要点</strong>：(1) 支持度含义 2 分+阈值作用 1 分；(2) 排序目的 2 分+Lift 含义 1 分；(3) 筛选含义 4 分。","pitfall":"supp 阈值是项集级别（非规则级别）的过滤。Lift 计算公式为 Conf(a→b)/Supp(b)，不要与置信度混淆。"},
+// 问答题
+{"type":"essay","points":10,"question":"对比 支持向量机 硬间隔、软间隔和核技巧三种方法，说明它们分别解决什么问题，以及如何通过修改对偶问题实现。","answer":-1,"explanation":"<strong>参考答案：</strong><br><br>(1) <strong>硬间隔</strong>：解决线性可分问题。对偶中 $\\alpha_i \\ge 0$，没有惩罚参数。所有样本必须 $y_i(w·x_i+b) \\ge 1$。问题：现实中数据往往不是完全线性可分的。<br><br>(2) <strong>软间隔</strong>：解决广义线性可分（有少量噪声/异常点）。引入松弛变量 $\\xi_i \\ge 0$ 和惩罚系数 C。对偶中 $0 \\le \\alpha_i \\le C$，仅多了一个上界约束。C 控制「追求大间隔」与「容忍误分」的平衡。<br><br>(3) <strong>核技巧</strong>：解决线性不可分问题。通过映射函数 $\\phi$ 将数据映射到高维特征空间，使得在原始空间不可分的数据在高维变得可分。对偶中只需将内积 $x_i·x_j$ 替换为核函数 $K(x_i,x_j)$，形式不变。常用核包括线性核、多项式核、径向基函数 (RBF) 核。<br><br>三者的对偶问题形式统一：目标函数中内积替换为核函数，约束中 $\\alpha_i$ 上界从 ∞（硬间隔）变为 C（软间隔），软间隔 + 核技巧可同时使用。<br><br><strong>评分要点</strong>：每种方法 3 分（问题+修改），统一性总结 1 分。","pitfall":"不要把软间隔和核技巧混为一谈——软间隔解决噪声问题，核技巧解决非线性可分问题，两者可同时使用。"},
+{"type":"essay","points":10,"question":"某医院需要设计「慢病预警系统」，用于发现病人从「高血压」发展为「冠心病」的风险。请分析应该选择简单关联规则（Apriori/Eclat）还是序列模式挖掘（SPADE），并说明理由。同时对比 Apriori、Eclat、SPADE 三种算法的核心区别。","answer":-1,"explanation":"<strong>参考答案：</strong><br><br>应选择 <strong>SPADE（序列模式挖掘）</strong>。理由：<br>• 慢病预警关注的是疾病的发展演化过程——「先患高血压，后发展为冠心病」，涉及时间先后顺序。<br>• 简单关联规则（Apriori/Eclat）不考虑时间顺序，只能发现「高血压和冠心病同时出现在一个患者身上」的共现模式，无法捕捉因果关系。<br>• SPADE 通过等值连接和顺序连接两种 Join 操作，能区分同一时间点的共病现象和先后发展关系。<br><br><strong>三种算法对比：</strong><br>• Apriori：水平数据格式，广度优先搜索，多次扫描 DB，核心是 Apriori 剪枝原理。适合事务数据。<br>• Eclat：垂直数据格式（Tidset），深度优先搜索，仅一次扫描 DB，通过集合交集计算支持度。比 Apriori 更快。<br>• SPADE：垂直数据格式（ID-List），基于等价类的 DFS，两种 Join（等值/顺序），处理序列数据。适用于有顺序要求的场景。<br><br><strong>评分要点</strong>：选择 SPADE 并解释时间顺序 4 分，算法对比 6 分。","pitfall":"常见错误选 Apriori：只看共现忽略顺序。疾病演化必须考虑时间方向。"},
+// 综合题
+{"type":"comprehensive","points":11,"question":"已知交易数据集如下，min_sup = 60%，min_conf = 80%。<br>T1: {A,B,C}<br>T2: {A,C}<br>T3: {B,D}<br>T4: {A,B,C,D}<br>T5: {A,B}<br><br>(1) 用 Apriori 算法找出所有频繁项集（需列出 C1→L1→C2→L2→... 的完整过程）。<br>(2) 从频繁项集中生成所有满足最小置信度的关联规则。<br>(3) 计算其中一条规则「A→B」的提升度并解释。","answer":-1,"explanation":"<strong>解：</strong><br><br><strong>(1) Apriori 过程：</strong><br>N=5, min_sup = 60% = 3/5<br><br><strong>C1→L1：</strong><br>A:4/5=80% ✔ | B:4/5=80% ✔ | C:3/5=60% ✔ | D:2/5=40% ✘<br>L1 = {A, B, C}<br><br><strong>C2→L2（连接 L1×L1，共3个候选）：</strong><br>{A,B}:4/5=80% ✔ | {A,C}:3/5=60% ✔ | {B,C}:2/5=40% ✘<br>L2 = {{A,B}, {A,C}}<br><br><strong>C3→L3（连接 L2 无法生成，因为需前1项相同——{A,B}和{A,C}满足，候选 {A,B,C}）：</strong><br>子集检查：{A,B}在L2✔, {A,C}在L2✔, {B,C}不在L2✘ → 剪枝！<br>无新频繁项集，算法终止。<br><br>最大频繁项集：{A,B} 和 {A,C}。<br><br><strong>(2) 生成关联规则：</strong><br>从 {A,B}（Support=4/5）：<br>• A→B: Conf = 4/4 = 100% ≥ 80% ✔<br>• B→A: Conf = 4/4 = 100% ≥ 80% ✔<br><br>从 {A,C}（Support=3/5）：<br>• A→C: Conf = 3/4 = 75% < 80% ✘<br>• C→A: Conf = 3/3 = 100% ≥ 80% ✔<br><br>强关联规则：A→B, B→A, C→A。<br><br><strong>(3) Lift(A→B)：</strong><br>Conf(A→B)=100%, Support(B)=4/5=80%<br>Lift = 100%/80% = 1.25 > 1<br>说明 A 的出现将 B 出现概率提升了 25%，正相关，属于有效规则。<br><br><strong>评分要点</strong>：Apriori 过程 5 分（C1→L1 1分,C2→L2 2分,C3 2分），规则生成 3 分，Lift 3 分。","pitfall":"C3 候选 {A,B,C} 的剪枝检查容易漏——必须检查3个子集：{A,B},{A,C},{B,C}。{B,C} 不是频繁项集，所以剪掉。"}
+);
+
+// =====================
+var Q_sorted = [];
+var order = LABELS.section_order || [];
+Q.forEach(function(q,i){q._i=i;});
+Q.sort(function(a,b){
+  var oa = order.indexOf(a.type); if(oa===-1) oa=99;
+  var ob = order.indexOf(b.type); if(ob===-1) ob=99;
+  return oa - ob || a._i - b._i;
+});
+
+function build(){
+  var c = document.getElementById('questions-container');
+  if(!c) return;
+  var h='', sec='', titles=LABELS.section;
+  for(var i=0;i<Q.length;i++){
+    var q=Q[i], qid='q'+i;
+    if(q.type!==sec){
+      sec=q.type;
+      if(titles[q.type]) h+='<h3>'+titles[q.type]+'</h3>';
+    }
+    h+='<div class="q-card" id="card-'+qid+'">';
+    h+='<div class="q-num">'+(i+1)+'. ('+q.points+' 分)</div>';
+    if(q.type==='fill'){
+      h+='<div class="q-text">'+renderFill(q,qid)+'</div>';
+    } else {
+      h+='<div class="q-text">'+q.question+'</div>';
+    }
+    if(q.type==='choice'){
+      var opts=q.options||[];
+      for(var j=0;j<opts.length;j++){
+        h+='<label class="option" id="opt-'+qid+'-'+j+'" onclick="sel(\''+qid+'\','+j+')">';
+        h+='<input type="radio" name="'+qid+'" value="'+j+'">'+String.fromCharCode(65+j)+'. '+opts[j]+'</label>';
+      }
+    } else if(q.type==='multi'){
+      var mopts=q.options||[];
+      for(var k=0;k<mopts.length;k++){
+        h+='<label class="option" id="opt-'+qid+'-'+k+'" onclick="toggle(\''+qid+'\','+k+')">';
+        h+='<input type="checkbox" name="'+qid+'" value="'+k+'">'+String.fromCharCode(65+k)+'. '+mopts[k]+'</label>';
+      }
+    } else if(q.type==='tf'){
+      h+='<label class="option" id="opt-'+qid+'-0" onclick="sel(\''+qid+'\',0)">';
+      h+='<input type="radio" name="'+qid+'" value="0">正确</label>';
+      h+='<label class="option" id="opt-'+qid+'-1" onclick="sel(\''+qid+'\',1)">';
+      h+='<input type="radio" name="'+qid+'" value="1">错误</label>';
+    } else if(q.type==='code'){
+      h+='<textarea class="q-textarea q-code" id="text-'+qid+'" placeholder="在此编写代码..." rows="8" spellcheck="false"></textarea>';
+    } else {
+      h+='<textarea class="q-textarea" id="text-'+qid+'" placeholder="在此作答..." rows="3"></textarea>';
+    }
+    h+='<div class="result" id="result-'+qid+'">';
+    h+='<span class="badge" id="badge-'+qid+'"></span><span id="correct-'+qid+'"></span>';
+    h+='<div class="explanation">'+(q.explanation||'')+'</div>';
+    if(q.pitfall){h+='<div class="pitfall">易错提醒：'+q.pitfall+'</div>';}
+    h+='</div></div>';
+  }
+  c.innerHTML = h;
+  if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise([c]).catch(function(e){console.error(e);});}
+}
+
+function renderFill(q,qid){
+  var nBlanks = ((''+q.question).match(/(_{2,}|＿+)/g)||[]).length;
+  if(nBlanks===0){
+    var ans=q.answer; if(!Array.isArray(ans)) ans=[ans];
+    if(ans.length&&Array.isArray(ans[0])) nBlanks=ans.length;
+    else nBlanks=1;
+  }
+  var k=0;
+  var html=(''+q.question).replace(/(_{2,}|＿+)/g,function(){
+    var inp='<input type="text" class="fill-input" id="fill-'+qid+'-'+k+'" autocomplete="off" spellcheck="false">';
+    k++; return inp;
+  });
+  if(k===0){
+    html+='<div>';
+    for(var b=0;b<nBlanks;b++){
+      html+='<input type="text" class="fill-input" id="fill-'+qid+'-'+b+'" autocomplete="off" spellcheck="false">';
+    }
+    html+='</div>';
+  }
+  return html;
+}
+
+document.addEventListener('DOMContentLoaded',build);
+if(document.readyState==='interactive'||document.readyState==='complete'){build();}
+
+function sel(qid,idx){
+  var prefix='opt-'+qid+'-';
+  var all=document.querySelectorAll('[id^="'+prefix+'"]');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('selected');
+  var target=document.getElementById('opt-'+qid+'-'+idx);
+  if(target) target.classList.add('selected');
+  var radio=document.querySelector('input[name="'+qid+'"][value="'+idx+'"]');
+  if(radio) radio.checked=true;
+}
+function toggle(qid,idx){
+  var box=document.querySelector('input[name="'+qid+'"][value="'+idx+'"]');
+  var label=document.getElementById('opt-'+qid+'-'+idx);
+  if(!box) return;
+  box.checked=!box.checked;
+  if(label) label.classList.toggle('selected',box.checked);
+}
+
+function choiceAnswerIndex(ans,options){
+  if(typeof ans==='number') return ans;
+  var s=(''+ans).trim();
+  if(/^[A-Za-z]$/.test(s)) return s.toUpperCase().charCodeAt(0)-65;
+  return parseInt(s,10);
+}
+function normText(s){
+  s=(''+s).trim().toLowerCase();
+  s=s.replace(/[\s　]+/g,'');
+  s=s.replace(/[.,;:!?。，、；：！？“”"'（）()【】\[\]<>《》]/g,'');
+  s=s.replace(/[！-～]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xfee0);});
+  return s;
+}
+function fillBlankCount(question){
+  var m=(''+question).match(/(_{2,}|＿+)/g);
+  return m?m.length:0;
+}
+function fillBlankAnswers(ans,nBlanks){
+  if(nBlanks<1) nBlanks=1;
+  if(!Array.isArray(ans)) return padBlanks([[ans]],nBlanks);
+  if(ans.length&&Array.isArray(ans[0])) return padBlanks(ans,nBlanks);
+  if(nBlanks===1) return [ans];
+  if(ans.length===nBlanks) return ans.map(function(a){return[a];});
+  return padBlanks([ans],nBlanks);
+}
+function padBlanks(arr,n){
+  var out=arr.slice(0,n);
+  while(out.length<n) out.push(['']);
+  return out;
+}
+
+function gradeAll(){
+  var score=0;
+  for(var i=0;i<Q.length;i++){
+    var q=Q[i], qid='q'+i;
+    var card=document.getElementById('card-'+qid);
+    var result=document.getElementById('result-'+qid);
+    var badge=document.getElementById('badge-'+qid);
+    var correctEl=document.getElementById('correct-'+qid);
+    if(!card||!result) continue;
+    result.style.display='block';
+
+    if(q.type==='choice'||q.type==='tf'){
+      var ansIdx=q.type==='tf'?(q.answer===0||q.answer===false?0:1):choiceAnswerIndex(q.answer,q.options);
+      var radio=document.querySelector('input[name="'+qid+'"]:checked');
+      if(radio&&parseInt(radio.value,10)===ansIdx){
+        card.classList.add('correct');
+        badge.className='badge badge-ok';
+        badge.textContent='正确';
+        correctEl.innerHTML='';
+        var ok=document.getElementById('opt-'+qid+'-'+ansIdx);
+        if(ok) ok.classList.add('correct-answer');
+        score+=q.points;
+      } else {
+        card.classList.add('wrong');
+        badge.className='badge badge-no';
+        badge.textContent='错误';
+        var ansText=q.type==='choice'?String.fromCharCode(65+ansIdx)+'. '+(q.options?q.options[ansIdx]:''):(ansIdx===0?'正确':'错误');
+        correctEl.innerHTML='正确答案：'+ansText;
+        if(radio){var wrongOpt=document.getElementById('opt-'+qid+'-'+radio.value); if(wrongOpt) wrongOpt.classList.add('wrong-answer');}
+        var corr=document.getElementById('opt-'+qid+'-'+ansIdx);
+        if(corr) corr.classList.add('correct-answer');
+      }
+    } else if(q.type==='fill'){
+      var nBlanks=fillBlankCount(q.question);
+      var blanks=fillBlankAnswers(q.answer,nBlanks);
+      var n=blanks.length, hit=0, displays=[];
+      for(var b=0;b<n;b++){
+        var inp=document.getElementById('fill-'+qid+'-'+b);
+        var accepted=blanks[b]||[''];
+        var user=inp?normText(inp.value):'';
+        var ok=false;
+        for(var a=0;a<accepted.length;a++){
+          if(accepted[a]!==''&&normText(accepted[a])===user&&user!==''){ok=true;break;}
+        }
+        if(inp) inp.classList.add(ok?'fill-ok':'fill-no');
+        if(ok) hit++;
+        displays.push((n>1?(b+1)+'. ':'')+accepted.filter(function(x){return x!=='';}).join(' / '));
+      }
+      var earned=Math.round(q.points*hit/n*10)/10;
+      correctEl.innerHTML='正确答案：'+displays.join('   ');
+      if(hit===n){card.classList.add('correct');badge.className='badge badge-ok';badge.textContent='正确';}
+      else if(hit>0){card.classList.add('partial');badge.className='badge badge-partial';badge.textContent='部分正确';}
+      else {card.classList.add('wrong');badge.className='badge badge-no';badge.textContent='错误';}
+      score+=earned;
+    } else {
+      card.classList.add('correct');
+      badge.className='badge badge-ref';
+      badge.textContent='参考答案';
+    }
+  }
+
+  var sb=document.getElementById('score-box');
+  if(sb){
+    sb.style.display='block';
+    document.getElementById('score-num').textContent=Math.round(score*10)/10;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+  var opts=document.querySelectorAll('.option');
+  for(var a=0;a<opts.length;a++) opts[a].style.pointerEvents='none';
+  var tas=document.querySelectorAll('.q-textarea');
+  for(var b=0;b<tas.length;b++) tas[b].disabled=true;
+  var fis=document.querySelectorAll('.fill-input');
+  for(var c=0;c<fis.length;c++) fis[c].disabled=true;
+  var btn=document.getElementById('grade-btn');
+  if(btn){btn.disabled=true;btn.textContent='已批改';}
+  if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise().catch(function(e){console.error(e);});}
+}
+</script>
+</body>
+</html>

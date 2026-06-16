@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10讲 章节测试 — 神经网络：感知机</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#f0f2f5;color:#212121;line-height:1.7;}
+.container{max-width:860px;margin:0 auto;padding:20px;}
+.header{background:linear-gradient(135deg,#00695c,#00897b);color:#fff;padding:24px 32px;border-radius:12px;margin-bottom:20px;}
+.header h1{font-size:24px;}
+.header .sub{font-size:13px;opacity:.85;margin-top:4px;}
+.card{background:#fff;border-radius:10px;padding:24px 28px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.card h2{font-size:19px;color:#00695c;border-bottom:2px solid #00695c;padding-bottom:8px;margin-bottom:16px;}
+.q{margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed #ddd;}
+.q:last-child{border-bottom:none;}
+.q p{font-size:15px;margin-bottom:8px;}
+.q ol,.q ul{padding-left:22px;margin:6px 0;}
+.q ol li,.q ul li{font-size:14px;margin:3px 0;}
+.q label{display:block;font-size:14px;margin:2px 0;cursor:pointer;padding:2px 8px;border-radius:4px;}
+.q label:hover{background:#e0f2f1;}
+.btn{margin-top:8px;padding:6px 18px;border:1px solid #00695c;background:#fff;color:#00695c;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;}
+.btn:hover{background:#00695c;color:#fff;}
+.ans{display:none;background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px 16px;margin-top:8px;border-radius:0 6px 6px 0;font-size:14px;}
+.ans.show{display:block;}
+.ans p{margin:4px 0;}
+.feedback{font-size:13px;margin-top:6px;font-weight:600;}
+.feedback.correct{color:#2e7d32;}
+.feedback.wrong{color:#c62828;}
+pre{background:#263238;color:#a5d6a7;padding:14px 18px;border-radius:6px;font-size:13px;overflow-x:auto;margin:8px 0;}
+code{font-family:"Consolas","Courier New",monospace;}
+.fill-blank{display:inline-block;border-bottom:2px solid #00695c;min-width:80px;text-align:center;margin:0 4px;padding:0 8px;color:transparent;cursor:pointer;}
+.fill-blank.revealed{color:#c62828;}
+.score-bar{display:flex;gap:6px;margin:12px 0;}
+.tag-t{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.tag-choice{background:#bbdefb;color:#1565c0;}
+.tag-fill{background:#c8e6c9;color:#2e7d32;}
+.tag-short{background:#ffe0b2;color:#e65100;}
+.tag-calc{background:#f8bbd0;color:#880e4f;}
+.tag-code{background:#d1c4e9;color:#4a148c;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>第10讲 章节测试</h1>
+  <div class="sub">神经网络 — 感知机模型 &amp; 多层感知机 (MLP)/反向传播 基础 | 共 14 题</div>
+  <div class="score-bar">
+    <span class="tag-t tag-choice">选择题 ×6</span>
+    <span class="tag-t tag-fill">填空题 ×3</span>
+    <span class="tag-t tag-short">简答题 ×2</span>
+    <span class="tag-t tag-calc">计算题 ×1</span>
+    <span class="tag-t tag-code">代码题 ×2</span>
+  </div>
+</div>
+
+<!-- ==================== 选择题 ==================== -->
+<div class="card">
+  <h2>一、单项选择题（每题5分，共30分）</h2>
+
+  <!-- Q1 -->
+  <div class="q">
+    <p><strong>1.</strong> 感知机模型 f(x) = sign(w·x + b) 中，sign 函数的输出范围是：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c1"> (0, 1)</label></li>
+      <li><label><input type="radio" name="c1"> {0, 1}</label></li>
+      <li><label><input type="radio" name="c1"> {-1, +1}</label></li>
+      <li><label><input type="radio" name="c1"> (-1, 1)</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c1-a')">显示答案</button>
+    <div id="c1-a" class="ans"><p><strong>答案：C</strong></p><p>sign 函数输出为 +1 或 -1，对应正类和负类。{0, 1} 是阶跃函数，(0, 1) 是 Sigmoid激活函数。</p></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q">
+    <p><strong>2.</strong> 感知机能够收敛的前提条件是什么？</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c2"> 特征维度必须大于样本数量</label></li>
+      <li><label><input type="radio" name="c2"> 样本分布必须服从高斯分布</label></li>
+      <li><label><input type="radio" name="c2"> 数据集必须是线性可分的</label></li>
+      <li><label><input type="radio" name="c2"> 学习率必须设置得非常小</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c2-a')">显示答案</button>
+    <div id="c2-a" class="ans"><p><strong>答案：C</strong></p><p>感知机收敛的充要条件是数据集线性可分（Linearly Separable）。</p></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q">
+    <p><strong>3.</strong> 感知机定义的损失函数 L(w, b) 本质上是在最小化什么？</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c3"> 错误分类样本的个数</label></li>
+      <li><label><input type="radio" name="c3"> 误分类点到超平面的总距离</label></li>
+      <li><label><input type="radio" name="c3"> 所有样本点到超平面的距离平方和</label></li>
+      <li><label><input type="radio" name="c3"> 预测值与真实值之间的交叉熵</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c3-a')">显示答案</button>
+    <div id="c3-a" class="ans"><p><strong>答案：B</strong></p><p>L(w,b) = −Σ yᵢ(w·xᵢ + b), xᵢ∈M，本质是误分类点到超平面的总距离。错误个数不可导，无法直接优化。</p></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q">
+    <p><strong>4.</strong> 在感知机算法中，学习率 η（0 &lt; η ≤ 1）对最终是否收敛有何影响？</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c4"> η 越大，模型越难收敛</label></li>
+      <li><label><input type="radio" name="c4"> η 越小，模型越容易收敛</label></li>
+      <li><label><input type="radio" name="c4"> 只要数据线性可分，η 的大小不影响收敛性（仅影响迭代次数）</label></li>
+      <li><label><input type="radio" name="c4"> η 必须随迭代次数衰减才能收敛</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c4-a')">显示答案</button>
+    <div id="c4-a" class="ans"><p><strong>答案：C</strong></p><p>η 仅影响收敛速度/迭代次数。只要数据线性可分，感知机总会在有限步内收敛。</p></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q">
+    <p><strong>5.</strong> 关于激活函数 ReLU激活函数 (f(x)=max(0,x)) 相比 Sigmoid激活函数，以下哪项是其主要优点？</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c5"> 它在所有点处都处处可导</label></li>
+      <li><label><input type="radio" name="c5"> 它能将输出限制在 0 到 1 之间</label></li>
+      <li><label><input type="radio" name="c5"> 它在 x&gt;0 区域导数为 1，能有效缓解梯度消失问题</label></li>
+      <li><label><input type="radio" name="c5"> 它的计算速度比线性函数慢</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c5-a')">显示答案</button>
+    <div id="c5-a" class="ans"><p><strong>答案：C</strong></p><p>ReLU激活函数 在 x&gt;0 时导数为 1，梯度不会衰减。Sigmoid激活函数 导数最大仅 0.25，深层连乘后梯度接近 0。ReLU激活函数 在 x=0 处不可导（实际用次梯度）。</p></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q">
+    <p><strong>6.</strong> 万能近似定理告诉我们，一个至少有一个隐藏层、使用非多项式激活函数的 多层感知机 (MLP) 可以：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c6"> 100% 正确分类任何图像数据集</label></li>
+      <li><label><input type="radio" name="c6"> 以任意精度逼近闭区间上的任何连续函数（隐藏层神经元足够多）</label></li>
+      <li><label><input type="radio" name="c6"> 自动避开所有局部最优解</label></li>
+      <li><label><input type="radio" name="c6"> 解决计算复杂度为 NP-Hard 的所有问题</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c6-a')">显示答案</button>
+    <div id="c6-a" class="ans"><p><strong>答案：B</strong></p><p>万能近似定理：仅需 1 个隐藏层 + 足够多神经元 + 非多项式激活函数，即可以任意精度逼近任何连续函数。</p></div>
+  </div>
+</div>
+
+<!-- ==================== 填空题 ==================== -->
+<div class="card">
+  <h2>二、填空题（每题5分，共15分）</h2>
+
+  <div class="q">
+    <p><strong>1.</strong> 感知机模型 f(x) = sign(w·x + b) 中，w 称为 <span class="fill-blank" onclick="this.classList.toggle('revealed')">权值</span>（或权值向量），b 称为 <span class="fill-blank" onclick="this.classList.toggle('revealed')">偏置</span>，w·x + b = 0 在特征空间 ℝⁿ 中表示一个 <span class="fill-blank" onclick="this.classList.toggle('revealed')">超平面</span>。</p>
+    <button class="btn" onclick="toggleAns(this,'f1-a')">显示答案</button>
+    <div id="f1-a" class="ans"><p>答：权值；偏置；超平面。w 是超平面的法向量，b 是截距。</p></div>
+  </div>
+
+  <div class="q">
+    <p><strong>2.</strong> 反向传播 (BP) 算法分为两个阶段：<span class="fill-blank" onclick="this.classList.toggle('revealed')">前向传播</span> 计算损失和 <span class="fill-blank" onclick="this.classList.toggle('revealed')">反向传播</span> 计算梯度。更新权重的核心数学工具是微积分中的 <span class="fill-blank" onclick="this.classList.toggle('revealed')">链式法则</span>。</p>
+    <button class="btn" onclick="toggleAns(this,'f2-a')">显示答案</button>
+    <div id="f2-a" class="ans"><p>答：前向传播；反向传播；链式法则 (Chain Rule)。</p></div>
+  </div>
+
+  <div class="q">
+    <p><strong>3.</strong> 传统的 Sigmoid 函数在深层网络中会引起 <span class="fill-blank" onclick="this.classList.toggle('revealed')">梯度消失</span> 问题，原因是其导数最大值为 <span class="fill-blank" onclick="this.classList.toggle('revealed')">0.25</span>，在深层连乘中指数衰减至接近 0。</p>
+    <button class="btn" onclick="toggleAns(this,'f3-a')">显示答案</button>
+    <div id="f3-a" class="ans"><p>答：梯度消失 (Vanishing Gradient)；0.25。Sigmoid激活函数 导数 max = f(0)(1-f(0)) = 0.5×(1-0.5) = 0.25。</p></div>
+  </div>
+</div>
+
+<!-- ==================== 简答题 ==================== -->
+<div class="card">
+  <h2>三、简答题（每题10分，共20分）</h2>
+
+  <div class="q">
+    <p><strong>1.</strong> 简述 M-P 神经元模型的基本工作原理，并说明感知机如何基于此模型构建二分类器。</p>
+    <button class="btn" onclick="toggleAns(this,'s1-a')">显示答案</button>
+    <div id="s1-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <ul>
+        <li><strong>M-P 神经元模型：</strong>接收来自 n 个其他神经元的输入信号，通过带权重的连接传递。总输入值 Σ wᵢxᵢ 与阈值 θ 比较，经激活函数 f 处理后产生输出 y = f(Σ wᵢxᵢ - θ)。</li>
+        <li><strong>感知机构建二分类器：</strong>感知机由两层神经元组成——输入层接收特征，输出层是 M-P 神经元。激活函数采用符号函数 sign，输出 ±1 对应正/负二类。感知机在特征空间中寻找分离超平面 w·x + b = 0 进行二分类，是一种线性判别模型。</li>
+        <li><strong>学习过程：</strong>通过随机梯度下降法 (随机梯度下降 (SGD)) 最小化误分类点到超平面的总距离，不断更新 w 和 b，直至所有样本正确分类。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q">
+    <p><strong>2.</strong> 简述 Standard 反向传播 (随机梯度下降 (SGD))、Accumulated 反向传播 (Batch) 和 Mini-batch 反向传播 三种梯度下降方式在更新频率、收敛路径和适用场景方面的主要区别。</p>
+    <button class="btn" onclick="toggleAns(this,'s2-a')">显示答案</button>
+    <div id="s2-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <ul>
+        <li><strong>Standard 反向传播 (随机梯度下降 (SGD))：</strong>每个样本更新一次 → 更新频率极高，收敛路径剧烈震荡。优点是跳出局部最优能力强；缺点是无法利用 GPU 并行性，计算开销大，收敛精度差。</li>
+        <li><strong>Accumulated 反向传播 (Batch)：</strong>每个 Epoch 更新一次（需扫描完所有样本）→ 更新频率极低。梯度估计准确，收敛路径平滑；但内存需求极高（需载入全量数据），效率极低，易陷入局部最优。</li>
+        <li><strong>Mini-batch BP：</strong>折中方案，每处理一个小批量（如 32、64、128 样本）更新一次。利用 GPU 矢量化计算，平衡了内存、速度和泛化性能，是现代深度学习工业标准。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 计算题 ==================== -->
+<div class="card">
+  <h2>四、计算题（15分）</h2>
+
+  <div class="q">
+    <p><strong>题目：</strong>给定二分类训练数据：正类样本 x₁ = (3, 3)ᵀ, y₁ = +1；负类样本 x₂ = (1, 1)ᵀ, y₂ = -1；负类样本 x₃ = (0, 2)ᵀ, y₃ = -1。</p>
+    <p>设初始 w = (0, 0)ᵀ, b = 0，学习率 η = 1。采用感知机 随机梯度下降 (SGD) 算法训练，数据按 x₁ → x₂ → x₃ 顺序检查。</p>
+    <p><strong>请计算前 3 轮迭代（每轮遍历三个样本一次）中每次权重更新的结果。</strong></p>
+    <button class="btn" onclick="toggleAns(this,'calc-a')">显示解答</button>
+    <div id="calc-a" class="ans">
+      <p><strong>解答过程：</strong></p>
+      <p><strong>初始：</strong>w = (0, 0), b = 0</p>
+      <p><strong>第1轮：</strong></p>
+      <ul>
+        <li>x₁=(3,3), y₁=+1: w·x₁ + b = 0, y₁×0 = 0 ≤ 0 ✘ 误分类！
+          <br>w ← (0,0) + 1×(3,3) = <strong>(3, 3)</strong>，b ← 0+1 = <strong>1</strong></li>
+        <li>x₂=(1,1), y₂=-1: w·x₂ + b = 3+3+1 = 7, y₂×7 = -7 ≤ 0 ✘ 误分类！
+          <br>w ← (3,3) + (-1)×(1,1) = <strong>(2, 2)</strong>，b ← 1 + (-1) = <strong>0</strong></li>
+        <li>x₃=(0,2), y₃=-1: w·x₃ + b = 0+4+0 = 4, y₃×4 = -4 ≤ 0 ✘ 误分类！
+          <br>w ← (2,2) + (-1)×(0,2) = <strong>(2, 0)</strong>，b ← 0 + (-1) = <strong>-1</strong></li>
+      </ul>
+      <p><strong>第2轮：</strong>w = (2, 0), b = -1</p>
+      <ul>
+        <li>x₁=(3,3): w·x₁ + b = 6+0-1 = 5, y₁×5 = 5 &gt; 0 ✓ 正确，不更新</li>
+        <li>x₂=(1,1): w·x₂ + b = 2+0-1 = 1, y₂×1 = -1 ≤ 0 ✘ 误分类！
+          <br>w ← (2,0) + (-1)×(1,1) = <strong>(1, -1)</strong>，b ← -1 + (-1) = <strong>-2</strong></li>
+        <li>x₃=(0,2): w·x₃ + b = 0-2-2 = -4, y₃×(-4) = 4 &gt; 0 ✓ 正确，不更新</li>
+      </ul>
+      <p><strong>第3轮：</strong>w = (1, -1), b = -2</p>
+      <ul>
+        <li>x₁=(3,3): w·x₁ + b = 3-3-2 = -2, y₁×(-2) = -2 ≤ 0 ✘ 误分类！
+          <br>w ← (1,-1) + 1×(3,3) = <strong>(4, 2)</strong>，b ← -2 + 1 = <strong>-1</strong></li>
+        <li>x₂=(1,1): w·x₂ + b = 4+2-1 = 5, y₂×5 = -5 ≤ 0 ✘ 误分类！
+          <br>w ← (4,2) + (-1)×(1,1) = <strong>(3, 1)</strong>，b ← -1 + (-1) = <strong>-2</strong></li>
+        <li>x₃=(0,2): w·x₃ + b = 0+2-2 = 0, y₃×0 = 0 ≤ 0 ✘ 误分类！
+          <br>w ← (3,1) + (-1)×(0,2) = <strong>(3, -1)</strong>，b ← -2 + (-1) = <strong>-3</strong></li>
+      </ul>
+      <p>3轮结束：w = (3, -1), b = -3。超平面：3x₁ - x₂ - 3 = 0。</p>
+      <p>验证第4轮：x₁(3,3): 9-3-3=3&gt;0 ✓; x₂(1,1): 3-1-3=-1&lt;0 → y₂×(-1)=1&gt;0 ✓; x₃(0,2): 0-2-3=-5&lt;0 → y₃×(-5)=5&gt;0 ✓ — 全部正确！收敛。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 代码题 ==================== -->
+<div class="card">
+  <h2>五、代码分析题（每题10分，共20分）</h2>
+
+  <div class="q">
+    <p><strong>题目1：</strong>阅读以下 R 语言感知机实现代码，回答后面的问题。</p>
+    <pre><code>set.seed(123)
+X <- matrix(rnorm(200), ncol=2)
+y <- ifelse(X[,1] + X[,2] > 0, 1, -1)
+
+w <- c(0, 0)
+b <- 0
+eta <- 0.1
+
+for (epoch in 1:10) {
+  for (i in 1:nrow(X)) {
+    if (y[i] * (sum(w * X[i,]) + b) <= 0) {
+      w <- w + eta * y[i] * X[i,]
+      b <- b + eta * y[i]
+    }
+  }
+}
+cat("权重 w:", w, "\n")
+cat("偏置 b:", b, "\n")</code></pre>
+    <p><strong>问题：</strong></p>
+    <ol>
+      <li>代码中 <code>sum(w * X[i,]) + b</code> 计算的是什么？为什么要检查 <code>y[i] * (该值) <= 0</code>？（5分）</li>
+      <li>如果我们将数据集改为线性不可分的异或（XOR）问题，这段代码会发生什么？学习率 <code>eta</code> 是否影响最终能否收敛？（5分）</li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'code1-a')">显示答案</button>
+    <div id="code1-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <p><strong>(1)</strong> <code>sum(w * X[i,]) + b</code> 计算的是线性判别函数值 w·x+b。条件 <code>y[i] * (该值) <= 0</code> 判断样本是否被<strong>误分类</strong>：当预测值（w·x+b 的符号）与真实标签 y 不一致时，二者乘积为负。这是感知机算法的核心——只在误分类时更新权重。</p>
+      <p><strong>(2)</strong> 对于 XOR 等线性不可分问题，感知机<strong>永远不会收敛</strong>。<code>error_count</code> 始终 > 0，循环会进行完所有 epoch 后停止。学习率 η 不影响收敛性——对线性可分问题，无论 η 多小，最终都会收敛（Novikoff 定理）；对线性不可分问题，无论 η 多大，都不会收敛。</p>
+    </div>
+  </div>
+
+  <div class="q">
+    <p><strong>题目2：</strong>阅读以下基于交叉熵损失的 Sigmoid激活函数 感知机 R 语言实现。回答后面的问题。</p>
+    <pre><code>sigmoid <- function(z) { 1.0 / (1.0 + exp(-z)) }
+
+forward <- function(X, w, b) {
+  z <- X %*% w + b
+  y_hat <- sigmoid(z)
+  return(y_hat)
+}
+
+backward <- function(X, y, y_hat, w, b, eta) {
+  n <- nrow(X)
+  dz <- y_hat - y
+  dw <- (1/n) * t(X) %*% dz
+  db <- (1/n) * sum(dz)
+  w <- w - eta * dw
+  b <- b - eta * db
+  return(list(w=w, b=b))
+}</code></pre>
+    <p><strong>问题：</strong></p>
+    <ol>
+      <li>代码中 <code>dz <- y_hat - y</code> 的简洁形式是 Sigmoid激活函数 + 交叉熵损失组合下的特例。如果改用均方误差损失，这个简洁形式是否仍然成立？为什么？（5分）</li>
+      <li><code>dw <- (1/n) * t(X) %*% dz</code> 中 <code>t(X)</code> 的作用是什么？为什么需要转置？（5分）</li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'code2-a')">显示答案</button>
+    <div id="code2-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <p><strong>(1)</strong> 不成立。dz = y_hat - y 的简洁形式是交叉熵损失 + Sigmoid激活函数 的<strong>特例</strong>——两者的导数恰好抵消了 Sigmoid激活函数 导数的 f'(z)=f(z)(1-f(z)) 项。如果改用均方误差损失，梯度会多出一个 f'(z) 因子，不仅形式更复杂，还可能导致梯度消失问题。</p>
+      <p><strong>(2)</strong> 梯度 dw 的维度应与 w 一致。X 是 n×d 矩阵，dz 是 n×1 向量。X^T · dz = (d×n)(n×1) = d×1，与 w 维度相同。转置 X 是为了正确完成矩阵乘法，使每个特征的梯度是对应所有样本的加权求和。</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function toggleAns(btn, id) {
+  var el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.textContent = '显示答案';
+  } else {
+    el.classList.add('show');
+    btn.textContent = '隐藏答案';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7讲 考试速查 — AdaBoost</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#fafafa;color:#212121;line-height:1.7;}
+.container{max-width:820px;margin:0 auto;padding:16px;}
+.header{background:#c62828;color:#fff;padding:20px 28px;border-radius:10px;margin-bottom:16px;text-align:center;}
+.header h1{font-size:24px;margin-bottom:4px;}
+.header .sub{font-size:13px;opacity:.85;}
+.section{background:#fff;border-left:4px solid #c62828;padding:16px 20px;margin-bottom:12px;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.section h2{font-size:18px;color:#c62828;margin-bottom:10px;}
+.formula{background:#fff3e0;padding:10px 14px;margin:8px 0;border-radius:4px;font-size:15px;overflow-x:auto;border:1px solid #ffe0b2;}
+.formula .var{color:#c62828;font-weight:600;}
+.note{color:#6a1b9a;font-size:13px;margin-top:4px;}
+ol.steps{margin:8px 0;padding-left:22px;}
+ol.steps li{margin:4px 0;font-size:14px;}
+ol.steps li strong{color:#c62828;}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+th{background:#c62828;color:#fff;padding:7px 10px;text-align:left;}
+td{padding:6px 10px;border-bottom:1px solid #eee;}
+tr:nth-child(even){background:#fff5f5;}
+.alert{background:#ffebee;border:1px solid #ef9a9a;padding:10px 14px;border-radius:4px;margin:8px 0;font-size:13px;}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:2px 4px;}
+.tag-hot{background:#ffcdd2;color:#c62828;}
+.tag-exam{background:#c8e6c9;color:#2e7d32;}
+.highlight{background:#ffeb3b;padding:1px 4px;font-weight:600;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>第7讲 考试速查</h1>
+  <div class="sub">集成学习：AdaBoost 算法 | 上海对外经贸大学 | 2026</div>
+</div>
+
+<!-- AdaBoost 核心 -->
+<div class="section">
+  <h2>一、AdaBoost 算法完整步骤 <span class="tag tag-hot">必考</span></h2>
+  <p><strong>输入：</strong>训练集 {(x₁,y₁),…,(x_N,y_N)}, yᵢ∈{-1,+1}，弱学习算法，迭代轮数 M</p>
+  <ol class="steps">
+    <li><strong>初始化权重分布：</strong>对 i=1,…,N，w₁ᵢ = 1/N</li>
+    <li><strong>对 m=1,…,M 循环：</strong></li>
+  </ol>
+  <div class="formula">
+    (a) 训练含权重的弱分类器 G<sub>m</sub>(x) : 𝒳 → {-1, +1}<br>
+    (b) <strong>计算加权误差率：</strong> ε<sub>m</sub> = <span class="var">Σᵢ w<sub>mi</sub> · 𝕀{G<sub>m</sub>(xᵢ) ≠ yᵢ}</span><br>
+    (c) <strong>计算分类器权重：</strong> α<sub>m</sub> = <span class="var">½ ln((1-ε<sub>m</sub>)/ε<sub>m</sub>)</span><br>
+    (d) <strong>更新样本权重：</strong> w<sub>m+1,i</sub> = <span class="var">w<sub>mi</sub> · exp(-α<sub>m</sub> · yᵢ · G<sub>m</sub>(xᵢ)) / Z<sub>m</sub></span>
+  </div>
+  <ol class="steps" start="3">
+    <li><strong>输出强分类器：</strong>G(x) = <strong>sign</strong>(<span class="var">Σ α<sub>m</sub> · G<sub>m</sub>(x)</span>)</li>
+  </ol>
+  <p class="note">📌 权重更新记忆口诀："错则乘 e<sup>α</sup> 权加大，对则乘 e<sup>-α</sup> 权变小"</p>
+</div>
+
+<!-- 关键性质 -->
+<div class="section">
+  <h2>二、核心性质速记 <span class="tag tag-exam">高频</span></h2>
+  <table>
+    <tr><th>问题</th><th>答案/公式</th></tr>
+    <tr><td>α 与 ε 的关系？</td><td class="highlight">ε↓ → α↑</td></tr>
+    <tr><td>ε = 0.5 时 α = ?</td><td>0，分类器无价值</td></tr>
+    <tr><td>正确分类的样本权重变化？</td><td>降低 (× e<sup>-α</sup> &lt; 1)</td></tr>
+    <tr><td>错误分类的样本权重变化？</td><td>增加 (× e<sup>α</sup> &gt; 1)</td></tr>
+    <tr><td>AdaBoost 的损失函数？</td><td>指数损失 L = exp(-y·f(x))</td></tr>
+    <tr><td>AdaBoost 的训练方式？</td><td>串行（后一轮依赖前一轮）</td></tr>
+    <tr><td>最终如何组合弱分类器？</td><td>加权投票：sign(Σ α<sub>m</sub>G<sub>m</sub>(x))</td></tr>
+  </table>
+</div>
+
+<!-- Bagging vs Boosting -->
+<div class="section">
+  <h2>三、Bagging vs Boosting <span class="tag tag-hot">必考对比</span></h2>
+  <table>
+    <tr><th>特性</th><th>Bagging / 随机森林</th><th>AdaBoost / 梯度提升树</th></tr>
+    <tr><td>结构</td><td><span class="highlight">并行</span></td><td><span class="highlight">串行</span></td></tr>
+    <tr><td>样本变化方式</td><td>Bootstrap 重抽样</td><td>调整样本权重 (AdaBoost) / 拟合残差 (梯度提升树)</td></tr>
+    <tr><td>最终组合</td><td>简单平均 / 多数投票</td><td>加权投票 / 累加</td></tr>
+    <tr><td>优化目标</td><td>降低方差</td><td>降低偏差</td></tr>
+    <tr><td>过拟合风险</td><td>低</td><td>梯度提升树 较高（需正则化）</td></tr>
+  </table>
+</div>
+
+<!-- AdaBoost vs 梯度提升树 -->
+<div class="section">
+  <h2>四、AdaBoost vs 梯度提升树</h2>
+  <table>
+    <tr><th>特性</th><th>AdaBoost</th><th>梯度提升树</th></tr>
+    <tr><td>优化机制</td><td>增加错题权重</td><td>沿负梯度方向下降</td></tr>
+    <tr><td>损失函数</td><td>仅指数损失</td><td>任意可微损失函数</td></tr>
+    <tr><td>基学习器</td><td>分类树（可回归）</td><td>必须是回归树 (CART)</td></tr>
+    <tr><td>灵活性</td><td>低，对噪声敏感</td><td>极高</td></tr>
+    <tr><td>核心数学理论</td><td>前向分步加法模型</td><td>函数空间梯度下降</td></tr>
+  </table>
+</div>
+
+<!-- 损失函数一览 -->
+<div class="section">
+  <h2>七、常见损失函数一览</h2>
+  <table>
+    <tr><th>损失类型</th><th>问题类型</th><th>特点</th></tr>
+    <tr><td>平方损失 (L2)</td><td>回归</td><td>不稳健，受异常值影响大</td></tr>
+    <tr><td>绝对值损失 (L1)</td><td>中位数回归</td><td>比 L2 更稳健</td></tr>
+    <tr><td>Huber 损失</td><td>稳健回归</td><td>分段：小误差用L2，大误差用L1</td></tr>
+    <tr><td>指数损失</td><td>AdaBoost分类</td><td>对错分惩罚极重</td></tr>
+    <tr><td>Logistic / 交叉熵</td><td>二分类</td><td>二项负对数似然，更平滑</td></tr>
+    <tr><td>合页损失</td><td>分类（支持向量机）</td><td>hinge loss</td></tr>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

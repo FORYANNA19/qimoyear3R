@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>章节测试 — 交互式练习导航</title>
+<style>
+* { margin:0;padding:0;box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif; background:#f5f7fa; color:#263238; display:flex; flex-direction:column; min-height:100vh; }
+header { background:linear-gradient(135deg,#1b5e20,#2e7d32); color:#fff; padding:32px 24px; text-align:center; }
+header h1 { font-size:1.8em; margin-bottom:4px; }
+header p { color:#a5d6a7; font-size:0.9em; }
+header .note { margin-top:12px; padding:10px 20px; background:rgba(255,255,255,0.1); border-radius:8px; display:inline-block; font-size:0.85em; }
+.breadcrumb { background:#e8f5e9; padding:10px 24px; font-size:0.85em; }
+.breadcrumb a { color:#2e7d32; text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+main { flex:1; max-width:960px; margin:24px auto; padding:0 24px; }
+.chapters { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.chapter-card { background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.06); text-decoration:none; color:#263238; display:block; transition:box-shadow 0.2s,transform 0.2s; border-left:4px solid #2e7d32; }
+.chapter-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.12); transform:translateY(-2px); }
+.chapter-card .num { font-size:0.75em; color:#66bb6a; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.chapter-card .title { font-size:1.05em; font-weight:700; margin:4px 0; }
+.chapter-card .subtitle { font-size:0.82em; color:#78909c; }
+.chapter-card .types { margin-top:8px; font-size:0.75em; color:#90a4ae; }
+.chapter-card .types span { display:inline-block; background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:4px; margin:2px; }
+.chapter-card.knn { border-left-color:#ef6c00; }
+footer { text-align:center; padding:24px; color:#90a4ae; font-size:0.82em; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>章节测试</h1>
+  <p>交互式章节测验 · 点击查看答案</p>
+  <div class="note">题型：选择 + 填空 + 简答 + 计算 + 代码分析 &nbsp;|&nbsp; 每章独立计分</div>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">复习导航</a> &nbsp;/&nbsp; 章节测试
+</div>
+
+<main>
+<div class="chapters">
+  <a class="chapter-card" href="期末复习真题.html" style="border-left-color: #ff6f00; background: linear-gradient(135deg, #fff8e1, #fff);">
+    <div class="num" style="color: #ff6f00;">&#11088; 教师勾画</div>
+    <div class="title">期末复习真题</div>
+    <div class="subtitle">复习课全部练习题目 · 19题 · 含详细解析与章节标注</div>
+    <div class="types"><span style="background:#fff3e0;color:#e65100;">选择</span><span style="background:#e8f5e9;color:#2e7d32;">填空</span><span style="background:#fff3e0;color:#e65100;">计算</span></div>
+  </a>
+  <a class="chapter-card" href="第1讲-章节测试.html"><div class="num">Lec 1</div><div class="title">机器学习概论</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第2讲-章节测试.html"><div class="num">Lec 2</div><div class="title">模型评估与选择</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第3讲-章节测试.html"><div class="num">Lec 3</div><div class="title">K近邻法 (K近邻法)</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第4讲-章节测试.html"><div class="num">Lec 4</div><div class="title">决策树入门 (ID3/C4.5)</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第5讲-章节测试.html"><div class="num">Lec 5</div><div class="title">CART与集成学习入门</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第6讲-章节测试.html"><div class="num">Lec 6</div><div class="title">Bagging与随机森林</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第7讲-章节测试.html"><div class="num">Lec 7</div><div class="title">AdaBoost</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第9讲-章节测试.html"><div class="num">Lec 9</div><div class="title">神经网络入门</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第10讲-章节测试.html"><div class="num">Lec 10</div><div class="title">神经网络：感知机</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第11讲-章节测试.html"><div class="num">Lec 11</div><div class="title">BP反向传播算法</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第12讲-章节测试.html"><div class="num">Lec 12</div><div class="title">支持向量机)</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card" href="第13讲-章节测试.html"><div class="num">Lec 13</div><div class="title">SVM回顾与关联规则</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+  <a class="chapter-card knn" href="KNN专题-章节测试.html"><div class="num">专题</div><div class="title">KNN分类模拟分析</div><div class="types"><span>选择</span><span>填空</span><span>简答</span><span>计算</span><span>代码</span></div></a>
+</div>
+</main>
+
+<footer>数据挖掘与机器学习 · 期末复习 · 2026年6月9日</footer>
+
+</body>
+</html>

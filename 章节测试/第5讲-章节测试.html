@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5讲 章节测试 — 决策树：CART算法、剪枝与集成学习</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; font-size:15px; line-height:1.75; color:#333; background:#f5f5f5; }
+.container { max-width:800px; margin:0 auto; padding:16px; }
+header { background:linear-gradient(135deg, #6a1b9a, #8e24aa); color:#fff; padding:24px; text-align:center; border-radius:0 0 12px 12px; margin-bottom:20px; }
+header h1 { font-size:1.5em; margin-bottom:4px; }
+header p { font-size:0.9em; opacity:0.85; }
+.sec-title { color:#6a1b9a; font-size:1.15em; margin:20px 0 10px; padding-bottom:4px; border-bottom:2px solid #6a1b9a; }
+.q-card { background:#fff; border-radius:8px; padding:16px 20px; margin-bottom:12px; border:1px solid #e0e0e0; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.q-card .q-text { font-weight:600; margin-bottom:8px; }
+.q-card .q-num { display:inline-block; background:#6a1b9a; color:#fff; width:24px; height:24px; border-radius:50%; text-align:center; line-height:24px; font-size:0.8em; margin-right:8px; }
+.q-card .options { margin:6px 0 6px 32px; }
+.q-card .options div { padding:2px 0; }
+.btn-toggle { display:inline-block; padding:4px 16px; background:#6a1b9a; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:0.85em; margin-top:8px; transition:background 0.2s; }
+.btn-toggle:hover { background:#7b1fa2; }
+.answer-box { display:none; background:#f3e5f5; padding:12px 16px; border-left:4px solid #6a1b9a; border-radius:4px; margin-top:8px; font-size:0.92em; }
+.answer-box.show { display:block; }
+.answer-box .correct { color:#c62828; font-weight:700; }
+.answer-box .explanation { margin-top:4px; }
+.calc-area { background:#fafafa; border:1px dashed #ccc; border-radius:6px; padding:12px; margin:8px 0; font-family:"Consolas",monospace; font-size:0.9em; white-space:pre-line; }
+.code-area { background:#263238; color:#aed581; padding:14px; border-radius:6px; font-family:"Consolas","Courier New",monospace; font-size:0.85em; overflow-x:auto; margin:8px 0; line-height:1.5; }
+.fill-blank { display:inline-block; border-bottom:2px dashed #6a1b9a; min-width:120px; text-align:center; color:#6a1b9a; font-style:italic; }
+.footer { text-align:center; padding:20px; color:#999; font-size:0.8em; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header>
+  <h1>第5讲 章节测试</h1>
+  <p>决策树：CART算法、剪枝与集成学习入门 | 共 5 类题型</p>
+</header>
+<div class="container">
+
+<!-- ============ 选择题 ============ -->
+<h2 class="sec-title">一、单选题（5题）</h2>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">1</span> CART 决策树与 ID3/C4.5 在树结构上最重要的区别是什么？</div>
+  <div class="options">
+    <div>A. CART 只能用于分类</div>
+    <div>B. CART 总是生成二叉树</div>
+    <div>C. CART 使用熵作为分裂准则</div>
+    <div>D. CART 不支持剪枝</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：B</p>
+    <p class="explanation">CART 采用二叉划分，而 ID3/C4.5 采用多叉划分。CART 不仅支持分类也支持回归任务，使用 Gini 指数作为分类分裂准则，并且需要剪枝。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">2</span> 在二分类问题中，当样本比例为 1:1 时，基尼系数的值是多少？</div>
+  <div class="options">
+    <div>A. 0</div>
+    <div>B. 0.25</div>
+    <div>C. 0.5</div>
+    <div>D. 1</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：C</p>
+    <p class="explanation">Gini = 2p(1-p) = 2×0.5×0.5 = 0.5。当 p=0.5 时基尼指数最大，表示不确定性最高。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">3</span> 在构建回归树时，CART 使用什么指标来衡量分裂质量？</div>
+  <div class="options">
+    <div>A. 交叉熵 Cross Entropy</div>
+    <div>B. 平方误差 Squared Error / 最小方差</div>
+    <div>C. 平均绝对误差 MAE</div>
+    <div>D. 相关系数 Correlation Coefficient</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：B</p>
+    <p class="explanation">CART 回归树采用最小平方残差（最小化平方误差和）作为分裂准则，寻找最优切分变量 j 和切分点 s 使得两个子区域内的平方误差之和最小。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">4</span> 随机森林在 Bagging 基础上增加的另一层随机性是什么？</div>
+  <div class="options">
+    <div>A. 随机选择不同的损失函数</div>
+    <div>B. 随机选择不同的训练迭代次数</div>
+    <div>C. 在节点分裂时随机选择一个特征子集进行最优属性搜索</div>
+    <div>D. 随机对输入样本进行降维</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：C</p>
+    <p class="explanation">随机森林在 Bagging 的 Bootstrap 采样基础上，在每个节点分裂时从 M 个特征中随机选取 m ≪ M 个特征，进一步降低树间的相关性，从而进一步降低方差。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">5</span> 随机森林中，超参数 m（mtry，分裂时随机抽取的特征数）设置得非常大，接近总特征数 D 时，模型会怎样？</div>
+  <div class="options">
+    <div>A. 模型变得更加随机</div>
+    <div>B. 随机森林退化为传统的 Bagging 算法</div>
+    <div>C. 模型计算速度大幅提升</div>
+    <div>D. 模型倾向于欠拟合</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：B</p>
+    <p class="explanation">当 m 接近全部特征数 D 时，每个节点几乎使用全部特征来分裂，丧失了特征层面的随机性，RF 退化为普通的决策树 Bagging。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">6</span> 相比于单棵决策树，随机森林最主要的缺点是什么？</div>
+  <div class="options">
+    <div>A. 容易过拟合</div>
+    <div>B. 无法处理分类变量</div>
+    <div>C. 模型丧失了直观的可解释性</div>
+    <div>D. 无法处理高维数据</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：C</p>
+    <p class="explanation">单棵决策树可以直观画出树结构来理解分类/回归规则，而随机森林由大量树组成，是黑箱模型，失去了可解释性。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">7</span> CART 剪枝的损失函数中，α 参数增大时，决策树会如何变化？</div>
+  <div class="options">
+    <div>A. 决策树变大</div>
+    <div>B. 决策树变小</div>
+    <div>C. 决策树深度不变化</div>
+    <div>D. 决策树预测精度必然上升</div>
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">正确答案：B</p>
+    <p class="explanation">Cα(T) = C(T) + α|T|，α 越大，对复杂度的惩罚越大，倾向于选择叶结点更少的小树。α = 0 对应完全树 T₀，α → ∞ 对应单结点树。</p>
+  </div>
+</div>
+
+<!-- ============ 填空题 ============ -->
+<h2 class="sec-title">二、填空题（4题）</h2>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">1</span> CART 分类树使用 <span class="fill-blank">____</span> 作为选择最优特征的不纯性度量，而 ID3 使用 <span class="fill-blank">____</span>。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">答案：基尼指数（Gini Index）、信息增益（Information Gain）</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">2</span> Bootstrap 自助法中，当样本量 m 足够大时，每次采样不被抽到的概率约等于 <span class="fill-blank">____</span>，即每次约有 <span class="fill-blank">____</span>% 的样本进入训练集。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">答案：1/e (≈ 0.368)、63.2</p>
+    <p class="explanation">P(未被抽到) = (1-1/m)^m → 1/e ≈ 0.368，所以约 63.2% 进入训练集，36.8% 作为 袋外 (OOB)。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">3</span> 在构建随机森林时，基学习器（决策树）通常建议<span class="fill-blank">____</span>（填"进行剪枝"或"完全生长不剪枝"）。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">答案：完全生长不剪枝</p>
+    <p class="explanation">随机森林每棵决策树都完全生长，不需要剪枝，因为随机性（样本随机+特征随机）已经起到了防止过拟合的作用。</p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">4</span> CART 剪枝的损失函数为 Cα(T) = C(T) + α|T|，其中 C(T) 表示<span class="fill-blank">____</span>，|T| 表示<span class="fill-blank">____</span>。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">答案：对训练数据的预测误差（基尼指数或均方误差）、子树 T 的叶结点总个数</p>
+  </div>
+</div>
+
+<!-- ============ 简答题 ============ -->
+<h2 class="sec-title">三、简答题（3题）</h2>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">1</span> 简述 Bagging 为什么能够降低模型方差？其方差公式为 Var = ρσ² + (1-ρ)σ²/B，请解释各符号含义，并指出为什么增大 B 不能完全消除方差。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">参考答案：</p>
+    <p class="explanation">
+      σ²：每个基学习器的方差<br>
+      ρ：基学习器两两之间的相关系数<br>
+      B：Bagging 中基学习器的个数<br><br>
+      当 B 增大，第二项 (1-ρ)σ²/B → 0，但第一项 ρσ² 保持不变。因此增大 B 无法消除由基学习器之间相关性带来的方差部分。要进一步降低方差，需要降低 ρ（如随机森林通过随机化特征来降低树间相关性）。
+    </p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">2</span> 简述 CART 剪枝中子树序列 {T₀, T₁, ..., Tₙ} 是如何生成的，最后如何从中选出最优子树。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">参考答案：</p>
+    <p class="explanation">
+      (1) 子树序列生成：从完全生长树 T₀ 开始，对 T₀ 中每个内部节点 t，计算剪枝临界值 g(t) = [C(t)-C(T_t)]/[|T_t|-1]。每次剪掉 g(t) 最小的节点对应的子树，得到 T₁。以 T₁ 作为当前树继续迭代，直到只剩根节点，得到序列 T₀, T₁, ..., Tₙ。<br><br>
+      (2) 选择最优子树：在独立的验证集上，对序列中每棵子树进行交叉验证，选择验证误差最小的子树作为最终决策树。
+    </p>
+  </div>
+</div>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">3</span> 为什么随机森林通常比 Bagging 表现更好？请从方差降低的角度加以解释。</div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">参考答案：</p>
+    <p class="explanation">
+      Bagging 的方差 = ρσ² + (1-ρ)σ²/B。虽然增大 B 可降低第二项，但第一项 ρσ² 由于 Bootstrap 样本之间的重叠而无法消除。<br><br>
+      随机森林在每个节点分裂时，从 M 个特征中随机选取 m ≪ M 个特征再进行最优属性选择。这种特征层面的随机化使不同决策树之间的相关性 ρ 显著降低，从而降低集成方差中的 ρσ² 项，进一步提升性能。
+    </p>
+  </div>
+</div>
+
+<!-- ============ 计算题 ============ -->
+<h2 class="sec-title">四、计算题（1题）— 基尼指数计算</h2>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">1</span> 设数据集 D 共有 20 个样本，其中正类 12 个，负类 8 个。现考虑特征"是否已婚"（取值：是/否），已婚样本 10 个（其中正类 8 个，负类 2 个），未婚样本 10 个（其中正类 4 个，负类 6 个）。</div>
+  <p style="margin-left:32px; margin-bottom:8px;">
+    (a) 计算数据集 D 的基尼指数 Gini(D)。<br>
+    (b) 计算按"是否已婚"划分后的条件基尼指数 Gini(D, 是否已婚)。<br>
+    (c) 该划分的基尼指数是否低于划分前？该特征是否是好的划分特征？
+  </p>
+  <div class="calc-area">
+D = {正类:12, 负类:8}, 共20
+已婚: 10个, {正类:8, 负类:2} → H1
+未婚: 10个, {正类:4, 负类:6} → H2
+  </div>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">参考答案：</p>
+    <div class="calc-area">
+(a) Gini(D) = 1 - [(12/20)² + (8/20)²] = 1 - [0.36 + 0.16] = 1 - 0.52 = <strong>0.48</strong>
+
+(b) Gini(已婚) = 1 - [(8/10)² + (2/10)²] = 1 - [0.64 + 0.04] = 0.32
+   Gini(未婚) = 1 - [(4/10)² + (6/10)²] = 1 - [0.16 + 0.36] = 0.48
+
+   Gini(D, 是否已婚) = (10/20)×0.32 + (10/20)×0.48 = 0.5×0.32 + 0.5×0.48
+                      = 0.16 + 0.24 = <strong>0.40</strong>
+
+(c) 划分后的基尼指数 0.40 < 划分前的 0.48，基尼指数下降了。
+这使得 Gini gain = 0.48 - 0.40 = 0.08 > 0，说明该特征有正向的划分效果。
+    </div>
+  </div>
+</div>
+
+<!-- ============ 代码分析题 ============ -->
+<h2 class="sec-title">五、代码分析题（1题，12分）</h2>
+
+<div class="q-card">
+  <div class="q-text"><span class="q-num">1</span> 阅读以下R语言代码，回答问题：</div>
+  <div class="code-area">
+library(rpart)
+
+# 特征矩阵与标签
+set.seed(42)
+X <- matrix(c(2.0, 1.5, 3.0, 2.5, 1.0,
+              1.0, 2.0, 2.5, 1.0, 2.5), ncol = 2)
+y <- factor(c("否", "否", "是", "是", "否"))
+colnames(X) <- c("特征1", "特征2")
+data <- data.frame(X, y)
+
+# 训练CART分类树
+model <- rpart(y ~ ., data = data, 
+               method = "class",
+               control = rpart.control(minsplit = 3, cp = 0.01))
+
+print(model)
+summary(model)
+  </div>
+  <p>(1) CART分类树使用哪种不纯性度量？上述代码中<code>method = "class"</code>时rpart默认使用的是什么标准？（4分）</p>
+  <p>(2) <code>rpart.control(minsplit = 3, cp = 0.01)</code> 中各参数的含义是什么？如果数据集有1000个样本但<code>minsplit = 3</code>太小，会导致什么问题？（4分）</p>
+  <p>(3) <code>summary(model)</code> 输出的内容中，如何识别该决策树使用了哪些变量作为分裂节点？（4分）</p>
+  <button class="btn-toggle" onclick="toggleAns(this)">显示答案</button>
+  <div class="answer-box">
+    <p class="correct">参考答案：</p>
+    <p class="explanation">
+      <strong>(1) </strong>CART分类树使用<strong>Gini指数</strong>（Gini Index）作为不纯性度量。在 R 的 <code>rpart()</code> 中，<code>method = "class"</code> 默认按Gini指数选择分裂特征和切分点。Gini = 1 - Σp<sub>k</sub>²，值越小表示节点越纯净（单一类别）。与ID3（信息增益）和C4.5（信息增益率）不同，CART使用Gini指数。<br><br>
+      <strong>(2) </strong><code>minsplit = 3</code>：节点中至少有3个样本才考虑分裂（防止在极小的节点上继续分裂）。<code>cp = 0.01</code>：复杂度参数，分裂必须使模型拟合提升至少0.01才被接受。若数据集有1000个样本但 minsplit=3 太小，树可能<strong>过度生长</strong>——产生大量叶节点，每个叶节点只包含极少数样本，导致<strong>过拟合</strong>。通常建议按样本量比例调整 minsplit。<br><br>
+      <strong>(3) </strong><code>summary(model)</code> 输出中，<code>Node number</code> 部分列出每个分裂节点使用的变量（如 <code>split: 特征1 < 2.25</code>）；<code>Variable importance</code> 列出每个变量对模型的重要性（基于分裂中Gini减少量的总和）。通过这两部分可以清楚识别决策树使用了哪些变量。
+    </p>
+  </div>
+</div>
+
+<div class="footer">上海对外经贸大学 · 数据挖掘与机器学习 · 第5讲章节测试</div>
+</div>
+
+<script>
+function toggleAns(btn) {
+  var box = btn.parentElement.querySelector('.answer-box');
+  if (box.classList.contains('show')) {
+    box.classList.remove('show');
+    btn.textContent = '显示答案';
+  } else {
+    box.classList.add('show');
+    btn.textContent = '隐藏答案';
+  }
+}
+</script>
+</body>
+</html>

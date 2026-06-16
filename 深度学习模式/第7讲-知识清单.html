@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7讲 知识清单 — 集成学习：AdaBoost</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <a href="#">深度学习模式</a> / 第7讲-知识清单 |
+  <a href="#">←上一章</a> | <a href="#">下一章 →</a>
+</div>
+
+<div class="header">
+  <h1>第7讲 知识清单：集成学习 — AdaBoost</h1>
+  <div class="meta">2026年4月20日 · 上海对外经贸大学 · 王昭文 · 数据挖掘与机器学习</div>
+  <div class="tag-row" style="margin-top:12px;">
+    <span class="tag tag-must">tag-must</span>
+    <span class="tag tag-key">tag-key</span>
+    <span class="tag tag-freq">tag-freq</span>
+    <span class="tag tag-info">tag-info</span>
+  </div>
+</div>
+
+<!-- ========== SECTION: 直觉理解 ========== -->
+<div class="card">
+  <h2>1. 直觉理解 Intuition <span class="tag-read">细读</span></h2>
+  <p><span class="kp">集成学习</span>的核心思想类比：<span class="exp">"三个臭皮匠，顶个诸葛亮"——组合多个弱分类器形成一个强分类器。</span></p>
+  <p><span class="kp">Boosting</span>（提升方法）：<span class="exp">串行迭代生成弱分类器，每一轮根据上一轮的<br>分类结果调整训练样本的权重分布，让后续分类器更关注之前被错误分类的样本。</span></p>
+  <p>想象一个场景：老师在辅导学生做题，第一遍做错的题目，老师会在下一轮复习中重点强调那些错题（<span class="kp">增加权重</span>），反复如此，直到学生掌握所有难点。</p>
+  <blockquote>直觉陷阱：Boosting 不是简单的"多数投票"，而是加权投票——每个弱分类器有自己的发言权重 α。</blockquote>
+</div>
+
+<!-- ========== SECTION: 定义 ========== -->
+<div class="card">
+  <h2>2. 核心定义 Definitions <span class="tag-read">细读</span></h2>
+  <h3>2.1 集成学习分类 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>结构</th><th>代表算法</th><th>训练方式</th><th>核心机制</th></tr>
+    <tr><td><span class="kp">并行结构</span></td><td>Bagging / 随机森林</td><td>各分类器独立训练</td><td>Bootstrap 重采样 + 平均/投票</td></tr>
+    <tr><td><span class="kp">串行结构</span></td><td>AdaBoost / 梯度提升树</td><td>后一个依赖前一个</td><td>调整样本权重或拟合残差/负梯度</td></tr>
+  </table>
+
+  <h3>2.2 AdaBoost 核心概念 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">弱分类器</span> <span class="exp">分类准确率略高于随机猜测（>50%）的分类器，通常用决策树桩 (stump)</span></p>
+  <p><span class="kp">样本权重分布 D<sub>m</sub></span> <span class="exp">第 m 轮迭代时，每个训练样本的权重，初始均匀分布 D<sub>1</sub>(i) = 1/N</span></p>
+  <p><span class="kp">分类器权重 α<sub>m</sub></span> <span class="exp">第 m 个弱分类器在最终投票中的话语权，由分类误差率决定</span></p>
+  <p><span class="kp">强分类器 G(x)</span> <span class="exp">所有弱分类器的加权线性组合</span></p>
+  <p><span class="kp">指数损失函数</span> <span class="exp">AdaBoost 优化的目标函数: L(y, f(x)) = exp(-y · f(x))</span></p>
+</div>
+
+<!-- ========== SECTION: 动机 ========== -->
+<div class="card">
+  <h2>3. 动机与背景 Motivation <span class="tag-read">细读</span></h2>
+  <h3>3.1 为什么需要 Boosting？ <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="kp">"弱可学习"→"强可学习"</span>：Kearns &amp; Valiant 提出的理论问题——能否将一个仅略好于随机猜测的弱学习器提升为强学习器？</li>
+    <li><span class="kp">串行纠错机制</span>：与 Bagging 的"独立投票"不同，Boosting 通过"错误驱动"的串行方式逐步修正模型。</li>
+  </ul>
+  <h3>3.2 AdaBoost 的优势 <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="kp">理论优雅</span>：可以通过前向分步加法模型和指数损失函数严格推导</li>
+    <li><span class="kp">无需调参</span>：弱分类器个数 M 是主要参数，不涉及复杂超参</li>
+    <li><span class="kp">不易过拟合</span>：经验表明即使训练轮数很大，测试误差仍可能继续下降</li>
+  </ul>
+</div>
+
+<!-- ========== SECTION: 推导 ========== -->
+<div class="card">
+  <h2>4. 数学推导 Derivation <span class="tag-read">细读</span></h2>
+  <h3>4.1 AdaBoost 算法步骤 <span class="tag-read">细读</span></h3>
+  <p><span class="step-num">1</span><strong>初始化权重分布</strong>：对所有 N 个样本，</p>
+  <div class="formula-block">$$D_1 = (w_{11}, w_{12}, \dots, w_{1N}), \quad w_{1i} = \frac{1}{N}$$</div>
+
+  <p><span class="step-num">2</span><strong>对 m = 1, 2, …, M，迭代执行：</strong></p>
+
+  <h4>(a) 训练弱分类器</h4>
+  <p>使用权重分布 D<sub>m</sub> 训练基本分类器：</p>
+  <div class="formula-block">$$G_m(x) : \mathcal{X} \to \{-1, +1\}$$</div>
+
+  <h4>(b) 计算分类误差率</h4>
+  <div class="formula-block">$$\varepsilon_m = \sum_{i=1}^{N} w_{mi} \cdot \mathbb{I}(G_m(x_i) \neq y_i)$$</div>
+  <p class="formula-comment">注意：这是"加权"误差率，而非普通错误率。权重大于0.5的样本对误差贡献更大。</p>
+
+  <h4>(c) 计算分类器权重系数</h4>
+  <div class="formula-block">$$\alpha_m = \frac{1}{2} \ln\left(\frac{1 - \varepsilon_m}{\varepsilon_m}\right)$$</div>
+  <p class="formula-comment">当 ε_m < 0.5 时，α_m > 0；ε_m 越小，α_m 越大。若 ε_m = 0.5（随机猜测），α_m = 0（该分类器无价值）。</p>
+
+  <h4>(d) 更新样本权重分布</h4>
+  <div class="formula-block">$$D_{m+1}(i) = \frac{w_{mi} \cdot \exp(-\alpha_m \cdot y_i \cdot G_m(x_i))}{Z_m}$$</div>
+  <p class="formula-comment">Z<sub>m</sub> 是归一化因子，确保 D<sub>m+1</sub> 是一个概率分布 (∑ w_i = 1)。</p>
+  <p><span class="kp">权重扩大因子</span>：<span class="exp">正确分类 → 乘以 exp(-α_m) &lt; 1 → 权重降低；错误分类 → 乘以 exp(α_m) &gt; 1 → 权重增加</span></p>
+
+  <p><span class="step-num">3</span><strong>构建最终强分类器</strong></p>
+  <div class="formula-block">$$G(x) = \text{sign}\Bigg(\sum_{m=1}^{M} \alpha_m \cdot G_m(x)\Bigg)$$</div>
+
+  <h3>4.2 前向分步算法视角 <span class="tag-read">细读</span></h3>
+  <p>AdaBoost 可以理解为：</p>
+  <ul>
+    <li><span class="kp">加法模型</span>：f(x) = Σ α_m · G_m(x)</li>
+    <li><span class="kp">指数损失函数</span>：L(y, f(x)) = exp(-y · f(x))</li>
+    <li><span class="kp">前向分步算法</span>：每次只优化当前步的 (α_m, G_m)，不回溯调整之前的参数</li>
+  </ul>
+  <p class="formula-comment">数学便利性：指数函数的导数还是指数，使得 α_m 的解析求解极为简单。对错误分类的惩罚是指数级的，强制模型修正那些"极其错误"的样本。</p>
+</div>
+
+<!-- ========== SECTION: 示例 ========== -->
+<div class="card">
+  <h2>5. 实例演示 Examples <span class="tag-read">细读</span></h2>
+  <h3>5.1 二分类小例子 <span class="tag-read">细读</span></h3>
+  <p>假设有 10 个样本，初始权重均为 1/10：</p>
+  <table>
+    <tr><th>轮次 m</th><th>误分类样本</th><th>ε_m</th><th>α_m</th><th>效果</th></tr>
+    <tr><td>1</td><td>x₂, x₅, x₈ (3个)</td><td>0.30</td><td>0.4236</td><td>3个错分样本权重↑，7个正确样本权重↓</td></tr>
+    <tr><td>2</td><td>x₂, x₅ (2个)</td><td>~0.21</td><td>~0.65</td><td>x₂, x₅ 已在重点关注列表中</td></tr>
+    <tr><td>3</td><td>x₃ (1个)</td><td>~0.09</td><td>~1.17</td><td>错误越来越少，权重集中到最难样本</td></tr>
+  </table>
+
+  <h3>5.2 课堂练习题精析 <span class="tag-read">细读</span></h3>
+  <p><strong>Q1：AdaBoost 核心思想</strong></p>
+  <p><span class="exp">答案：B — 每一轮训练都会根据上一轮的分类错误率，增加被错分样本的权重。</span></p>
+  <p>🔍 A 是 Bagging 的特点，C 是随机森林的技巧，D 是正则化方法。</p>
+
+  <p><strong>Q2：α 与错误率 ε 的关系</strong></p>
+  <p><span class="exp">答案：A — 错误率 ε 越小，权重 α 越大。</span> α = ½ ln((1-ε)/ε) 是关于 ε 的单调递减函数。</p>
+
+  <p><strong>Q3：ε = 0.5 时</strong></p>
+  <p><span class="exp">答案：C — α = ½ ln(0.5/0.5) = ½ ln(1) = 0，分类器无贡献，无法提取有用信息。</span></p>
+
+  <p><strong>Q4：正确分类样本的权重变化</strong></p>
+  <p><span class="exp">答案：B — 被降低。正确分类 → 乘以 exp(-α) &lt; 1 → 权重降低。</span></p>
+
+  <p><strong>Q5：AdaBoost vs 随机森林</strong></p>
+  <p><span class="exp">答案：B — 随机森林并行，AdaBoost 串行（有依赖）。</span></p>
+</div>
+
+<!-- ========== SECTION: 比较 ========== -->
+<div class="card">
+  <h2>6. 对比分析 Comparison <span class="tag-read">细读</span></h2>
+  <h3>6.1 Bagging vs Boosting <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>特性</th><th>Bagging (随机森林)</th><th>Boosting (AdaBoost/梯度提升树)</th></tr>
+    <tr><td><span class="kp">训练方式</span></td><td>并行（各分类器独立）</td><td>串行（后一个依赖前一个）</td></tr>
+    <tr><td><span class="kp">样本处理</span></td><td>Bootstrap 有放回抽样</td><td>调整样本权重分布</td></tr>
+    <tr><td><span class="kp">组合方式</span></td><td>简单平均 / 多数投票</td><td>加权投票（AdaBoost）/ 累加（梯度提升树）</td></tr>
+    <tr><td><span class="kp">优化目标</span></td><td>降低方差 Variance</td><td>降低偏差 Bias</td></tr>
+    <tr><td><span class="kp">异常值敏感度</span></td><td>相对鲁棒</td><td>对异常值较敏感</td></tr>
+    <tr><td><span class="kp">过拟合风险</span></td><td>较低</td><td>AdaBoost 相对低；梯度提升树 需正则化</td></tr>
+  </table>
+
+
+<!-- ========== SECTION: 常见陷阱 ========== -->
+<div class="card">
+  <h2>7. 常见陷阱与注意点 Pitfalls <span class="tag-read">细读</span></h2>
+  <blockquote>陷阱1：误以为 AdaBoost 的 α_m 可能为负数。<br>实际上，如果 ε_m ≥ 0.5，该分类器应被丢弃（α ≤ 0），实际算法中会要求 ε_m &lt; 0.5。</blockquote>
+
+  <blockquote>陷阱2：混淆 Bagging 和 Boosting 的并行/串行特性。<br>Bagging（包括随机森林）是<strong>并行</strong>结构，Boosting 是<strong>串行</strong>结构。这是考试高频考点。</blockquote>
+
+  <blockquote>陷阱3：认为 AdaBoost 通过 Bootstrap 抽样来改变样本分布。<br>错误！AdaBoost 不重抽样，而是直接调整每个样本的权重系数。调整权重 ≠ 调整样本量。</blockquote>
+
+  <blockquote>陷阱4：以为被正确分类的样本权重不变。<br>正确分类样本的权重会<strong>降低</strong>（乘以 exp(-α) &lt; 1），错误分类的<strong>增加</strong>。</blockquote>
+
+  <blockquote>陷阱5：混淆指数损失和交叉熵损失。<br>AdaBoost 优化的是<strong>指数损失</strong>(exponential loss)，而非交叉熵。指数损失对错分样本的惩罚更重。</blockquote>
+
+</div>
+
+<!-- ========== SECTION: 历史脉络 ========== -->
+<div class="card">
+  <h2>9. 树模型发展简史 <span class="tag-read">细读</span></h2>
+  <table>
+    <tr><th>阶段</th><th>时间</th><th>里程碑</th></tr>
+    <tr><td>启发式规则萌芽</td><td>1963–1986</td><td><span class="kp">AID (1963)</span> → 最早回归树；<span class="kp">ID3 (1986)</span> → 引入信息熵和信息增益</td></tr>
+    <tr><td>统计基础奠定</td><td>1984</td><td><span class="kp">CART</span> (Breiman et al.) → 二叉树 + 基尼不纯度/均方误差 (MSE) + 代价复杂度剪枝</td></tr>
+    <tr><td>集成思想觉醒</td><td>1993–2001</td><td><span class="kp">C4.5 (1993)</span>、<span class="kp">Bagging (1996)</span>、<span class="kp">随机森林 (2001)</span></td></tr>
+    <tr><td>Boosting 突破</td><td>1995</td><td><span class="kp">AdaBoost (1995)</span> → 第一个实用Boosting</td></tr>
+    <tr><td>现代架构</td><td>2017–至今</td><td><span class="kp">LightGBM (2017)</span>、<span class="kp">CatBoost (2017)</span></td></tr>
+  </table>
+</div>
+
+<div class="footer-nav">
+  <a href="#">← 上一章：第6讲</a>
+  <a href="#">下一章：第9讲 →</a>
+</div>
+
+</div>
+</body>
+</html>

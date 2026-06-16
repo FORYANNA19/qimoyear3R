@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6讲-章节测试 | Bagging与随机森林</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f0f4f8;color:#333;line-height:1.7}
+.container{max-width:800px;margin:0 auto;padding:20px}
+.breadcrumb{font-size:14px;color:#666;padding:10px 16px;background:#fff;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between}
+h1{font-size:24px;color:#1565c0;margin-bottom:6px;padding-bottom:10px;border-bottom:2px solid #1565c0}
+.card{background:#fff;border-radius:10px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+h2{font-size:17px;color:#1565c0;margin:0 0 14px;padding-bottom:6px;border-bottom:1px dashed #bbdefb}
+.radio-group,.check-group{margin:8px 0 8px 12px}
+.radio-group label,.check-group label{display:block;padding:5px 12px;margin:3px 0;border-radius:6px;cursor:pointer;transition:background .2s}
+.radio-group label:hover,.check-group label:hover{background:#e3f2fd}
+input[type="text"]{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin:6px 0;font-family:inherit}
+textarea{width:100%;min-height:80px;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin:6px 0;font-family:inherit;resize:vertical}
+.btn{display:inline-block;padding:8px 20px;background:#1565c0;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;margin-top:8px;transition:background .2s}
+.btn:hover{background:#0d47a1}
+.btn-sm{padding:5px 14px;font-size:13px}
+.answer-box{display:none;margin-top:10px;padding:10px 16px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;font-size:14px}
+.answer-box.show{display:block}
+.answer-box h4{color:#1b5e20;margin-bottom:4px}
+code{background:#e8eaf6;padding:2px 6px;border-radius:3px;font-family:"Consolas",monospace;font-size:13px}
+pre{background:#263238;color:#aed581;padding:12px 16px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.6;margin:8px 0}
+.score-section{text-align:center;padding:20px;background:#e3f2fd;border-radius:10px;margin-top:20px}
+.score-section .big{font-size:36px;font-weight:700;color:#1565c0}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <span>章节测试 / <strong>第6讲-章节测试</strong></span>
+  <span><a href="../考试模式/第6讲-考试速查.html">← 考试速查</a> | <a href="../深度学习模式/第6讲-知识清单.html">知识清单 →</a></span>
+</div>
+
+<h1>第6讲：Bagging与随机森林 — 章节测试</h1>
+
+<!-- ===== 选择题 ===== -->
+<div class="card">
+<h2>一、单项选择题（5题 × 3分 = 15分）</h2>
+
+<!-- Q1 -->
+<div>
+<p><strong>1.</strong> CART决策树在二分类问题中使用基尼系数代替信息熵。当样本比例为1:1时，基尼系数的值是：</p>
+<div class="radio-group">
+  <label><input type="radio" name="q1" value="A"> A. 0</label>
+  <label><input type="radio" name="q1" value="B"> B. 0.25</label>
+  <label><input type="radio" name="q1" value="C"> C. 0.5</label>
+  <label><input type="radio" name="q1" value="D"> D. 1</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a1')">查看答案</button>
+<div class="answer-box" id="a1"><h4>答案：C</h4>
+<p>基尼系数 Gini(p) = 2p(1-p)。当样本比例1:1时，p=0.5，Gini = 2×0.5×0.5 = <strong>0.5</strong>。这是二分类问题中基尼系数的最大值。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- Q2 -->
+<div>
+<p><strong>2.</strong> 随机森林（Random Forest）在Bagging的基础上增加了一个关键的随机性来源，它是：</p>
+<div class="radio-group">
+  <label><input type="radio" name="q2" value="A"> A. 随机选择不同的损失函数</label>
+  <label><input type="radio" name="q2" value="B"> B. 随机选择不同的训练迭代次数</label>
+  <label><input type="radio" name="q2" value="C"> C. 在节点分裂时，随机选择一个特征子集进行最优属性搜索</label>
+  <label><input type="radio" name="q2" value="D"> D. 随机对输入样本进行降维</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a2')">查看答案</button>
+<div class="answer-box" id="a2"><h4>答案：C</h4>
+<p>Bagging仅对样本做Bootstrap（行随机/行抽样），而随机森林在每个节点分裂时还从M个特征中随机选m个（列随机），这是RF区别于Bagging的关键。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- Q3 -->
+<div>
+<p><strong>3.</strong> 相比于单棵决策树，随机森林最主要的缺点通常是：</p>
+<div class="radio-group">
+  <label><input type="radio" name="q3" value="A"> A. 容易过拟合</label>
+  <label><input type="radio" name="q3" value="B"> B. 无法处理分类变量</label>
+  <label><input type="radio" name="q3" value="C"> C. 模型丧失了直观的可解释性（Interpretability）</label>
+  <label><input type="radio" name="q3" value="D"> D. 无法处理高维数据</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a3')">查看答案</button>
+<div class="answer-box" id="a3"><h4>答案：C</h4>
+<p>单棵决策树可以用树形图直观展示决策规则，具有很好的可解释性。但随机森林由数百棵树组成，虽然可以输出特征重要性，但无法像单棵树那样直观解释每一步的决策路径。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- Q4 -->
+<div>
+<p><strong>4.</strong> 随机森林中，超参数mtry（分裂时随机抽取的特征数）如果设置得非常大（接近总特征数M），模型会发生什么变化？</p>
+<div class="radio-group">
+  <label><input type="radio" name="q4" value="A"> A. 模型会变得更加随机</label>
+  <label><input type="radio" name="q4" value="B"> B. 随机森林会退化为传统的Bagging算法</label>
+  <label><input type="radio" name="q4" value="C"> C. 模型的计算速度会大幅提升</label>
+  <label><input type="radio" name="q4" value="D"> D. 模型会倾向于欠拟合</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a4')">查看答案</button>
+<div class="answer-box" id="a4"><h4>答案：B</h4>
+<p>当m ≈ M时，每个节点分裂时几乎考虑了所有特征，特征随机性消失，RF退化为普通的Bagging（仅保留Bootstrap的样本随机性）。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- Q5 -->
+<div>
+<p><strong>5.</strong> AdaBoost算法中，弱分类器权重系数α的计算与错误率ε有关。关于α的性质，下列说法正确的是：</p>
+<div class="radio-group">
+  <label><input type="radio" name="q5" value="A"> A. 错误率ε越小，α越大</label>
+  <label><input type="radio" name="q5" value="B"> B. 错误率ε越大，α越大</label>
+  <label><input type="radio" name="q5" value="C"> C. α是一个固定值，不随迭代轮数变化</label>
+  <label><input type="radio" name="q5" value="D"> D. α的取值范围始终在[0, 0.5]之间</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a5')">查看答案</button>
+<div class="answer-box" id="a5"><h4>答案：A</h4>
+<p>α = ½ln((1-ε)/ε)。当ε→0时，α→+∞；当ε=0.5时，α=0；当ε→1时，α→-∞。因此误差率越小，权重α越大，分类器在最终投票中的作用越大。</p></div>
+</div>
+
+<!-- Q6 -->
+<hr style="margin:16px 0;border:1px solid #eee">
+<div>
+<p><strong>6.</strong> AdaBoost与随机森林最大的区别在于：</p>
+<div class="radio-group">
+  <label><input type="radio" name="q6" value="A"> A. 随机森林是Boosting，AdaBoost是Bagging</label>
+  <label><input type="radio" name="q6" value="B"> B. 随机森林的分类器之间是并行的，AdaBoost的分类器之间是串行（有依赖）的</label>
+  <label><input type="radio" name="q6" value="C"> C. 随机森林改变样本权重，AdaBoost改变样本分布</label>
+  <label><input type="radio" name="q6" value="D"> D. 随机森林只能做分类，AdaBoost只能做回归</label>
+</div>
+<button class="btn btn-sm" onclick="toggleAnswer('a6')">查看答案</button>
+<div class="answer-box" id="a6"><h4>答案：B</h4>
+<p>这是最根本的区别：RF/Bagging采用并行结构（树之间无依赖），AdaBoost/Boosting采用串行结构（后一轮依赖前一轮的结果）。两种算法都可以做分类和回归。</p></div>
+</div>
+</div>
+
+<!-- ===== 填空题 ===== -->
+<div class="card">
+<h2>二、填空题（4题 × 3分 = 12分）</h2>
+
+<!-- F1 -->
+<div>
+<p><strong>1.</strong> Bootstrap抽样中，每个样本被抽中的概率约为______%，未被抽中的样本（袋外样本）约占______%。（保留一位小数）</p>
+<input type="text" placeholder="填入答案">
+<button class="btn btn-sm" onclick="toggleAnswer('f1')">查看答案</button>
+<div class="answer-box" id="f1"><h4>答案：63.2%, 36.8%</h4>
+<p>每个样本未被抽中的概率：(1-1/N)^N，当N→∞时趋近于1/e ≈ 0.368。因此被抽中约63.2%，未被抽中约36.8%。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- F2 -->
+<div>
+<p><strong>2.</strong> 泛化误差的偏差-方差分解中，三部分组成分别是：______、______、______。</p>
+<input type="text" placeholder="填入答案" style="width:100%">
+<button class="btn btn-sm" onclick="toggleAnswer('f2')">查看答案</button>
+<div class="answer-box" id="f2"><h4>答案：偏差平方(Bias²)、方差(Variance)、不可约噪声(σ²)</h4>
+<p>E[(y-f̂)²] = Bias[f̂]² + Var[f̂] + σ²</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- F3 -->
+<div>
+<p><strong>3.</strong> Bagging主要降低模型的______，而AdaBoost主要降低模型的______。</p>
+<input type="text" placeholder="填入答案">
+<button class="btn btn-sm" onclick="toggleAnswer('f3')">查看答案</button>
+<div class="answer-box" id="f3"><h4>答案：方差(Variance), 偏差(Bias)</h4>
+<p>这是Bagging与Boosting最本质的区别。并行集成降低方差，串行纠错降低偏差。</p></div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- F4 -->
+<div>
+<p><strong>4.</strong> AdaBoost的数学本质可以理解为：______模型 + ______损失函数 + ______算法。</p>
+<input type="text" placeholder="填入答案">
+<button class="btn btn-sm" onclick="toggleAnswer('f4')">查看答案</button>
+<div class="answer-box" id="f4"><h4>答案：加法(Additive), 指数(Exponential), 前向分步(Forward Stagewise)</h4>
+<p>AdaBoost = Additive Model + Exponential Loss + Forward Stagewise Algorithm</p></div>
+</div>
+</div>
+
+<!-- ===== 简答题 ===== -->
+<div class="card">
+<h2>三、简答题（2题 × 10分 = 20分）</h2>
+
+<!-- S1 -->
+<div>
+<p><strong>1.</strong> 从偏差-方差分解的角度，解释为什么随机森林比单棵决策树的泛化性能更好？为什么Bagging和Random Forest主要降低方差而非偏差？</p>
+<textarea placeholder="在此作答..."></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('s1')">查看参考答案</button>
+<div class="answer-box" id="s1">
+<h4>参考答案：</h4>
+<p>(1) 单棵未剪枝决策树具有<strong>低偏差、高方差</strong>的特点——对训练数据拟合得很好（低偏差），但对数据的微小变化很敏感（高方差）。</p>
+<p>(2) Bagging通过Bootstrap抽样训练多棵不同的树，然后取平均（回归）或投票（分类）。假设B棵树方差均为σ²，两两相关系数为ρ，则集成方差 = ρσ² + (1-ρ)σ²/B。当树木之间不完全相关时(ρ&lt;1)，平均操作降低了方差。同时偏差只取决于每棵树的期望，基本保持不变。</p>
+<p>(3) 随机森林在Bagging基础上增加了<strong>特征随机性</strong>（每节点从m个特征中选最优），进一步降低了树之间的相关性ρ，从而使方差进一步降低。</p>
+<p>(4) Bagging和RF主要降低方差而非偏差的原因：平均操作是对多个模型取均值，这一操作<strong>只影响预测的波动性（方差），不改变预测的期望值（偏差）</strong>。期望的偏差由基学习器本身决定。</p>
+</div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- S2 -->
+<div>
+<p><strong>2.</strong> 简述随机森林中OOB误差的计算方法及其优势。为什么OOB误差可以作为泛化误差的无偏估计？</p>
+<textarea placeholder="在此作答..."></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('s2')">查看参考答案</button>
+<div class="answer-box" id="s2">
+<h4>参考答案：</h4>
+<p><strong>计算方法：</strong>对每个训练样本i，找出所有<strong>未将该样本纳入训练集</strong>的决策树（即袋外树），用这些树对样本i进行预测（分类用投票，回归用平均），然后与真实标签比较，计算所有样本的平均误差。</p>
+<p><strong>优势：</strong>① 无需额外划分验证集，节省数据和计算资源；② 在大数据集上，OOB误差近似于N折交叉验证的结果；③ 可用于特征重要性评估（置换袋外样本特征值观察误差变化）。</p>
+<p><strong>无偏估计原理：</strong>对每个样本i，OOB预测只使用了<strong>训练时未见过样本i的树</strong>，这些树对样本i而言相当于独立测试集。因此OOB误差是无偏的，不会因为模型"见过"该样本而产生乐观估计。</p>
+</div>
+</div>
+
+<!-- S3 -->
+<hr style="margin:16px 0;border:1px solid #eee">
+<div>
+<p><strong>3.</strong> 请解释AdaBoost中"自适应"（Adaptive）的含义并说明其与Bagging在集成策略上的本质区别。</p>
+<textarea placeholder="在此作答..."></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('s3')">查看参考答案</button>
+<div class="answer-box" id="s3">
+<h4>参考答案：</h4>
+<p><strong>"自适应"含义：</strong>AdaBoost在运行过程中根据当前模型的表现<strong>动态调整</strong>样本权重和分类器权重，不需要任何关于弱学习器性能的先验知识。具体而言：① 每轮根据上一轮分类结果自适应地调整样本权重——错分样本权重增大，正确分类样本权重减小；② 每个弱分类器的投票权重α由其在训练集上的误差率自动决定，误差越小权重越大。</p>
+<p><strong>与Bagging的本质区别：</strong></p>
+<p>① <strong>结构：</strong>Bagging是并行结构（各树独立训练，无依赖关系），AdaBoost是串行结构（后一轮依赖前一轮结果）。</p>
+<p>② <strong>样本处理：</strong>Bagging用Bootstrap有放回抽样生成不同的训练子集，AdaBoost使用全部样本但通过权重来改变"相对重要性"。</p>
+<p>③ <strong>组合方式：</strong>Bagging用简单多数投票/平均，AdaBoost用加权投票（误差低的分类器权重大）。</p>
+<p>④ <strong>目标：</strong>Bagging主要降低方差，AdaBoost主要降低偏差。</p>
+</div>
+</div>
+</div>
+
+<!-- ===== 计算题 ===== -->
+<div class="card">
+<h2>四、计算题（1题 × 15分 = 15分）</h2>
+
+<div>
+<p><strong>题目：</strong>假设一个二分类问题，有10个样本，真实标签为 y = [1, 1, -1, -1, 1, -1, 1, -1, -1, 1]。已知基尼系数计算公式为 Gini(D) = 1 - Σ p<sub>k</sub>²。</p>
+<p><strong>(1)</strong> 计算当前数据集的基尼系数。</p>
+<p><strong>(2)</strong> 假设将样本按某特征A的取值a分成两组：D1对应前5个样本（标签为[1,1,-1,-1,1]），D2对应后5个样本（标签为[-1,1,-1,-1,1]）。计算按A=a划分后的加权基尼指数。</p>
+<p><strong>(3)</strong> 假设随机森林中使用了B=3棵树，每棵树对样本x的预测分别为[1, -1, 1]，求随机森林对该样本的最终预测结果。</p>
+<textarea placeholder="在此作答..." style="min-height:120px"></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('c1')">查看参考答案</button>
+<div class="answer-box" id="c1">
+<h4>参考答案：</h4>
+<p><strong>(1)</strong> 10个样本中，标签为1的有5个，标签为-1的有5个。</p>
+<p>p₁ = 5/10 = 0.5, p₂ = 5/10 = 0.5</p>
+<p>Gini(D) = 1 - (0.5² + 0.5²) = 1 - (0.25 + 0.25) = <strong>0.5</strong></p>
+<p><strong>(2)</strong> D1（前5个样本）：标签为1的有3个（第1,2,5个），标签为-1的有2个（第3,4个）。</p>
+<p>p₁¹ = 3/5 = 0.6, p₂¹ = 2/5 = 0.4</p>
+<p>Gini(D1) = 1 - (0.6² + 0.4²) = 1 - (0.36 + 0.16) = <strong>0.48</strong></p>
+<p>D2（后5个样本）：标签为1的有2个（第7,10个），标签为-1的有3个（第6,8,9个）。</p>
+<p>p₁² = 2/5 = 0.4, p₂² = 3/5 = 0.6</p>
+<p>Gini(D2) = 1 - (0.4² + 0.6²) = 1 - (0.16 + 0.36) = <strong>0.48</strong></p>
+<p>加权基尼指数 = (5/10)×0.48 + (5/10)×0.48 = <strong>0.48</strong></p>
+<p><strong>(3)</strong> 三棵树预测结果为[1, -1, 1]，采用多数投票：1得2票(-1得1票)，最终预测 = <strong>1</strong>。</p>
+</div>
+</div>
+</div>
+
+<!-- ===== 代码分析题 ===== -->
+<div class="card">
+<h2>五、代码分析题（2题 × 10分 = 20分）</h2>
+
+<!-- Code Q1 -->
+<div>
+<p><strong>1.</strong> 阅读以下R语言代码，回答问题：</p>
+<pre>library(randomForest)
+
+set.seed(42)
+model <- randomForest(Species ~ ., data = iris,
+                      ntree = 500,
+                      mtry = 2,
+                      importance = TRUE,
+                      proximity = TRUE)
+
+print(model)
+print(model$confusion)
+print(round(model$err.rate[nrow(model$err.rate), ], 4))</pre>
+<p>(1) <code>ntree = 500</code> 的含义是什么？增大 ntree 值对模型有什么影响？（3分）</p>
+<p>(2) <code>mtry = 2</code> 表示什么意思？如果将其改为 <code>mtry = 4</code>（等于总特征数），模型会发生什么变化？（4分）</p>
+<p>(3) <code>model$confusion</code> 和 <code>model$err.rate</code> 分别输出什么内容？（3分）</p>
+<textarea placeholder="在此作答..." style="min-height:100px"></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('code1')">查看参考答案</button>
+<div class="answer-box" id="code1">
+<h4>参考答案：</h4>
+<p><strong>(1) </strong><code>ntree = 500</code> 表示构建<strong>500棵决策树</strong>进行集成。增大 ntree 主要<strong>降低方差</strong>（更多树的投票使结果更稳定），偏差几乎不变。但边际效益递减，超过一定数量后提升不明显，仅增加计算开销。</p>
+<p><strong>(2) </strong><code>mtry = 2</code> 表示每次分裂时<strong>随机选取2个特征</strong>作为候选（而非所有4个特征）。这是随机森林区别于Bagging的关键——特征层面的随机性降低了树间相关性，进一步减小方差。若改为 <code>mtry = 4</code>（等于总特征数），特征随机性消失，<strong>随机森林退化为普通的Bagging</strong>。</p>
+<p><strong>(3) </strong><code>model$confusion</code> 输出<strong>混淆矩阵</strong>（OOB预测的各类别交叉表）；<code>model$err.rate</code> 是一个矩阵，每行对应每棵树的OOB误差率，最后一行为<strong>最终整体OOB误差率</strong>（如所有树参与投票时的误差）。OOB误差是对泛化性能的无偏估计。</p>
+</div>
+</div>
+<hr style="margin:16px 0;border:1px solid #eee">
+
+<!-- Code Q2 -->
+<div>
+<p><strong>2.</strong> 阅读以下R语言代码，回答问题：</p>
+<pre>library(randomForest)
+
+# Bagging（mtry = 全部特征）
+model_bag <- randomForest(Species ~ ., data = iris,
+                          ntree = 500,
+                          mtry = 4)
+
+# 随机森林（mtry = sqrt(特征数)）
+model_rf <- randomForest(Species ~ ., data = iris,
+                         ntree = 500,
+                         mtry = 2)
+
+# 查看特征重要性
+varImpPlot(model_rf, main = "Variable Importance")
+
+# 使用predict预测新样本
+new_sample <- iris[1:3, ]
+pred <- predict(model_rf, newdata = new_sample)
+print(pred)</pre>
+<p>(1) 上述代码中 <code>model_bag</code> 和 <code>model_rf</code> 有什么区别？为什么随机森林通常比Bagging表现更好？（4分）</p>
+<p>(2) <code>varImpPlot()</code> 输出的图中，哪个值越大表示特征越重要？重要性是如何计算的？（3分）</p>
+<p>(3) <code>predict(model_rf, newdata = new_sample)</code> 是如何做出最终分类决策的？（3分）</p>
+<textarea placeholder="在此作答..." style="min-height:100px"></textarea>
+<button class="btn btn-sm" onclick="toggleAnswer('code2')">查看参考答案</button>
+<div class="answer-box" id="code2">
+<h4>参考答案：</h4>
+<p><strong>(1) </strong><code>model_bag</code>（mtry=4）使用全部特征分裂，只有Bootstrap的样本随机性 → 退化为普通的<strong>Bagging</strong>。<code>model_rf</code>（mtry=2）每个节点随机选取2个特征 → 真正的<strong>随机森林</strong>。随机森林更好是因为特征随机性<strong>降低了树间相关性 ρ</strong>，而集成方差 = ρσ² + (1-ρ)σ²/B，ρ降低直接减小第一项。</p>
+<p><strong>(2) </strong><code>MeanDecreaseAccuracy</code>（左边图）越大表示特征越重要。计算方式：对每个特征，在OOB数据中随机置换该特征的值，然后计算预测准确率的下降幅度——重要特征被破坏后准确率显著下降。还有<code>MeanDecreaseGini</code>（右边图）基于节点分裂时Gini减少量的总和。</p>
+<p><strong>(3) </strong>500棵决策树分别对3个新样本独立预测，每个样本得到500个分类结果。最终采用<strong>多数投票法</strong>（majority voting）——统计500棵树中每类得票数，票数最多的类别为最终预测结果。</p>
+</div>
+</div>
+</div>
+
+<!-- Score -->
+<div class="score-section" style="display:none" id="scoreBox">
+  <p>总分：<span class="big">82分</span></p>
+  <p style="color:#666">选择题15 + 填空12 + 简答20 + 计算15 + 代码20</p>
+  <p style="color:#999;margin-top:10px">自我评估后比对答案，查漏补缺</p>
+</div>
+
+</div>
+
+<script>
+function toggleAnswer(id) {
+  var box = document.getElementById(id);
+  if (box.classList.contains('show')) {
+    box.classList.remove('show');
+  } else {
+    box.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>

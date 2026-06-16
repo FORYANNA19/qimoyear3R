@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期末复习真题 — 教师勾画重点</title>
+<style>
+:root {--deep-blue:#1a237e;--green:#2e7d32;--red:#c62828;--orange:#e65100;--bg:#f5f7fa;--card-bg:#fff;--border:#e0e0e0;--text:#333;--lt:#666;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+.container{max-width:960px;margin:0 auto;padding:20px;}
+.breadcrumb{font-size:13px;color:var(--lt);padding:12px 16px;background:var(--card-bg);border-radius:8px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.breadcrumb a{color:var(--deep-blue);text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+h1{font-size:26px;color:var(--deep-blue);margin-bottom:4px;}
+.sub{color:var(--lt);font-size:14px;margin-bottom:20px;}
+.stats{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+.stat{background:var(--card-bg);padding:10px 16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06);font-size:13px;}
+.stat strong{color:var(--orange);}
+.q-card{background:var(--card-bg);border-radius:10px;padding:24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--deep-blue);position:relative;}
+.q-card .q-type{position:absolute;top:12px;right:16px;font-size:12px;padding:2px 10px;border-radius:12px;font-weight:600;}
+.q-card .q-type.choice{background:#e8eaf6;color:var(--deep-blue);}
+.q-card .q-type.fill{background:#e8f5e9;color:var(--green);}
+.q-card .q-type.calc{background:#fff3e0;color:var(--orange);}
+.q-card .q-num{font-size:13px;color:var(--orange);font-weight:700;margin-bottom:6px;}
+.q-card .q-title{font-size:16px;font-weight:600;margin-bottom:10px;}
+.q-card .q-options{margin:8px 0;padding-left:16px;}
+.q-card .q-options li{margin:4px 0;padding:6px 10px;background:#fafafa;border-radius:4px;font-size:14px;list-style:none;}
+.btn-ans{display:inline-block;padding:6px 18px;background:var(--deep-blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:8px;}
+.btn-ans:hover{background:#283593;}
+.ans{display:none;margin-top:12px;padding:16px;background:#f9fbe7;border-radius:6px;border:1px solid #cddc39;font-size:14px;}
+.ans.show{display:block;}
+.ans .correct{color:var(--green);font-weight:700;}
+.ans h4{color:var(--red);margin:8px 0 4px;}
+.ans .source{display:inline-block;margin-top:8px;padding:4px 10px;background:#e8eaf6;border-radius:4px;font-size:12px;}
+.ans .source a{color:var(--deep-blue);font-weight:600;}
+.ans ul{margin:4px 0;padding-left:18px;}
+.ans ul li{margin:2px 0;font-size:13px;}
+footer{text-align:center;padding:24px;color:var(--lt);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="breadcrumb"><a href="index.html">章节测试</a> / <strong>期末复习真题</strong> &nbsp;|&nbsp; <a href="../index.html">返回复习导航</a></nav>
+
+<h1>期末复习真题</h1>
+<p class="sub">教师复习课勾画重点题目 · 共19题 · 含详细解析与章节标注 · 考试时间：2026年6月25日</p>
+
+<div class="stats">
+<div class="stat">📝 总题数：<strong>19</strong></div>
+<div class="stat">📊 覆盖章节：<strong>6章</strong></div>
+<div class="stat">⭐ 关联规则：<strong>5题</strong></div>
+<div class="stat">🧮 支持向量机：<strong>5题</strong></div>
+<div class="stat">🌲 决策树/随机森林：<strong>5题</strong></div>
+<div class="stat">🧠 神经网络/评估：<strong>4题</strong></div>
+</div>
+
+<!-- Q1 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 1 题 · 关联规则</div>
+<div class="q-title">在 Apriori 算法中，如果一个项集 {A,B} 是频繁的，那么其子集 {A} 一定是频繁的；但在 SPADE 序列挖掘中，如果序列 A→B 是频繁的，是否意味着 B→A 也是频繁的？</div>
+<div class="q-options"><li>A. 是，序列规则和关联规则一样，不区分方向</li><li>B. 不一定，序列有方向性，B→A 可能完全不频繁</li><li>C. 是，因为 {A,B} 和 {B,A} 是同一个项集</li><li>D. 不一定，取决于支持度阈值</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：不是，序列有严格的时间顺序</h4>
+<p>Apriori 处理的是项集（Itemset），{A,B} 和 {B,A} 是同一个项集，频繁性对称。但 SPADE 处理的是序列（Sequence），A→B 表示"先买A后买B"，与 B→A（"先买B后买A"）是完全不同的序列模式。<strong>序列挖掘关注时间顺序</strong>，Support(A→B) 可能很高但 Support(B→A) 可能为零。</p>
+<h4>其他选项分析：</h4>
+<ul><li>A：错误。混淆了项集（无序集合）和序列（有序列表）的概念。</li><li>C：错误。同样混淆了项集和序列。SPADE 的序列模式中，A→B ≠ B→A。</li><li>D：错误。这不是阈值问题，而是序列方向性问题。即使阈值相同，两个方向的支持度通常不同。这是序列挖掘的本质特征。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第13讲-知识清单.html">第13讲（6月8日）</a> > 关联规则 > SPADE序列挖掘 vs Apriori</div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card">
+<div class="q-type fill">填空</div>
+<div class="q-num">第 2 题 · 序列挖掘应用</div>
+<div class="q-title">现在要为一家医院设计一个"慢病预警系统"，用于发现病人从"高血压"发展为"冠心病"的风险。应该选择简单关联规则（Apriori）还是序列模式挖掘（SPADE）？为什么？</div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">应选择 SPADE（序列模式挖掘）</p>
+<h4>解析：</h4><p>慢病预警关注的是疾病的发展演化过程——"先患高血压，后发展为冠心病"，涉及时间先后顺序。简单关联规则（Apriori）不考虑时间顺序，只能发现"高血压和冠心病同时出现在一个患者身上"的共现模式，<strong>无法捕捉因果关系中的时间方向</strong>。SPADE 通过顺序 Join 操作，能区分同一时间点的共病现象和先后发展关系。</p>
+<h4>其他选项分析：</h4><ul><li>选 Apriori 的错误原因：只看共现忽略顺序。疾病演化必须考虑时间方向——先有因再有果。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第13讲-知识清单.html">第13讲（6月8日）</a> > 关联规则 > 序列关联分析应用场景</div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card">
+<div class="q-type calc">计算</div>
+<div class="q-num">第 3 题 · 置信度计算</div>
+<div class="q-title">假设某电商序列数据中，Support(A) = 10%，Support(B) = 10%，Support(A→B) = 8%。请计算规则 A⇒B 的置信度（Confidence）。</div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">Confidence(A⇒B) = 80%</p>
+<h4>解析：</h4><p>置信度公式：Conf(A⇒B) = Support(A→B) / Support(A) = 8% / 10% = <strong>80%</strong></p><p>置信度表示在所有包含 A 的记录中，同时包含 B 的比例。该值高于常见阈值(50%~70%)，说明这条规则有较强的预测能力。</p>
+<h4>易错提醒：</h4><ul><li>不要用 Support(B) 做分母：Conf = Supp(AB)/Supp(A)，不是 Supp(AB)/Supp(B)</li><li>不要与提升度混淆：Lift = Conf / Supp(B) = 80%/10% = 8，表示强正相关</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第13讲-知识清单.html">第13讲（6月8日）</a> > 关联规则 > 支持度/置信度/提升度</div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 4 题 · 支持向量机</div>
+<div class="q-title">支持向量机（SVM）的核心目标是寻找一个超平面，该超平面满足什么条件？</div>
+<div class="q-options"><li>A. 最小化所有样本点到超平面的距离之和</li><li>B. 将所有样本点完全正确地分类，且不考虑间隔</li><li>C. 在正确分类的前提下，最大化离超平面最近的样本点到该平面的距离（Margin）</li><li>D. 最小化特征空间的维度</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：支持向量机的核心是最大化间隔（Maximum Margin）</h4><p>支持向量机的目标不是简单地"分类正确"（那是感知机的目标），而是在正确分类的约束下，<strong>最大化正负类样本到超平面的最小距离</strong>（即间隔 Margin）。最大化间隔的理论依据是结构风险最小化和 VC 维理论——间隔越大，泛化能力越强。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。支持向量机是最小化权重向量的 L2 范数（等价于最大化间隔），而非最小化距离之和。</li><li>B：错误。这是感知机的目标。支持向量机在分类正确的基础上还要求最大化间隔。</li><li>D：错误。支持向量机不直接操作特征空间维度。核技巧是"升维"而非降维。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第12讲-知识清单.html">第12讲（6月1日）</a> > 支持向量机 > 最大间隔原理</div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 5 题 · 支持向量机</div>
+<div class="q-title">在训练支持向量机之前，对数据进行特征缩放（如标准化）是否必要？</div>
+<div class="q-options"><li>A. 非常必要。支持向量机依赖距离度量，量纲不一会导致模型偏向于取值范围大的特征</li><li>B. 不必要。支持向量机具有缩放不变性</li><li>C. 仅在使用线性核时需要</li><li>D. 仅在样本量 N<1000 时需要</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：A</p>
+<h4>解析：特征缩放对支持向量机至关重要</h4><p>支持向量机依赖样本间的距离计算（欧氏距离），而距离计算对特征的量纲非常敏感。如果不做标准化，取值范围大的特征（如收入0~100000）会主导距离计算，使得取值小的特征（如年龄0~100）被忽略。这会导致决策边界偏向于大方差特征。标准化使各特征均值为0、标准差为1，所有特征等权参与距离计算。</p>
+<h4>其他选项分析：</h4><ul><li>B：错误。支持向量机<strong>没有</strong>缩放不变性。只有基于决策树的模型（如随机森林、梯度提升树）才具有特征缩放不变性。</li><li>C：错误。无论线性核还是非线性核（径向基函数等），特征缩放都非常必要。径向基函数核同样基于距离计算。</li><li>D：错误。特征缩放的必要性与样本量无关，这是数学原理要求。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第12讲-知识清单.html">第12讲（6月1日）</a> > 支持向量机 > 数据预处理/特征缩放</div>
+</div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 6 题 · 支持向量机</div>
+<div class="q-title">关于核函数（Kernel Trick），下列说法正确的是：</div>
+<div class="q-options"><li>A. 核函数直接将原始数据映射到高维空间并存储</li><li>B. 使用核函数后，支持向量机的计算复杂度会随着映射空间的维度呈指数增长</li><li>C. 核函数在低维空间进行计算，却能达到在高维空间计算内积的等价效果</li><li>D. 只有线性核函数能保证找到全局最优解</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：核技巧的核心巧思</h4><p>核函数的精髓在于：<strong>不需要显式地将数据映射到高维空间</strong>。它直接在低维空间计算 K(x_i, x_j)，这个值恰好等于高维空间中 φ(x_i) 和 φ(x_j) 的内积。这样既获得了高维空间的表达能力，又避免了高维计算的维度灾难。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。核函数<strong>不显式</strong>做映射和存储，而是在原始空间"暗度陈仓"。这正是"核技巧"之所以叫"技巧"的原因。</li><li>B：错误。复杂度主要由支持向量个数决定，与映射后维度无关。这正是核技巧的计算优势。</li><li>D：错误。所有满足 Mercer 条件的核函数（包括径向基函数核、多项式核等）对应的优化问题都是凸优化，都能找到全局最优解。支持向量机求解的是凸二次规划问题。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第12讲-知识清单.html">第12讲（6月1日）</a> > 支持向量机 > 核技巧(Kernel Trick)</div>
+</div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 7 题 · 模型评估</div>
+<div class="q-title">在机器学习中，模型出现欠拟合时，以下哪种现象最可能出现？</div>
+<div class="q-options"><li>A. 训练误差低，测试误差高</li><li>B. 训练误差高，测试误差低</li><li>C. 训练误差和测试误差均很高</li><li>D. 训练误差和测试误差均很低且相近</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：欠拟合 = 高偏差（High Bias）</h4><p>欠拟合表示模型过于简单，<strong>连训练数据的基本规律都没有学到</strong>。因此训练集和测试集的表现都差。这是高偏差问题的典型特征：模型假设空间太小，无法捕捉数据的真实模式。</p>
+<h4>其他选项分析：</h4><ul><li>A：描述的是<strong>过拟合</strong>（高方差）：模型记住了训练数据，但泛化到新数据时表现差。</li><li>B：这种情况现实中几乎不存在——训练集表现差但测试集表现好，不合逻辑。</li><li>D：描述的是<strong>理想拟合</strong>状态：模型复杂度恰当，偏差和方差达到平衡。</li></ul>
+<h4>考试口诀：</h4><p>偏差（Bias）：训练和测试都不好 → 欠拟合 → 增模型复杂度<br>方差（Variance）：训练好测试不好 → 过拟合 → 减模型复杂度或加正则化</p>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第2讲-知识清单.html">第2讲（3月9日）</a> > 模型评估与选择 > 偏差-方差分解/过拟合欠拟合</div>
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 8 题 · 支持向量机</div>
+<div class="q-title">支持向量机本质上是一个二分类模型。若要将其应用于多分类任务（如10个类别），最常用的策略是：</div>
+<div class="q-options"><li>A. 直接修改目标函数使其支持多类别概率输出</li><li>B. 使用"一对一"（OvO）或"一对剩余"（OvR）策略构建多个二分类器</li><li>C. 先用聚类算法降维，再进行分类</li><li>D. 只有核函数可以处理多分类，线性支持向量机无法处理</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：OvO（一对一）和 OvR（一对剩余）</h4><p>支持向量机的原始模型只支持二分类。多分类的常用策略是将其分解为多个二分类问题：<br>• <strong>OvR（一对剩余）</strong>：对 K 个类别训练 K 个分类器，第 i 个分类器将类别 i 视为正类，其余视为负类。预测时选置信度最高的类别。<br>• <strong>OvO（一对一）</strong>：对每对类别 (i,j) 训练一个二分类器，共 K(K-1)/2 个。预测时投票决定最终类别。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。标准支持向量机不支持直接的多类别概率输出。虽有扩展（如 Crammer-Singer SVM），但不常用。</li><li>C：错误。聚类是无监督学习，不用于解决多分类问题。</li><li>D：错误。OvO/OvR 适用于任何核的 SVM，包括线性核。多分类能力与核函数类型无关。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第12讲-知识清单.html">第12讲（6月1日）</a> > 支持向量机 > 多分类策略(OvO/OvR)</div>
+</div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 9 题 · 神经网络</div>
+<div class="q-title">关于反向传播神经网络的误差函数，当使用"交叉熵（cross-entropy）"作为误差函数时，通常要求输出层使用哪种激活函数？</div>
+<div class="q-options"><li>A. 线性激活函数</li><li>B. ReLU激活函数</li><li>C. Sigmoid激活函数</li><li>D. Tanh激活函数</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：交叉熵 + Sigmoid = 黄金组合</h4><p>交叉熵损失配合 Sigmoid激活函数 输出层是二分类问题的经典搭配。因为 Sigmoid激活函数 的输出范围为 (0,1)，恰好解释为概率。更重要的是：<strong>交叉熵对 Sigmoid 输出求导后，梯度形式极其简洁</strong>——∂L/∂z = y_hat - y（预测值减真实值）。Sigmoid 导数的 f'(z)=f(z)(1-f(z)) 项正好与交叉熵的导数抵消。如果用均方误差损失代替交叉熵，就不会有这个简洁形式，而且容易出现梯度消失。</p>
+<h4>其他选项分析：</h4><ul><li>A：线性激活函数通常用于回归问题的输出层。</li><li>B：ReLU激活函数通常用于隐藏层。输出范围 [0, +∞)，不适合概率输出。</li><li>D：Tanh激活函数 输出范围 (-1, 1)，通常配合 Softmax + 交叉熵用于多分类。对于二分类的交叉熵，Sigmoid激活函数 更常用。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第11讲-知识清单.html">第11讲（5月25日）</a> > 反向传播算法 > 损失函数/交叉熵</div>
+</div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 10 题 · 激活函数</div>
+<div class="q-title">关于神经网络中激活函数的描述，下列说法正确的是？</div>
+<div class="q-options"><li>A. Sigmoid激活函数 的输出范围是 [-1, 1]</li><li>B. ReLU激活函数 在输入为负时梯度恒为0，可能造成"神经元死亡"</li><li>C. Tanh激活函数 的输出均值为0，因此训练收敛速度一定快于 Sigmoid激活函数</li><li>D. 激活函数的主要作用是实现特征降维</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：ReLU激活函数的"神经元死亡"问题</h4><p>ReLU激活函数：f(x) = max(0, x)。当输入为负时，输出为0，梯度也为0。如果某个神经元的权重被更新到使其对所有输入都输出负值，梯度永远为0，该神经元就不再更新——这就是"神经元死亡"（Dying ReLU）。Leaky ReLU（f(x)=max(αx, x), α≈0.01）通过给负半轴一个很小的斜率来缓解此问题。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。Sigmoid激活函数 的输出范围是 (0, 1)，Tanh激活函数 的输出范围才是 (-1, 1)。</li><li>C：错误。"一定"太绝对。Tanh激活函数的零均值输出确实有助于缓解梯度消失，但收敛速度还受学习率、网络结构、数据等因素影响。</li><li>D：错误。激活函数的主要作用是<strong>引入非线性</strong>，使神经网络能拟合复杂的非线性函数。降维通常由池化层或主成分分析（PCA）实现。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第10讲-知识清单.html">第10讲（5月18日）</a> > 神经网络 > 激活函数对比(Sigmoid/ReLU/Tanh)</div>
+</div>
+</div>
+
+<!-- Q11 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 11 题 · 决策树</div>
+<div class="q-title">在 ID3 算法中，我们使用信息增益（Information Gain）作为分裂标准。这会导致算法倾向于选择以下哪类特征？</div>
+<div class="q-options"><li>A. 缺失值较少的特征</li><li>B. 取值较少的特征（如：性别）</li><li>C. 取值较多且分布稀疏的特征（如：身份证号、日期）</li><li>D. 数值型特征</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：ID3信息增益的偏向性</h4><p>信息增益的定义是分裂前的熵减去分裂后的条件熵。取值越多的特征，分裂后子节点越"纯"（极端情况：每个样本ID一个值，每个子节点只有1个样本，条件熵为0），因此信息增益被放大。<strong>ID3会偏向选择取值多的特征</strong>，即使这些特征（如身份证号）对分类毫无意义。</p>
+<h4>其他选项分析：</h4><ul><li>A：缺失值数量与信息增益没有直接数学关系。</li><li>B：相反！信息增益偏向取值多而非取值少的特征。取值极少的特征（如性别只有男/女）信息增益通常较小。</li><li>D：ID3 本身不区分连续/离散值，但 C4.5 对连续值做离散化处理。连续值特征因为取值多，也会被 ID3 偏好。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第4讲-知识清单.html">第4讲（3月23日）</a> > 决策树 > ID3信息增益的偏向性</div>
+</div>
+</div>
+
+<!-- Q12 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 12 题 · 决策树</div>
+<div class="q-title">为了修正信息增益的缺点，C4.5 算法引入了"信息增益率"。关于增益率，下列说法正确的是：</div>
+<div class="q-options"><li>A. 增益率完全解决了对取值较多特征的偏好</li><li>B. 增益率在分母上增加了一个反映特征固有属性的熵（Intrinsic Value），从而惩罚了取值过多的特征</li><li>C. 增益率倾向于选择取值极少的特征</li><li>D. 增益率不再需要计算信息增益</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：增益率 = 信息增益 / 特征固有值</h4><p>信息增益率（Gain Ratio）的定义：Gain_Ratio(A) = Gain(A) / Split_Info(A)，其中 Split_Info(A) = -Σ (|Dv|/|D|)·log(|Dv|/|D|) 是特征 A 的"固有信息"（Intrinsic Value）。特征取值越多，Split_Info 越大，分母越大 → 增益率变小，从而<strong>惩罚取值过多的特征</strong>。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。增益率并未完全解决——它可能矫枉过正，<strong>过度偏好取值极少的特征</strong>。C4.5 的实际做法是：先选出信息增益高于平均值的特征，再从其中选增益率最大的。</li><li>C：错误。C4.5 通过两步筛选（先过滤低信息增益的特征）来避免过度偏好取值少的特征。</li><li>D：错误。增益率 = 增益 / 固有值，需要先计算信息增益。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第4讲-知识清单.html">第4讲（3月23日）</a> > 决策树 > C4.5信息增益率</div>
+</div>
+</div>
+
+<!-- Q13 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 13 题 · 随机森林</div>
+<div class="q-title">随机森林（Random Forest）在 Bagging 的基础上增加了一个关键的随机性来源，它是：</div>
+<div class="q-options"><li>A. 随机选择不同的损失函数</li><li>B. 随机选择不同的训练迭代次数</li><li>C. 在节点分裂时，随机选择一个特征子集进行最优属性搜索</li><li>D. 随机对输入样本进行降维</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：双重随机性</h4><p>随机森林有两个随机性：<br>① 行采样：每棵树使用 Bootstrap（有放回抽样）采样不同的训练样本（来自 Bagging）<br>② 列采样：每个节点分裂时，从全部 M 个特征中 <strong>随机选取 m 个特征子集</strong>（m ≪ M），再从这 m 个特征中选最优分裂特征。正是这第二个随机性（列采样）使得随机森林的树之间相关性大大降低，从而进一步降低了集成模型的方差。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。损失函数在所有树中是相同的（分类用 Gini，回归用 MSE）。</li><li>B：错误。迭代次数在随机森林中不是主要区别因素。</li><li>D：错误。随机森林不做特征降维。列采样是选择特征子集，而非降维。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第6讲-知识清单.html">第6讲（4月13日）</a> > 随机森林 > 双重随机性/特征子集</div>
+</div>
+</div>
+
+<!-- Q14 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 14 题 · 随机森林</div>
+<div class="q-title">相比于单棵决策树，随机森林最主要的缺点通常是：</div>
+<div class="q-options"><li>A. 容易过拟合</li><li>B. 无法处理分类变量</li><li>C. 模型丧失了直观的可解释性（Interpretability）</li><li>D. 无法处理高维数据</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：C</p>
+<h4>解析：可解释性是集成学习的代价</h4><p>单棵决策树可以画出来，每个节点的分裂规则一目了然，医生或业务人员可以理解"为什么做出这个决策"。但随机森林由几百棵树组成，每棵树的规则不同——无法像观察单棵树那样直接解释预测结果。这是集成模型"精度 vs 可解释性"的经典权衡。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。恰恰相反！随机森林通过 Bagging + 列采样的双重随机性 <strong>显著降低过拟合风险</strong>，相比单棵树泛化能力更强。</li><li>B：错误。随机森林完全可以处理分类变量。</li><li>D：错误。随机森林通过列采样能有效处理高维数据，还常常用于特征选择（变量重要性排序）。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第6讲-知识清单.html">第6讲（4月13日）</a> > 随机森林 > 优缺点/可解释性</div>
+</div>
+</div>
+
+<!-- Q15 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 15 题 · 随机森林</div>
+<div class="q-title">随机森林中，超参数 mtry（分裂时随机抽取的特征数）如果设置得非常大（接近总特征数 D），模型会发生什么变化？</div>
+<div class="q-options"><li>A. 模型会变得更加随机</li><li>B. 随机森林会退化为传统的决策树 Bagging 算法</li><li>C. 模型的计算速度会大幅提升</li><li>D. 模型会倾向于欠拟合</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：mtry 的两个极端</h4><p>mtry 是随机森林区别于 Bagging 的关键参数。当 mtry = D（取全部特征）时，每个节点在所有特征中选最优，特征维度的随机性消失 → <strong>随机森林退化为 Bagging + 决策树</strong>。当 mtry = 1 时，随机性最大，单棵树最弱但树间相关性最低。通常分类取 sqrt(D)，回归取 D/3。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。mtry 越大，随机性越小（可选择的特征越多）。</li><li>C：错误。mtry 增大，每节点需评估更多特征，计算量增加而非减少。</li><li>D：错误。mtry 增大一般会增强单棵树的拟合能力（更多特征可选），可能会增加方差，但不至于欠拟合。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第6讲-知识清单.html">第6讲（4月13日）</a> > 随机森林 > 超参数mtry</div>
+</div>
+</div>
+
+<!-- Q16 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 16 题 · 关联规则</div>
+<div class="q-title">在关联规则挖掘中，规则 A→B 的"提升度（Lift）"若等于 1，表示：</div>
+<div class="q-options"><li>A. A 和 B 相互独立</li><li>B. A 和 B 完全相关</li><li>C. B 一定发生</li><li>D. A 对 B 有强烈的正向影响</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：A</p>
+<h4>解析：提升度的解读</h4><p>Lift(A→B) = Confidence(A→B) / Support(B) = P(B|A) / P(B)。Lift 衡量 A 的出现对 B 出现概率的<strong>提升程度</strong>：<br>• Lift = 1：P(B|A) = P(B)，A 的出现不影响 B 的概率 → A 和 B <strong>独立</strong><br>• Lift > 1：P(B|A) > P(B)，A 的出现增加了 B 的概率 → <strong>正相关</strong><br>• Lift < 1：P(B|A) < P(B)，A 的出现降低了 B 的概率 → <strong>负相关</strong></p>
+<h4>其他选项分析：</h4><ul><li>B：Lift >> 1 才表示强相关性。</li><li>C：Lift 不直接表示概率大小，而是表示提升倍数。Lift=1 时 B 的条件概率等于边缘概率。</li><li>D：Lift > 1 表示正向影响，但"强烈"需要 Lift 远大于 1。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第13讲-知识清单.html">第13讲（6月8日）</a> > 关联规则 > 提升度(Lift)</div>
+</div>
+</div>
+
+<!-- Q17 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 17 题 · 集成学习</div>
+<div class="q-title">AdaBoost 与随机森林（Random Forest）最大的区别在于：</div>
+<div class="q-options"><li>A. 随机森林是 Boosting，AdaBoost 是 Bagging</li><li>B. 随机森林的分类器之间是并行的，AdaBoost 的分类器之间是串行（有依赖）的</li><li>C. 随机森林改变样本权重，AdaBoost 改变样本分布</li><li>D. 随机森林只能做分类，AdaBoost 只能做回归</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：Bagging并行 vs Boosting串行</h4><p>这是二者最本质的架构差异：<br>• 随机森林（Bagging族）：B 棵树可以<strong>同时独立训练</strong>，互不依赖（并行）。<br>• AdaBoost（Boosting族）：第 m 个分类器依赖第 m-1 个的结果（根据上一轮的误差调整样本权重），必须<strong>依次训练</strong>（串行）。</p>
+<h4>其他选项分析：</h4><ul><li>A：错误。说反了——随机森林是 Bagging，AdaBoost 是 Boosting。</li><li>C：错误。Boosting 改变的是<strong>样本权重</strong>（被分错的样本权重增大），而非直接改变样本分布。Bagging 是通过<strong>重抽样</strong>改变样本分布。</li><li>D：错误。二者都可以做回归和分类（AdaBoost 用 R2 算法做回归）。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第7讲-知识清单.html">第7讲（4月20日）</a> > AdaBoost > Bagging vs Boosting对比</div>
+</div>
+</div>
+
+<!-- Q18 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 18 题 · 集成学习</div>
+<div class="q-title">AdaBoost 算法的核心思想可以概括为以下哪一项？</div>
+<div class="q-options"><li>A. 通过并行训练多个独立的弱分类器，最后取平均值</li><li>B. 每一轮训练都会根据上一轮的分类错误率，增加被错分样本的权重</li><li>C. 每一轮训练都会随机抽取特征子集，以增加模型的多样性</li><li>D. 通过在损失函数中添加 L1 或 L2 正则化项来防止过拟合</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：AdaBoost的"自适应"权重机制</h4><p>AdaBoost = Adaptive Boosting，其"自适应"体现在：每一轮训练后，根据分类器的表现重新分配样本权重——<strong>被错误分类的样本权重增大</strong>（让下一轮分类器更关注这些难分样本），正确分类的样本权重减小。同时，分类错误率低的基分类器在最终投票中获得更大的话语权（α_m 越大）。</p>
+<h4>其他选项分析：</h4><ul><li>A：描述的是 Bagging/随机森林（并行训练+取平均），不是 Boosting。</li><li>C：描述的是随机森林的列采样机制，不是 AdaBoost。</li><li>D：描述的是正则化技术（如 Lasso/Ridge），AdaBoost 未直接使用 L1/L2 正则化。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第7讲-知识清单.html">第7讲（4月20日）</a> > AdaBoost > 权重更新机制</div>
+</div>
+</div>
+
+<!-- Q19 -->
+<div class="q-card">
+<div class="q-type choice">选择</div>
+<div class="q-num">第 19 题 · 模型评估</div>
+<div class="q-title">在 K 折交叉验证中，若 K 等于样本总数，则该验证方法称为：</div>
+<div class="q-options"><li>A. 旁置法</li><li>B. 留一法</li><li>C. 自助法</li><li>D. 梯度下降法</li></div>
+<button class="btn-ans" onclick="this.nextElementSibling.classList.toggle('show')">查看答案与解析</button>
+<div class="ans">
+<p class="correct">正确答案：B</p>
+<h4>解析：留一法（LOOCV）</h4><p>K 折交叉验证将数据集分成 K 份。当 K = N（样本总数）时，每份只有 1 个样本，每次用 N-1 个样本训练、1 个样本测试，重复 N 次——这就是<strong>留一法（Leave-One-Out Cross Validation）</strong>。留一法的评估结果几乎无偏，但计算代价高（需训练 N 次模型）。</p>
+<h4>其他选项分析：</h4><ul><li>A：旁置法（Holdout）是简单地将数据按比例分成训练集和测试集，只评估一次。</li><li>C：自助法（Bootstrap）是从 N 个样本中有放回地抽取 N 个样本，约有 36.8% 的样本不会被选中（袋外样本 OOB）。</li><li>D：梯度下降法是一种优化算法，与模型评估方法完全无关。</li></ul>
+<div class="source">📚 所属章节：<a href="../深度学习模式/第2讲-知识清单.html">第2讲（3月9日）</a> > 模型评估与选择 > 交叉验证/留一法</div>
+</div>
+</div>
+
+<footer>数据挖掘与机器学习 · 期末复习真题 · 教师勾画重点 · 2026年6月9日整理</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

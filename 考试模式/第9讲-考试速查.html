@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9讲 考试速查 — 神经网络</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#fafafa;color:#212121;line-height:1.7;}
+.container{max-width:820px;margin:0 auto;padding:16px;}
+.header{background:#c62828;color:#fff;padding:20px 28px;border-radius:10px;margin-bottom:16px;text-align:center;}
+.header h1{font-size:24px;margin-bottom:4px;}
+.header .sub{font-size:13px;opacity:.85;}
+.section{background:#fff;border-left:4px solid #c62828;padding:16px 20px;margin-bottom:12px;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.section h2{font-size:18px;color:#c62828;margin-bottom:10px;}
+.formula{background:#fff3e0;padding:10px 14px;margin:8px 0;border-radius:4px;font-size:15px;overflow-x:auto;border:1px solid #ffe0b2;}
+.formula .var{color:#c62828;font-weight:600;}
+.note{color:#6a1b9a;font-size:13px;margin-top:4px;}
+ol.steps{margin:8px 0;padding-left:22px;}
+ol.steps li{margin:4px 0;font-size:14px;}
+ol.steps li strong{color:#c62828;}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+th{background:#c62828;color:#fff;padding:7px 10px;text-align:left;}
+td{padding:6px 10px;border-bottom:1px solid #eee;}
+tr:nth-child(even){background:#fff5f5;}
+.alert{background:#ffebee;border:1px solid #ef9a9a;padding:10px 14px;border-radius:4px;margin:8px 0;font-size:13px;}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:2px 4px;}
+.tag-hot{background:#ffcdd2;color:#c62828;}
+.tag-exam{background:#c8e6c9;color:#2e7d32;}
+.highlight{background:#ffeb3b;padding:1px 4px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>第9讲 考试速查</h1>
+  <div class="sub">神经网络入门：感知机 &amp; 多层感知机 (MLP) | 上海对外经贸大学 | 2026.5.11</div>
+</div>
+
+<!-- ===== Neural Network ===== -->
+<div class="section">
+  <h2>四、神经元模型 (M-P) <span class="tag tag-exam">高频</span></h2>
+  <div class="formula">
+    $$y = f\left(\sum_{i=1}^{n} w_i x_i - \theta\right)$$
+  </div>
+  <p>xᵢ：输入信号 | wᵢ：连接权重 | θ：阈值 | f：激活函数</p>
+  <p>感知机激活函数：<span class="highlight">符号函数 sign(·)</span>（不是 Sigmoid激活函数、ReLU激活函数、Tanh激活函数）</p>
+</div>
+
+<div class="section">
+  <h2>五、感知机模型公式 <span class="tag tag-hot">必考</span></h2>
+  <div class="formula">
+    $$f(x) = \text{sign}(w \cdot x + b)$$
+  </div>
+  <p>w：权值向量（超平面法向量） | b：偏置（超平面截距）</p>
+  <p>感知机类型：<span class="highlight">判别模型</span>（不是概率模型、生成模型、回归模型）</p>
+  <p>分离超平面：<span class="highlight">w·x + b = 0</span>，将特征空间分为 +1 和 -1 两类</p>
+</div>
+
+<div class="section">
+  <h2>六、感知机损失函数 <span class="tag tag-hot">必考</span></h2>
+  <p>损失函数：<span class="highlight">误分类点到超平面 S 的总距离</span>（不是误分类个数）</p>
+  <div class="formula">
+    $$L(w, b) = -\sum_{x_i \in M} y_i (w \cdot x_i + b)$$
+  </div>
+  <p>性质：L(w,b) ≥ 0，关于 w,b <span class="highlight">连续可导</span></p>
+  <p>M 为误分类点集合。对误分类点：-yᵢ(w·xᵢ + b) > 0</p>
+</div>
+
+<div class="section">
+  <h2>七、感知机学习算法 — 随机梯度下降 (SGD) 更新</h2>
+  <p><strong>随机选取一个误分类点 (xᵢ, yᵢ)：</strong></p>
+  <div class="formula">
+    $$w \leftarrow w + \eta y_i x_i$$
+    $$b \leftarrow b + \eta y_i$$
+  </div>
+  <p>η：学习率，0 < η ≤ 1</p>
+  <p><strong>几何直观：</strong>让超平面向该误分类点旋转，试图将其包含在正确的一侧</p>
+  <p><strong>算法流程：</strong></p>
+  <ol class="steps">
+    <li>初始化 w₀, b₀</li>
+    <li>选取 (xᵢ, yᵢ)</li>
+    <li>若 yᵢ(w·xᵢ + b) ≤ 0：w ← w + ηyᵢxᵢ, b ← b + ηyᵢ</li>
+    <li>重复直到无误分类点</li>
+  </ol>
+</div>
+
+<div class="section">
+  <h2>八、感知机重要性质速记 <span class="tag tag-exam">高频</span></h2>
+  <table>
+    <tr><th>问题</th><th>答案</th></tr>
+    <tr><td>收敛前提条件？</td><td class="highlight">数据集必须线性可分</td></tr>
+    <tr><td>解是否唯一？</td><td>不唯一（初值/误分类点顺序不同则解不同）</td></tr>
+    <tr><td>η 是否影响收敛？</td><td>不影响收敛性（仅影响迭代次数）</td></tr>
+    <tr><td>能否解决 XOR？</td><td>不能 → 需要多层感知机 (MLP))</td></tr>
+    <tr><td>批量学习 vs 在线学习？</td><td>批量：全部数据再更新；在线：逐样本更新</td></tr>
+    <tr><td>对偶形式优势？</td><td>D>>N 时通过 Gram 矩阵加速训练</td></tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>九、梯度下降法公式</h2>
+  <div class="formula">
+    $$x^{(k+1)} \leftarrow x^{(k)} - \lambda_k \nabla f(x^{(k)})$$
+  </div>
+  <p>负梯度方向是使函数值下降最快的方向</p>
+  <p>一阶泰勒展开：f(x) ≈ f(x<sup>(k)</sup>) + g<sub>k</sub><sup>T</sup>(x - x<sup>(k)</sup>)，g<sub>k</sub> = ∇f(x<sup>(k)</sup>)</p>
+  <p>凸函数 + GD → 全局最优解</p>
+</div>
+
+<div class="section">
+  <h2>十、多层感知机 (MLP)) 与万能近似定理</h2>
+  <p><strong>多层前馈网络特征：</strong></p>
+  <ul>
+    <li>每层神经元与下一层<span class="highlight">全互连</span></li>
+    <li>同层<span class="highlight">无连接</span>，<span class="highlight">无跨层连接</span></li>
+  </ul>
+  <p><strong>万能近似定理：</strong></p>
+  <div class="alert">
+    仅需 1 个隐藏层（宽度足够）+ 非多项式激活函数 = 可近似任何连续函数<br>
+    ⚠ 但单层所需神经元数可能随维度指数增长（维数灾难）<br>
+    ⚠ 深层网络在表达层次结构数据时比单层网络高效得多
+  </div>
+  <p><strong>激活函数要求：</strong>必须非多项式（线性激活 → 无论多少层都只能表示线性函数）</p>
+</div>
+
+<div class="section">
+  <h2>十一、考试易错清单</h2>
+  <div class="alert">
+    <strong>感知机部分：</strong><br>
+    ❌ 感知机是生成模型/概率模型 → ✅ 判别模型<br>
+    ❌ 损失函数是误分类个数 → ✅ 误分类点到超平面总距离<br>
+    ❌ 激活函数是 Sigmoid激活函数 → ✅ 符号函数 sign(·)<br>
+    ❌ 解唯一 → ✅ 不唯一（依赖于初值和误分类点选取顺序）<br>
+    ❌ η 必须衰减才能收敛 → ✅ η 大小不影响收敛性<br>
+    ❌ 感知机输出概率，逻辑回归不输出概率 → ✅ 反了！感知机不输出概率
+  </div>
+</div>
+
+</div>
+</body>
+</html>

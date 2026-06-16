@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5讲 考试速查 — CART、剪枝、集成学习</title>
+<style>
+:root {
+  --deep-blue: #1a237e;
+  --green: #2e7d32;
+  --red: #c62828;
+  --purple: #6a1b9a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "Microsoft YaHei","PingFang SC",sans-serif; font-size:14px; line-height:1.7; color:#333; background:#f8f9fa; }
+.container { max-width:800px; margin:0 auto; padding:16px; }
+header { background:var(--red); color:#fff; text-align:center; padding:20px; border-radius:0 0 10px 10px; margin-bottom:16px; }
+header h1 { font-size:1.4em; }
+header span { font-size:0.85em; opacity:0.85; }
+.card { background:#fff; border-radius:8px; padding:18px; margin-bottom:12px; border:1px solid #e0e0e0; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.card h2 { color:var(--red); font-size:1.1em; border-bottom:2px solid var(--red); padding-bottom:6px; margin-bottom:12px; }
+.card h3 { font-size:1em; color:var(--deep-blue); margin:10px 0 4px; }
+.formula { background:#fff3e0; padding:8px 14px; border-radius:6px; font-family:"Consolas","Courier New",monospace; font-size:0.95em; margin:6px 0; border-left:3px solid #e65100; display:inline-block; }
+ul { margin-left:20px; margin-top:6px; }
+li { margin:4px 0; }
+table { width:100%; border-collapse:collapse; margin:8px 0; font-size:0.9em; }
+th { background:var(--red); color:#fff; padding:6px 10px; text-align:left; }
+td { padding:6px 10px; border-bottom:1px solid #ddd; }
+tr:nth-child(even) { background:#fff5f5; }
+.tag { display:inline-block; font-size:0.7em; padding:1px 6px; border-radius:8px; margin:0 2px; }
+.tag-hot { background:#ffebee; color:var(--red); border:1px solid #ef9a9a; }
+.footer { text-align:center; font-size:0.75em; color:#999; padding:12px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header>
+  <h1>第5讲 考试速查</h1>
+  <span>CART算法 · 剪枝 · Bagging · 随机森林 | 上海对外经贸大学</span>
+</header>
+<div class="container">
+
+<div class="card">
+  <h2>1. CART vs ID3/C4.5 <span class="tag tag-hot">必考</span></h2>
+  <table>
+    <tr><th></th><th>ID3 / C4.5</th><th>CART</th></tr>
+    <tr><td>任务</td><td>仅分类</td><td>分类 + 回归</td></tr>
+    <tr><td>树结构</td><td>多叉树</td><td>二叉树（每次二分）</td></tr>
+    <tr><td>分裂准则(分类)</td><td>信息增益 / 增益比</td><td>Gini Index（最小化）</td></tr>
+    <tr><td>分裂准则(回归)</td><td>—</td><td>最小平方残差 MSPE</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>2. CART 算法三步骤</h2>
+  <ol style="margin-left:22px; line-height:2;">
+    <li><strong>特征选择</strong>：分类用 Gini Index，回归用最小平方误差</li>
+    <li><strong>决策树生成</strong>：基于训练数据，尽量生成大树</li>
+    <li><strong>决策树剪枝</strong>：用验证集剪枝并选最优子树</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>3. 基尼指数公式 <span class="tag tag-hot">必考</span></h2>
+  <h3>概率分布基尼指数（K类）</h3>
+  <span class="formula">Gini(p) = Σ p<sub>k</sub>(1-p<sub>k</sub>) = 1 - Σ p<sub>k</sub>²</span>
+  <h3>二分类基尼指数</h3>
+  <span class="formula">Gini(p) = 2p(1-p)</span>
+  <p>p=0.5时最大 → <strong>0.5</strong>；p=0或1时最小 → <strong>0</strong></p>
+  <h3>条件基尼指数（特征A，切分点a）</h3>
+  <span class="formula">Gini(D, A=a) = (|D₁|/|D|)·Gini(D₁) + (|D₂|/|D|)·Gini(D₂)</span>
+</div>
+
+<div class="card">
+  <h2>4. 分类树 CART 算法流程</h2>
+  <ol style="margin-left:22px; line-height:2;">
+    <li>对当前结点每个特征A，对其每个取值a，按 A=a 将 D 分 D₁,D₂，计算 Gini(D, A=a)</li>
+    <li>选 <strong>Gini 最小</strong> 的特征和切分点，将数据分入两个子结点</li>
+    <li>对子结点递归直至停止</li>
+  </ol>
+  <p><strong>停止条件：</strong>①样本数&lt;阈值 ②Gini&lt;阈值 ③无更多特征</p>
+</div>
+
+<div class="card">
+  <h2>5. 回归树公式</h2>
+  <h3>回归树表达</h3>
+  <span class="formula">f(x) = Σ c<sub>m</sub>·I(x ∈ R<sub>m</sub>)</span>
+  <h3>最优预测值（MSE损失下）</h3>
+  <span class="formula">ĉ<sub>m</sub> = (1/|R<sub>m</sub>|)·Σ y<sub>i</sub> &nbsp; (x<sub>i</sub>∈R<sub>m</sub>)</span>
+  <p>= 该区域内所有 y 的 <strong>算术平均值</strong>（绝对值损失下为中位数）</p>
+  <h3>分裂准则</h3>
+  <span class="formula">min<sub>j,s</sub> [ Σ<sub>R₁</sub>(y-ĉ₁)² + Σ<sub>R₂</sub>(y-ĉ₂)² ]</span>
+  <p>固定j求最优s → 扫描所有j → 得最优(j, s)</p>
+</div>
+
+<div class="card">
+  <h2>6. CART 剪枝 <span class="tag tag-hot">必考</span></h2>
+  <h3>损失函数</h3>
+  <span class="formula">C<sub>α</sub>(T) = C(T) + α·|T|</span>
+  <p>C(T)=预测误差(Gini/均方误差 (MSE))，|T|=叶结点数，α≥0调节参数</p>
+  <p>α=0 → 整体树最优；α→∞ → 单结点树最优</p>
+  <h3>节点临界值</h3>
+  <span class="formula">g(t) = [C(t) - C(T<sub>t</sub>)] / [|T<sub>t</sub>| - 1]</span>
+  <h3>流程</h3>
+  <ol style="margin-left:22px;">
+    <li>从 T₀ 底端开始，每次剪掉 g(t) 最小的节点，得 T₁, T₂, …, T<sub>n</sub></li>
+    <li>在验证集上交叉验证测试所有子树</li>
+    <li>选验证集误差最小的子树</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>7. Bootstrap &amp; Bagging</h2>
+  <h3>Bootstrap</h3>
+  <p>有放回抽 m 次，始终不被抽到的概率：<span class="formula">(1-1/m)<sup>m</sup> → 1/e ≈ 0.368</span></p>
+  <p>约 <strong>63.2%</strong> 训练，<strong>36.8%</strong> 袋外 (OOB)</p>
+  <h3>Bagging = Bootstrap + Aggregating</h3>
+  <p>B次Bootstrap → 训练B个学习器 → 分类投票 / 回归平均</p>
+  <p>方差：<span class="formula">Var = ρσ² + (1-ρ)σ²/B</span></p>
+  <p>Bagging 降低方差，不降低偏差；学习器独立 → 可并行</p>
+</div>
+
+<div class="card">
+  <h2>8. 随机森林 (RF) <span class="tag tag-hot">必考</span></h2>
+  <p><strong>核心：Bagging + 随机特征子集</strong></p>
+  <ol style="margin-left:22px; line-height:1.9;">
+    <li>Bootstrap有放回采样 N 个样本</li>
+    <li>每个节点从 M 个特征中随机选 <strong>m ≪ M</strong> 个，再选最优属性分裂</li>
+    <li>重复 B 次生成森林</li>
+    <li>分类：多数表决；回归：取平均</li>
+  </ol>
+  <table>
+    <tr><th>参数</th><th>分类默认</th><th>回归默认</th></tr>
+    <tr><td>m (mtry)</td><td>⌊√M⌋</td><td>⌊M/3⌋</td></tr>
+    <tr><td>最小节点样本</td><td>1</td><td>5</td></tr>
+  </table>
+  <p><strong>树不剪枝，完全生长！</strong></p>
+  <p>m → M 时 RF 退化为 Bagging</p>
+  <p>RF缺点：<strong>可解释性降低</strong></p>
+</div>
+
+<div class="card">
+  <h2>9. 变量重要性</h2>
+  <table>
+    <tr><th>方法</th><th>原理</th></tr>
+    <tr><td>MDA (平均准确率下降)</td><td>重排列变量j → 看OOB准确率下降</td></tr>
+    <tr><td>MDI (平均纯度下降)</td><td>变量j在所有分裂中 Gini/均方误差 (MSE) 下降之和</td></tr>
+    <tr><td>SHAP</td><td>基于Shapley值的归因方法</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>10. 速记对比</h2>
+  <table>
+    <tr><th>算法</th><th>样本</th><th>特征</th><th>方差</th><th>可解释性</th></tr>
+    <tr><td>单棵决策树</td><td>全量</td><td>全量</td><td>高</td><td>高</td></tr>
+    <tr><td>Bagging</td><td>Bootstrap</td><td>全量</td><td>中</td><td>低</td></tr>
+    <tr><td>随机森林</td><td>Bootstrap</td><td>随机子集</td><td>低</td><td>低</td></tr>
+  </table>
+</div>
+
+<div class="footer">上海对外经贸大学 · 第5讲 考试速查 · CART/Bagging/RF</div>
+</div>
+</body>
+</html>

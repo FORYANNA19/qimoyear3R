@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4讲 决策树 - 考试速查</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "Microsoft YaHei", monospace; background: #fff; color: #212121; line-height:1.7; font-size:15px; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+h1 { color: #c62828; border-bottom: 3px solid #c62828; padding-bottom: 8px; margin-bottom: 18px; font-size: 22px; }
+h2 { color: #1a237e; border-left: 4px solid #1a237e; padding-left: 10px; margin: 20px 0 10px; font-size: 18px; }
+h3 { color: #2e7d32; margin: 16px 0 8px; font-size: 15px; }
+
+.formula { background: #fff9c4; border: 1px solid #f9a825; padding: 12px 16px; border-radius: 4px; margin: 8px 0; text-align: center; font-size: 17px; }
+
+table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+table th { background: #1a237e; color: #fff; padding: 8px 10px; text-align: left; }
+table td { padding: 8px 10px; border-bottom: 1px solid #ddd; }
+table tr:nth-child(even) td { background: #f5f5f5; }
+
+.red { color: #c62828; font-weight: bold; }
+.green { color: #2e7d32; font-weight: bold; }
+.blue { color: #1a237e; font-weight: bold; }
+
+.note { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 12px; margin: 10px 0; font-size: 14px; }
+.warn { background: #ffebee; border-left: 4px solid #c62828; padding: 8px 12px; margin: 10px 0; font-size: 14px; }
+
+footer { text-align: center; margin-top: 20px; color: #999; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>第4讲 决策树入门 — 考试速查</h1>
+
+<!-- ===== 核心公式 ===== -->
+<h2>一、核心公式</h2>
+
+<h3>1. 熵 (Entropy)</h3>
+<div class="formula">$$H(D) = -\sum_{k=1}^{K} p_k \log_2 p_k, \quad p_k = \frac{|C_k|}{|D|}$$</div>
+<p>熵越大 = 不确定性越大。同类别 → H=0；均匀分布 → H=log<sub>2</sub>K（最大）。</p>
+
+<h3>2. 条件熵 (Conditional Entropy)</h3>
+<div class="formula">$$H(D \mid A) = \sum_{i=1}^{n} \frac{|D_i|}{|D|} \cdot H(D_i)$$</div>
+<p>按特征 A 的 n 个取值划分 D 为 D<sub>1</sub>...D<sub>n</sub>，各子集加权求和。</p>
+
+<h3>3. 信息增益 (Information Gain) — ID3准则</h3>
+<div class="formula">$$g(D, A) = H(D) - H(D \mid A)$$</div>
+<p>= 互信息。ID3 选择 <span class="red">g 最大</span> 的特征划分。</p>
+
+<h3>4. 信息增益率 (Gain Ratio) — C4.5准则</h3>
+<div class="formula">$$g_R(D, A) = \frac{g(D, A)}{H_A(D)}$$</div>
+<div class="formula">$$H_A(D) = -\sum_{i=1}^{n} \frac{|D_i|}{|D|} \log_2 \frac{|D_i|}{|D|}$$</div>
+<p>H<sub>A</sub>(D) = 特征 A 的固有值 (Intrinsic Value)。取值越多 → H<sub>A</sub>(D) 越大 → 增益率被惩罚。</p>
+
+<h3>5. 剪枝损失函数</h3>
+<div class="formula">$$C_\alpha(T) = C(T) + \alpha |T|$$</div>
+<p>C(T) = ∑ N<sub>t</sub>·H<sub>t</sub> = 拟合度；|T| = 叶节点数；α = 调节参数。α 大 → 树小。</p>
+
+<!-- ===== 买计算机数据集计算 ===== -->
+<h2>二、买计算机数据集计算结果</h2>
+<table>
+<tr><th>项目</th><th>数值</th></tr>
+<tr><td>总样本</td><td>1024 (买=641, 不买=383)</td></tr>
+<tr><td>H(D) 总熵</td><td class="blue">0.9537</td></tr>
+<tr><td>H(D|年龄) — 条件熵</td><td>0.6877</td></tr>
+<tr><td>g(D, 年龄) — 信息增益</td><td class="red">0.2660 (最大!)</td></tr>
+<tr><td>H(D|收入)</td><td>0.9361</td></tr>
+<tr><td>g(D, 收入)</td><td>0.0176 (最小)</td></tr>
+<tr><td>H(D|学生)</td><td>0.7811</td></tr>
+<tr><td>g(D, 学生)</td><td>0.1726</td></tr>
+<tr><td>H(D|信誉)</td><td>0.9048</td></tr>
+<tr><td>g(D, 信誉)</td><td>0.0453</td></tr>
+<tr><td><strong>根节点选择</strong></td><td><span class="red">年龄</span> (信息增益最大)</td></tr>
+</table>
+
+<h3>年龄子集拆分</h3>
+<table>
+<tr><th>子集</th><th>样本数</th><th>比例</th><th>H(D<sub>i</sub>)</th><th>结论</th></tr>
+<tr><td>青年</td><td>384</td><td>0.375</td><td>0.9183</td><td>需继续分裂</td></tr>
+<tr><td>中年</td><td>256</td><td>0.25</td><td class="green">0</td><td>全是"买" → 叶节点</td></tr>
+<tr><td>老年</td><td>384 (实际252)</td><td>0.375</td><td>0.9157</td><td>需继续分裂</td></tr>
+</table>
+
+<!-- ===== 关键概念 ===== -->
+<h2>三、关键概念速记</h2>
+
+<table>
+<tr><th>概念</th><th>一句话解释</th></tr>
+<tr><td>决策树本质</td><td class="blue">if-then 规则集合</td></tr>
+<tr><td>决策树模型类型</td><td class="blue">判别模型</td></tr>
+<tr><td>根节点 → 叶节点路径</td><td>互斥且完备，每条路径覆盖且唯一</td></tr>
+<tr><td>决策边界形状</td><td class="red">与坐标轴平行/垂直</td></tr>
+<tr><td>ID3 算法策略</td><td class="red">贪心算法 (Greedy)</td></tr>
+<tr><td>ID3 分裂准则</td><td>信息增益 g(D,A) 最大</td></tr>
+<tr><td>C4.5 分裂准则</td><td>信息增益率 g<sub>R</sub>(D,A) 最大</td></tr>
+<tr><td>ID3 最大弱点</td><td class="red">偏向取值多的特征（如编号、日期）</td></tr>
+<tr><td>C4.5 如何修正</td><td>分母用 H<sub>A</sub>(D) 惩罚取值多的特征</td></tr>
+<tr><td>连续值处理</td><td>二分法 (Bi-partition) 找最优划分点</td></tr>
+<tr><td>C4.5 缺失值处理</td><td>按已知特征权重的比例分配到子节点</td></tr>
+</table>
+
+<!-- ===== ID3停止条件 ===== -->
+<h2>四、ID3 算法三种停止条件</h2>
+<table>
+<tr><th>#</th><th>条件</th><th>标签确定</th></tr>
+<tr><td>(1)</td><td>节点样本<span class="green">全属于同一类别</span></td><td>该类</td></tr>
+<tr><td>(2)</td><td>属性集为空</td><td class="red">多数类</td></tr>
+<tr><td>(3)</td><td>样本集为空</td><td class="red">父节点多数类</td></tr>
+</table>
+
+<!-- ===== 剪枝 ===== -->
+<h2>五、剪枝策略对比</h2>
+<table>
+<tr><th></th><th>预剪枝</th><th>后剪枝</th></tr>
+<tr><td>机制</td><td>提前停止（限制深度/最小样本）</td><td>生成完整树后自下而上剪</td></tr>
+<tr><td>效率</td><td class="green">高</td><td class="red">低（开销大）</td></tr>
+<tr><td>泛化</td><td class="red">可能欠拟合</td><td class="green">更优</td></tr>
+</table>
+
+<!-- ===== 易错点 ===== -->
+<h2>六、易错陷阱</h2>
+<div class="warn">&#x26A0; <strong>信息增益 vs 增益率：</strong>ID3 用信息增益（越大越好），C4.5 用增益率（除以固有值 H<sub>A</sub>(D) 修正偏好）。</div>
+<div class="warn">&#x26A0; <strong>ID3 偏向取值多的特征：</strong>如"编号"使条件熵=0，信息增益=H(D) 最大，但无泛化能力。</div>
+<div class="warn">&#x26A0; <strong>决策树是判别模型：</strong>学习 P(Y|X)，非生成模型。对特征空间做划分，学习条件概率分布。</div>
+<div class="warn">&#x26A0; <strong>贪心 × 全局最优：</strong>ID3/C4.5 每步选最优属性（贪心），不保证全局最优树。</div>
+
+<footer>数据挖掘与机器学习 · 第4讲 决策树入门 · 考试速查</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1讲-章节测试 — 课程简介与机器学习概论</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+nav.breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; }
+nav.breadcrumb a { color: #1a237e; text-decoration: none; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 4px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 16px; }
+.total { background: #1a237e; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 15px; margin-bottom: 24px; display: inline-block; }
+.total span { font-weight: bold; color: #FFD54F; }
+h2 { font-size: 18px; color: #1a237e; margin: 28px 0 10px; }
+.question { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+.q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.q-label { font-size: 12px; padding: 2px 8px; border-radius: 3px; font-weight: bold; color: #fff; }
+.q-label.choice { background: #1a237e; }
+.q-label.fill { background: #2e7d32; }
+.q-label.short { background: #6a1b9a; }
+.q-label.calc { background: #c62828; }
+.q-label.code { background: #FF6F00; }
+.points { font-size: 13px; color: #888; }
+.q-body { margin-bottom: 10px; }
+.q-body .blank { display: inline-block; border-bottom: 2px solid #c62828; min-width: 80px; padding: 0 6px; margin: 0 4px; }
+.options { margin: 8px 0; }
+.option { display: block; padding: 4px 8px; margin: 2px 0; cursor: pointer; border-radius: 3px; }
+.option:hover { background: #e8eaf6; }
+.option.selected { background: #c5cae9; }
+.option.correct-show { background: #c8e6c9 !important; font-weight: bold; }
+.option.wrong-show { background: #ffcdd2 !important; }
+.answer-btn { background: #1a237e; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 8px; }
+.answer-btn:hover { background: #283593; }
+.answer-box { display: none; margin-top: 12px; padding: 12px; background: #e8eaf6; border-radius: 4px; font-size: 14px; }
+.answer-box.show { display: block; }
+.answer-box h4 { color: #1a237e; margin-bottom: 4px; }
+.feedback { font-weight: bold; margin-top: 4px; }
+.feedback.correct { color: #2e7d32; }
+.feedback.wrong { color: #c62828; }
+.fill-input { border: 1px solid #bbb; border-radius: 3px; padding: 4px 8px; font-size: 14px; width: 120px; }
+.fill-input.correct-show { border-color: #2e7d32; background: #c8e6c9; }
+.fill-input.wrong-show { border-color: #c62828; background: #ffcdd2; }
+textarea { width: 100%; border: 1px solid #bbb; border-radius: 4px; padding: 8px; font-size: 14px; font-family: inherit; resize: vertical; }
+pre { background: #263238; color: #aed581; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 13px; margin: 8px 0; }
+@media (max-width: 600px) { body { padding: 10px; } h1 { font-size: 20px; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<nav class="breadcrumb">
+  章节测试 / <strong>第1讲-章节测试</strong> | 上一章(无) | <a href="#">下一章 →</a>
+</nav>
+
+<h1>第1讲：章节测试</h1>
+<p class="subtitle">课程简介与机器学习概论</p>
+<div class="total">总分：<span>90</span> 分 | 共 <span>12</span> 题</div>
+
+<!-- ═══════════ 单选题 ═══════════ -->
+<h2>一、单项选择题（每题5分，共25分）</h2>
+
+<!-- Q1 -->
+<div class="question">
+  <div class="q-header"><span class="q-label choice">单选</span><span class="points">5分</span></div>
+  <div class="q-body">
+    <p><strong>1. </strong>根据 Mitchell (1997) 的定义，机器学习是通过___来改善程序在任务上的性能。以下哪项对应定义中的 P（Performance Measure）？</p>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, this.parentElement)">天气预测任务本身</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">算法检查大量历史天气数据的过程</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">正确预测未来天气的概率</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">以上都不是</div>
+    </div>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this, 2)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：正确预测未来天气的概率</h4>
+    <p><strong>解析：</strong>P 是性能度量（Performance Measure），即如何衡量程序做得好不好。在这个问题中：T=预测天气，E=大量历史天气数据，P=正确预测未来天气的概率。选项A描述的是任务T，选项B描述的是经验E。</p>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="question">
+  <div class="q-header"><span class="q-label choice">单选</span><span class="points">5分</span></div>
+  <div class="q-body">
+    <p><strong>2. </strong>你希望预测明天下午5点是否会下雨。你应该将它视为哪种类型的学习问题？</p>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, this.parentElement)">回归问题 (Regression)</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">分类问题 (Classification)</div>
+    </div>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this, 1)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：分类问题 (Classification)</h4>
+    <p><strong>解析：</strong>输出"是否下雨"是二分类（Yes/No），属于离散类别，因此是分类问题。如果是预测"降雨量是多少毫米"，那才是回归问题。</p>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="question">
+  <div class="q-header"><span class="q-label choice">单选</span><span class="points">5分</span></div>
+  <div class="q-body">
+    <p><strong>3. </strong>以下哪种学习问题的训练数据中<strong>包含</strong>输出标签（y）？</p>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, this.parentElement)">聚类分析</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">降维</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">逻辑回归</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">关联规则挖掘</div>
+    </div>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this, 2)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：逻辑回归</h4>
+    <p><strong>解析：</strong>逻辑回归是监督学习方法，训练数据需要包含输出标签；聚类和降维是无监督学习，不需要标签；关联规则也属于无监督。判别标准：是否使用 Y 标签。</p>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="question">
+  <div class="q-header"><span class="q-label choice">单选</span><span class="points">5分</span></div>
+  <div class="q-body">
+    <p><strong>4. </strong>"没有免费的午餐定理"（No Free Lunch Theorem）的核心含义是？</p>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, this.parentElement)">深度学习在所有问题上都是最好的</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">在某一问题上表现好的算法，必有一个问题表现更差</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">免费算法效果不好</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">算法A总是优于算法B</div>
+    </div>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this, 1)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：在某一问题上表现好的算法，必有一个问题表现更差</h4>
+    <p><strong>解析：</strong>No Free Lunch 定理指出：如果算法A在某些问题上优于算法B，则必然存在另一些问题使得B优于A。理论上没有一致最优的算法，脱离实际问题谈算法优劣无意义。</p>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="question">
+  <div class="q-header"><span class="q-label choice">单选</span><span class="points">5分</span></div>
+  <div class="q-body">
+    <p><strong>5. </strong>关于逻辑回归，以下说法<strong>正确</strong>的是？</p>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, this.parentElement)">逻辑回归是非线性分类器</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">Sigmoid函数使得决策边界变成曲线</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">逻辑回归的决策边界是线性超平面</div>
+      <div class="option" onclick="selectOption(this, this.parentElement)">逻辑回归不需要迭代优化，有显式解析解</div>
+    </div>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this, 2)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：逻辑回归的决策边界是线性超平面</h4>
+    <p><strong>解析：</strong>逻辑回归本质是<strong>线性分类器</strong>。Sigmoid仅将线性输出映射为概率，决策规则是 w^T x + b ≥ 0 ⇒ y=1，决策边界 w^T x + b = 0 是超平面。且逻辑回归没有显式解析解，需用梯度下降等迭代方法求解。</p>
+  </div>
+</div>
+
+<!-- ═══════════ 填空题 ═══════════ -->
+<h2>二、填空题（每题6分，共18分）</h2>
+
+<!-- Q6 -->
+<div class="question">
+  <div class="q-header"><span class="q-label fill">填空</span><span class="points">6分</span></div>
+  <div class="q-body">
+    <p><strong>6. </strong>根据Mitchell的定义，机器学习的三要素是：
+      <span class="blank">____</span>（T）、
+      <span class="blank">____</span>（P）和
+      <span class="blank">____</span>（E）。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：Task（任务）、Performance Measure（性能度量）、Experience（经验）</h4>
+    <p><strong>解析：</strong>这是课程最核心的定义，必须准确记忆英文对应：Task (T)、Performance Measure (P)、Experience (E)。</p>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="question">
+  <div class="q-header"><span class="q-label fill">填空</span><span class="points">6分</span></div>
+  <div class="q-body">
+    <p><strong>7. </strong>为防止过拟合，在经验风险的基础上加入正则化项，称为
+      <span class="blank">____</span>，其公式为：R_str(f) = R_emp(f) + <span class="blank">____</span>，其中 λ > 0 用于权衡经验风险和模型复杂度。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：结构风险最小化（SRM）、λ · J(f)</h4>
+    <p><strong>解析：</strong>结构风险最小化 = 经验风险 + λ · J(f)，其中 J(f) 是模型复杂度度量，λ 是正则化系数。这是防止过拟合的核心方法。</p>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="question">
+  <div class="q-header"><span class="q-label fill">填空</span><span class="points">6分</span></div>
+  <div class="q-body">
+    <p><strong>8. </strong>机器学习 = <span class="blank">____</span> + 模型 + <span class="blank">____</span> + 算法。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>答案：数据、策略</h4>
+    <p><strong>解析：</strong>机器学习 = 数据 + 模型 + 策略 + 算法。这是实现机器学习的五个步骤的凝练表达：数据收集 → 确定假设空间（模型）→ 确定选择准则（策略）→ 求解（算法）→ 预测。</p>
+  </div>
+</div>
+
+<!-- ═══════════ 简答题 ═══════════ -->
+<h2>三、简答题（每题10分，共20分）</h2>
+
+<!-- Q9 -->
+<div class="question">
+  <div class="q-header"><span class="q-label short">简答</span><span class="points">10分</span></div>
+  <div class="q-body">
+    <p><strong>9. </strong>请简述监督学习与无监督学习的核心区别，并各举一个典型应用场景。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>参考答案：</h4>
+    <p><strong>核心区别：</strong></p>
+    <ul>
+      <li>监督学习的训练数据包含输入X和输出标签Y，形如 {(x_i, y_i)}，目标是学习从X到Y的映射关系。</li>
+      <li>无监督学习的训练数据只有输入X，形如 {x_i}，目标是从数据中发现内在的结构或模式（如聚类、降维）。</li>
+    </ul>
+    <p><strong>典型应用：</strong></p>
+    <ul>
+      <li>监督学习：垃圾邮件分类（输入为邮件特征，输出为垃圾/正常标签）、手写数字识别。</li>
+      <li>无监督学习：市场细分（根据消费者特征聚类，无预设分类标签）、谷歌新闻聚类。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="question">
+  <div class="q-header"><span class="q-label short">简答</span><span class="points">10分</span></div>
+  <div class="q-body">
+    <p><strong>10. </strong>请解释经验风险最小化（ERM）和结构风险最小化（SRM）的区别，并说明为什么需要结构风险最小化。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>参考答案：</h4>
+    <p><strong>经验风险最小化（ERM）：</strong>直接在训练数据上最小化平均损失 $$R_{\text{emp}}(f) = \frac{1}{N}\sum L(y_i, f(x_i))$$。当样本量足够大时效果好。</p>
+    <p><strong>结构风险最小化（SRM）：</strong>在经验风险基础上加入正则化项 $$R_{\text{str}}(f) = R_{\text{emp}}(f) + \lambda J(f)$$。同时最小化经验风险和模型复杂度。</p>
+    <p><strong>为什么需要SRM：</strong>当样本量较小时，ERM容易导致<strong>过拟合</strong>——模型过度拟合训练数据中的噪声，导致泛化能力（对新样本的预测能力）变差。SRM通过惩罚模型复杂度，迫使模型在拟合训练数据与保持简洁之间取得平衡，从而提高泛化能力。</p>
+  </div>
+</div>
+
+<!-- ═══════════ 计算题 ═══════════ -->
+<h2>四、计算题（15分）</h2>
+
+<!-- Q11 -->
+<div class="question">
+  <div class="q-header"><span class="q-label calc">计算</span><span class="points">15分</span></div>
+  <div class="q-body">
+    <p><strong>11. </strong>已知一维线性回归模型 y = β_0 + β_1 x 的训练数据如下：</p>
+    <table style="width: 60%">
+      <tr><th>x</th><td>1</td><td>2</td><td>3</td></tr>
+      <tr><th>y</th><td>2</td><td>3</td><td>5</td></tr>
+    </table>
+    <p>请使用最小二乘法求 β_0 和 β_1 的解析解（写出详细推导步骤）。</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>解答步骤：</h4>
+    <p><strong>步骤1：构建设计矩阵 X 和目标向量 y</strong></p>
+    <p>$$ \mathbf{X} = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix}, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix} $$</p>
+    <p><strong>步骤2：计算 X^TX</strong></p>
+    <p>$$ \mathbf{X}^T \mathbf{X} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} = \begin{bmatrix} 3 & 6 \\ 6 & 14 \end{bmatrix} $$</p>
+    <p><strong>步骤3：计算 X^Ty</strong></p>
+    <p>$$ \mathbf{X}^T \mathbf{y} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix} = \begin{bmatrix} 10 \\ 23 \end{bmatrix} $$</p>
+    <p><strong>步骤4：求解正规方程 (X^TX)β = X^Ty</strong></p>
+    <p>$$ \begin{bmatrix} 3 & 6 \\ 6 & 14 \end{bmatrix} \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix} = \begin{bmatrix} 10 \\ 23 \end{bmatrix} $$</p>
+    <p>$$ \det(\mathbf{X}^T\mathbf{X}) = 3 \times 14 - 6 \times 6 = 42 - 36 = 6 $$</p>
+    <p>$$ (\mathbf{X}^T \mathbf{X})^{-1} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} $$</p>
+    <p><strong>步骤5：得出结果</strong></p>
+    <p>$$ \hat{\boldsymbol{\beta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} \begin{bmatrix} 10 \\ 23 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 140 - 138 \\ -60 + 69 \end{bmatrix} = \begin{bmatrix} 1/3 \\ 1.5 \end{bmatrix} $$</p>
+    <p><strong>答案：</strong>$$\beta_0 = \frac{1}{3} \approx 0.333, \quad \beta_1 = 1.5$$</p>
+    <p>回归方程为：$$y = \frac{1}{3} + 1.5x$$</p>
+    <p><strong>验证：</strong>x=1 ⇒ y=1.833 (≈2), x=2 ⇒ y=3.333 (≈3), x=3 ⇒ y=4.833 (≈5). ✓</p>
+  </div>
+</div>
+
+<!-- ═══════════ 代码分析题 ═══════════ -->
+<h2>五、代码分析题（12分）</h2>
+
+<!-- Q12 -->
+<div class="question">
+  <div class="q-header"><span class="q-label code">代码分析</span><span class="points">12分</span></div>
+  <div class="q-body">
+    <p><strong>12. </strong>阅读以下R语言代码，回答后续问题：</p>
+<pre>
+# 加载数据
+data(mtcars)
+
+# 线性回归建模
+model <- lm(mpg ~ wt + hp, data = mtcars)
+
+# 查看模型摘要
+summary(model)
+
+# 新数据预测
+new_car <- data.frame(wt = 2.5, hp = 150)
+pred <- predict(model, newdata = new_car)
+print(paste("预测的mpg值为:", round(pred, 2)))
+</pre>
+    <p>(a) 代码中 <code>mpg ~ wt + hp</code> 公式的含义是什么？其中哪个是响应变量，哪些是预测变量？（4分）</p>
+    <p>(b) <code>predict(model, newdata = new_car)</code> 这行代码的作用是什么？它使用了什么模型进行预测？（4分）</p>
+    <p>(c) <code>summary(model)</code> 会输出哪些关键统计量？哪个指标用来判断模型整体的显著性？（4分）</p>
+  </div>
+  <button class="answer-btn" onclick="toggleAnswer(this)">点击查看答案</button>
+  <div class="answer-box">
+    <h4>参考答案：</h4>
+    <p><strong>(a) </strong>公式 <code>mpg ~ wt + hp</code> 表示以 <code>mpg</code>（每加仑英里数）为<strong>响应变量（因变量 y）</strong>，以 <code>wt</code>（车重）和 <code>hp</code>（马力）为<strong>预测变量（自变量 x₁, x₂）</strong>，拟合多元线性回归模型：mpg = β₀ + β₁·wt + β₂·hp + ε。</p>
+    <p><strong>(b) </strong><code>predict(model, newdata = new_car)</code> 利用已训练好的线性回归模型，对新数据 <code>new_car</code>（wt=2.5, hp=150）进行预测，输出该配置下汽车mpg的估计值。底层模型是 <code>lm()</code> 拟合的普通最小二乘线性回归。</p>
+    <p><strong>(c) </strong><code>summary(model)</code> 输出内容包括：① 残差分布（最小值、四分位数、最大值）；② <strong>回归系数估计</strong>（Estimate）、标准误、t值和p值——p值用于判断单个变量是否显著；③ <strong>R² 和调整 R²</strong>——衡量模型拟合优度；④ <strong>F统计量及其p值</strong>——这是判断模型<strong>整体显著性</strong>的关键指标。若F检验的p值 < 0.05，则模型整体显著。</p>
+  </div>
+</div>
+
+<!-- ═══════════ 提交区域 ═══════════ -->
+<div style="text-align:center; margin-top: 32px; padding: 20px; background: #e8eaf6; border-radius: 8px;">
+  <p style="font-size: 15px; color: #1a237e;">完成所有题目后，请对照答案自我评分。</p>
+  <p style="font-size: 13px; color: #888;">每题均有详细解析，查看答案后记下得分。</p>
+</div>
+
+<script>
+function selectOption(el, parent) {
+  parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleAnswer(btn, correctIdx) {
+  const box = btn.nextElementSibling;
+  const isOpen = box.classList.contains('show');
+  if (isOpen) {
+    box.classList.remove('show');
+    btn.textContent = '点击查看答案';
+    return;
+  }
+  box.classList.add('show');
+  btn.textContent = '隐藏答案';
+  // highlight correct option if this is a choice question
+  if (typeof correctIdx === 'number') {
+    const parent = btn.parentElement;
+    const options = parent.querySelectorAll('.option');
+    options.forEach((o, i) => {
+      if (i === correctIdx) o.classList.add('correct-show');
+    });
+    const selected = parent.querySelector('.option.selected');
+    if (selected) {
+      const selIdx = Array.from(options).indexOf(selected);
+      if (selIdx === correctIdx) {
+        selected.classList.add('correct-show');
+      } else {
+        selected.classList.add('wrong-show');
+      }
+    }
+  }
+}
+</script>
+
+</body>
+</html>

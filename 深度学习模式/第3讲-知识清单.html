@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3讲-知识清单 | K近邻法 K近邻法</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <span>深度学习模式 / <strong>第3讲-知识清单</strong></span>
+  <span>←上一章 | <a href="#">下一章 →</a></span>
+</div>
+
+<h1>第3讲：K近邻法 K近邻法 <span class="sub">K-Nearest Neighbors</span></h1>
+<div>
+  <span class="tag tag-must">tag-must</span>
+  <span class="tag tag-key">tag-key</span>
+  <span class="tag tag-freq">tag-freq</span>
+  <span class="tag tag-info">tag-info</span>
+</div>
+
+<!-- ============ DEEP MODE: Step 1 - Intuition ============ -->
+<h2>Step 1: 直觉理解 (Intuition) <span class="tag-read">细读</span></h2>
+<div class="card">
+  <h3>核心思想 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">K近邻法</span>遵循一个朴素而强大的原则：<strong>"近朱者赤，近墨者黑"</strong>——一个数据点的类别或数值，由其周围最近的K个邻居决定。</p>
+  <ul>
+    <li><span class="tag tag-must">tag-must</span> <span class="kp">分类</span>：看K个邻居中哪个类别最多，就归为哪类（多数表决）</li>
+    <li><span class="tag tag-must">tag-must</span> <span class="kp">回归</span>：取K个邻居的输出值的平均值作为预测值</li>
+  </ul>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">收到一个新样本，计算它与所有训练样本的距离</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">找出距离最近的K个邻居</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">用邻居的标签投票（或取平均），得出预测结果</div>
+  </div>
+</div>
+
+<!-- ============ DEEP MODE: Step 2 - Definition ============ -->
+<h2>Step 2: 定义与形式化 (Definition) <span class="tag-read">细读</span></h2>
+<div class="card">
+  <h3>数学定义 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">K近邻法</span>是一种<span class="tag tag-key">tag-key</span> 基本的分类与回归方法，由 Cover 和 Hart 于1968年提出。</p>
+  <p>输入：训练数据集</p>
+  <div class="formula-block">
+    $$T = \{(x_1, y_1), (x_2, y_2), \cdots, (x_N, y_N)\}$$
+  </div>
+  <p>其中 $$x_i \subseteq \mathbb{R}^n$$ 为特征向量，$$y_i \in \mathcal{Y} = \{c_1, c_2, \ldots, c_K\}$$ 为类别。</p>
+  <p>对输入 $$x$$，在训练集中找出其K个最近邻 $$N_k(x)$$，分类决策为：</p>
+  <div class="formula-block">
+    $$y = \arg\max_{c_j} \sum_{x_i \in N_k(x)} I(y_i = c_j), \quad i = 1,2,\cdots,N; \; j = 1,2,\cdots,K$$
+  </div>
+  <p><span class="exp">即：统计N_k(x)中各训练样本的类别，取出现最多的类作为预测结果。</span></p>
+</div>
+
+<div class="card green">
+  <h3>三个基本要素 <span class="tag tag-must">tag-must</span></h3>
+  <table>
+    <tr><th>要素</th><th>说明</th></tr>
+    <tr><td><span class="kp">K值选择</span></td><td>近邻的数量，对结果影响重大</td></tr>
+    <tr><td><span class="kp">距离度量</span></td><td>如何衡量样本间的远近</td></tr>
+    <tr><td><span class="kp">分类决策规则</span></td><td>如何根据邻居的类别做出最终判断</td></tr>
+  </table>
+  <p>当这三者确定后，对任何新输入，输出唯一确定，相当于将特征空间划分为一些子空间。</p>
+</div>
+
+<!-- ============ DEEP MODE: Step 3 - Motivation ============ -->
+<h2>Step 3: 动机与特点 (Motivation) <span class="tag-read">细读</span></h2>
+<div class="card purple">
+  <h3>懒惰学习 (Lazy Learning) <span class="tag tag-freq">tag-freq</span></h3>
+  <p>K近邻法<span class="kp">不具有显式的学习过程</span>。训练阶段仅仅是<strong>把数据存储起来</strong>，实际计算发生在预测时。这与急切学习（Eager Learning，如线性回归在训练时构建模型参数）形成鲜明对比。</p>
+  <blockquote class="tip">
+    <strong>KNN是典型的懒惰学习算法</strong>：训练开销低（几乎为0），但预测时需要遍历所有训练样本计算距离，时间复杂度为 $$O(N \times D)$$（暴力搜索）。
+  </blockquote>
+
+  <h3>适用场景 <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="tag tag-info">tag-info</span> 特征空间维度较低（避免维度灾难）</li>
+    <li><span class="tag tag-info">tag-info</span> 类别边界极不规则，非线性的情况</li>
+    <li><span class="tag tag-info">tag-info</span> 样本量适中（太大则预测效率低）</li>
+  </ul>
+</div>
+
+<!-- ============ DEEP MODE: Step 4 - Derivation ============ -->
+<h2>Step 4: 推导与深入 (Derivation) <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>距离度量体系 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">闵可夫斯基距离 (Minkowski Distance, L<sub>p</sub>)</span> 是多种距离的通式：</p>
+  <div class="formula-block">
+    $$\text{MINKOWSKI}(\mathbf{x}, \mathbf{y}) = \left( \sum_{i=1}^{n} |x_i - y_i|^p \right)^{\frac{1}{p}}$$
+  </div>
+  <table>
+    <tr><th>p值</th><th>名称</th><th>公式</th><th>特点</th></tr>
+    <tr>
+      <td>p=1</td>
+      <td><span class="kp">曼哈顿距离 (Block)</span></td>
+      <td>$$\sum_{i=1}^{n} |x_i - y_i|$$</td>
+      <td>城市街区距离，各维度独立</td>
+    </tr>
+    <tr>
+      <td>p=2</td>
+      <td><span class="kp">欧氏距离 (Euclidean)</span></td>
+      <td>$$\sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$</td>
+      <td>最常用，直线距离</td>
+    </tr>
+    <tr>
+      <td>p→∞</td>
+      <td><span class="kp">切比雪夫距离 (Chebyshev)</span></td>
+      <td>$$\max_i |x_i - y_i|$$</td>
+      <td>只关注最大差异维度</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td><span class="kp">余弦距离 (Cosine)</span></td>
+      <td>$$1 - \frac{\sum x_i y_i}{\sqrt{\sum x_i^2}\sqrt{\sum y_i^2}}$$</td>
+      <td>关注方向而非大小</td>
+    </tr>
+  </table>
+
+  <h3>距离度量示例 <span class="tag-read">细读</span></h3>
+  <p>已知三点：x₁=(1,1)ᵀ, x₂=(5,1)ᵀ, x₃=(4,4)ᵀ，求x₁在不同L<sub>p</sub>下的最近邻：</p>
+  <ul>
+    <li>L<sub>p</sub>(x₁, x₂) = 4（恒为4，与p无关）</li>
+    <li>L₁(x₁, x₃) = 6, L₂(x₁, x₃) ≈ 4.24, L₃(x₁, x₃) ≈ 3.78, L₄(x₁, x₃) ≈ 3.57</li>
+    <li><strong>结论：</strong>p=1或2时，x₂是最近邻；p≥3时，x₃是最近邻</li>
+  </ul>
+  <blockquote class="pitfall">不同距离度量会产生不同的最近邻！选择哪种距离取决于数据特征和任务需求。</blockquote>
+</div>
+
+<div class="card">
+  <h3>数据预处理 <span class="tag tag-key">tag-key</span></h3>
+  <p>若各特征存在<strong>数量级差异</strong>，必须进行预处理，否则数值大的特征会主导距离计算。</p>
+  <table>
+    <tr><th>方法</th><th>公式</th><th>结果范围</th></tr>
+    <tr>
+      <td><span class="kp">极差法 (Min-Max)</span></td>
+      <td>$$x'_{ij} = \frac{x_{ij} - \min_j}{\max_j - \min_j}$$</td>
+      <td>[0, 1]</td>
+    </tr>
+    <tr>
+      <td><span class="kp">标准分数法 (Z-Score)</span></td>
+      <td>$$x'_{ij} = \frac{x_{ij} - \bar{x}_i}{\sigma_{x_i}}$$</td>
+      <td>均值为0，标准差为1</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card green">
+  <h3>多数表决规则 = 经验风险最小化 <span class="tag-read">细读</span></h3>
+  <p>在0-1损失函数下，误分类概率：$$P(Y \neq f(X)) = 1 - P(Y = f(X))$$</p>
+  <p>在 $$N_k(x)$$ 内，若类别为 $$c_j$$，误分类率：</p>
+  <div class="formula-block">
+    $$\frac{1}{k} \sum_{x_i \in N_k(x)} I(y_i \neq c_j) = 1 - \frac{1}{k} \sum_{x_i \in N_k(x)} I(y_i = c_j)$$
+  </div>
+  <p>要使误分类率最小，则需 $$\sum I(y_i = c_j)$$ 最大，即<strong>多数表决规则等价于经验风险最小化</strong>。</p>
+</div>
+
+<!-- ============ DEEP MODE: Step 5 - Examples ============ -->
+<h2>Step 5: 实例与练习 (Examples) <span class="tag-read">细读</span></h2>
+<div class="card">
+  <h3>K=5 的三分类问题示例 <span class="tag-read">细读</span></h3>
+  <p>某测试样本的5个最近邻中：类别A占3个，类别B占2个，类别C占0个 → 预测为类别A。</p>
+  <h3>1-NN vs 3-NN <span class="tag-read">细读</span></h3>
+  <ul>
+    <li>1-NN训练误差 ≤ 3-NN训练误差（分类与回归均成立）— <span class="tag tag-freq">tag-freq</span> True</li>
+    <li>对于1-NN分类，去除任何一个训练样本都会影响至少一部分决策边界 — True</li>
+  </ul>
+</div>
+
+<!-- ============ DEEP MODE: Step 6 - Comparison ============ -->
+<h2>Step 6: 比较与权衡 (Comparison) <span class="tag-read">细读</span></h2>
+
+<div class="card red">
+  <h3>K值的选择：偏差-方差权衡 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th></th><th>K较小（如K=1）</th><th>K较大</th></tr>
+    <tr><td>模型复杂度</td><td style="color:var(--red)"><strong>高（复杂）</strong></td><td>低（简单）</td></tr>
+    <tr><td>决策边界</td><td>曲折、支离破碎</td><td>平滑</td></tr>
+    <tr><td>对噪声敏感度</td><td style="color:var(--red)">极敏感→容易<span class="kp">过拟合</span></td><td>不敏感→可能<span class="kp">欠拟合</span></td></tr>
+    <tr><td>训练误差</td><td>低（甚至为0）</td><td>高</td></tr>
+    <tr><td>泛化误差</td><td style="color:var(--red)">可能很高</td><td>可能很高</td></tr>
+  </table>
+  <blockquote class="pitfall">
+    当K=N时，无论输入是什么，都预测训练集中出现最多的类别。这相当于一个常数预测器，完全没有利用输入的特征信息！极端简化。
+  </blockquote>
+</div>
+
+<div class="card">
+  <h3>模型评估方法对比 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>方法</th><th>原理</th><th>适用</th><th>优缺点</th></tr>
+    <tr>
+      <td><span class="kp">旁置法 (Hold-out)</span></td>
+      <td>随机划分训练集60-70%和测试集</td>
+      <td>样本量大</td>
+      <td>简单快速，但评估结果不稳定</td>
+    </tr>
+    <tr>
+      <td><span class="kp">K折交叉验证</span></td>
+      <td>分K个子集，轮流作测试集</td>
+      <td>通用（最推荐）</td>
+      <td>评估稳定，K次训练/测试取均值</td>
+    </tr>
+    <tr>
+      <td><span class="kp">留一法 (LOO)</span></td>
+      <td>每次留一个样本作测试，其余训练</td>
+      <td>样本量小</td>
+      <td>偏差低，几乎无随机性影响；计算成本高</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card purple">
+  <h3>KNN扩展：加权K近邻法 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th></th><th>基于变量重要性加权</th><th>基于观测相似性加权</th></tr>
+    <tr><td>加权对象</td><td>特征的维度</td><td>邻居的距离</td></tr>
+    <tr><td>核心思想</td><td>重要变量赋予高权重</td><td>近邻影响大，远邻影响小</td></tr>
+    <tr><td>权重设计</td><td>剔除该变量后预测误差的变化</td><td>核函数 $$K(d)$$ 将距离转为权重</td></tr>
+    <tr><td>核函数要求</td><td>—</td><td>d=0时取最大值，单调递减的非负函数</td></tr>
+  </table>
+  <p>基于观测相似性的加权KNN预测：</p>
+  <div class="formula-block">
+    $$y = \arg\max_{c_j} \sum_{x_i \in N_k(x_0)} w_i \cdot I(y_i = c_j)$$
+  </div>
+  <p>其中 $$w_i$$ 由核函数 $$K(d)$$ 根据距离产生，距离越近权重越大。</p>
+</div>
+
+<!-- ============ DEEP MODE: Step 7 - Pitfalls ============ -->
+<h2>Step 7: 常见误区与陷阱 (Pitfalls) <span class="tag-read">细读</span></h2>
+<blockquote class="pitfall">
+  <strong>K值选偶数</strong>：二分类问题中若K为偶数，可能出现平票（Tie）。建议选择奇数K来避免。
+</blockquote>
+<blockquote class="pitfall">
+  <strong>不归一化直接计算距离</strong>：若某特征取值范围为[0, 1000]，另一特征为[0, 1]，则距离计算几乎完全由第一个特征主导。必须归一化。
+</blockquote>
+<blockquote class="pitfall">
+  <strong>维度灾难 (Curse of Dimensionality)</strong>：随着特征维度p增加，数据点之间的距离趋于相近，"最近邻"概念失去分辨力。高维空间中，要覆盖r比例邻居的超立方体边长 $$\propto r^{1/p}$$，这意味着在合理边长内几乎包含所有数据点。
+</blockquote>
+<blockquote class="pitfall">
+  <strong>不平衡数据</strong>：K值较大时，多数表决会使测试样本极易被预测为多数类，导致少数类的召回率极低。解决方法：加权投票、调整K值、数据重采样。
+</blockquote>
+<blockquote class="pitfall">
+  <strong>并非只有分类</strong>：KNN同样可以做回归（取平均值而非投票），这是常见误解。
+</blockquote>
+
+<hr>
+
+<h2>K值选择最佳实践 <span class="tag-read">细读</span></h2>
+<div class="card green">
+  <ol>
+    <li>通常采用<span class="kp">交叉验证法</span>选取最优K值</li>
+    <li>K一般为奇数（避免平票）</li>
+    <li>K不宜太小（防过拟合）也不宜太大（防欠拟合）</li>
+    <li>尝试多个候选K值，比较交叉验证误差</li>
+  </ol>
+</div>
+
+<h2>特征选择与降维 <span class="tag-read">细读</span></h2>
+<div class="card">
+  <p>降低特征空间维度能有效提升KNN在实践中的表现：</p>
+  <table>
+    <tr><th>标准</th><th>说明</th></tr>
+    <tr><td>离散程度大</td><td>方差大的变量往往有区分力</td></tr>
+    <tr><td>与输出相关性强</td><td>对预测目标贡献大的变量</td></tr>
+    <tr><td>预测误差减小多</td><td>增加该变量后误差下降显著</td></tr>
+  </table>
+  <p>常用方法：<span class="kp">前向序列选择</span>、<span class="kp">主成分分析 (PCA)</span>。</p>
+</div>
+
+<hr>
+
+<h2>前置知识回顾：偏差-方差分解 <span class="tag-read">细读</span></h2>
+<div class="card purple">
+  <div class="formula-block">
+    $$\text{Err}(x_{\text{test}}) = \text{bias}^2(x_{\text{test}}) + \text{var}(x_{\text{test}}) + \sigma_\varepsilon^2$$
+  </div>
+  <table>
+    <tr><th>分解项</th><th>含义</th><th>诊断</th></tr>
+    <tr><td><span class="kp">偏差² (Bias²)</span></td><td>期望预测与真实值的偏离—拟合能力</td><td>高偏差→欠拟合→增加模型复杂度</td></tr>
+    <tr><td><span class="kp">方差 (Variance)</span></td><td>训练集变动导致的学习性能变化—数据扰动影响</td><td>高方差→过拟合→增加数据/正则化</td></tr>
+    <tr><td><span class="kp">噪声 σ²</span></td><td>不可约误差</td><td>—</td></tr>
+  </table>
+  <blockquote class="tip">
+    <strong>Double Descent现象</strong>：模型复杂度超过插值阈值后，测试误差可能再次下降，挑战了传统U型偏差-方差权衡曲线（Belkin et al., 2019）。
+  </blockquote>
+</div>
+
+</div>
+</body>
+</html>

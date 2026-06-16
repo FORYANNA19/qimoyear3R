@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12讲 考试速查 — 支持向量机</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root {
+    --primary: #1a237e; --success: #2e7d32; --danger: #c62828;
+    --bg: #fafafa; --card: #fff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:#333; line-height:1.7; }
+  .header {
+    background:linear-gradient(135deg, #c62828, #b71c1c); color:#fff;
+    padding:16px 28px; font-size:18px; font-weight:700;
+    display:flex; align-items:center; gap:12px;
+  }
+  .header .icon { font-size:28px; }
+  .header .sub { font-size:13px; font-weight:400; opacity:0.85; }
+  .container { max-width:1000px; margin:0 auto; padding:20px 16px; }
+  .section {
+    background:var(--card); border-radius:8px; border:1px solid #e0e0e0;
+    margin-bottom:16px; padding:18px 22px;
+  }
+  .section h2 { font-size:17px; color:var(--danger); border-bottom:2px solid #ffcdd2; padding-bottom:6px; margin-bottom:12px; }
+  .formula {
+    background:#fff5f5; border:1px solid #ffcdd2; border-radius:6px;
+    padding:12px 16px; margin:8px 0; overflow-x:auto;
+    font-family:"Cambria Math","Times New Roman",serif; font-size:15px;
+  }
+  .formula.alt { background:#f3e5f5; border-color:#ce93d8; }
+  .label { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; margin-right:6px; }
+  .label-primal { background:#ffcdd2; color:#c62828; }
+  .label-dual { background:#e1bee7; color:#6a1b9a; }
+  .label-kkt { background:#fff9c4; color:#f57f17; }
+  .label-kernel { background:#b2dfdb; color:#00695c; }
+  .label-cv { background:#b3e5fc; color:#01579b; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+  table th { background:var(--primary); color:#fff; padding:8px 10px; text-align:left; }
+  table td { padding:8px 10px; border-bottom:1px solid #e0e0e0; }
+  table tr:nth-child(even) td { background:#f5f5f5; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:700px){ .grid2 { grid-template-columns:1fr; } }
+  .code-block { background:#263238; color:#eeffff; padding:14px 18px; border-radius:8px; font-family:Consolas,monospace; font-size:13px; overflow-x:auto; margin:8px 0; }
+  .code-block .kw { color:#89ddff; }
+  .code-block .fn { color:#82aaff; }
+  .code-block .cm { color:#546e7a; }
+  ul { margin:6px 0 6px 20px; }
+  li { margin:3px 0; }
+  strong { color:var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="icon">📋</span>
+  <div>
+    第12讲 考试速查 — 支持向量机 支持向量机
+    <div class="sub">线性可分 / 软间隔 / 核技巧 / 对偶问题 / KKT条件 条件</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- Core Optimization -->
+<div class="section">
+  <h2>1. 核心优化目标（三层次递进）</h2>
+
+  <p><strong>硬间隔（线性可分）— 原始问题：</strong></p>
+  <div class="formula">
+    <span class="label label-primal">Primal</span>
+    $$\min_{w,b} \frac{1}{2}\|w\|^2 \quad \text{s.t. } y_i(w\cdot x_i + b) \ge 1$$
+  </div>
+
+  <p><strong>软间隔（广义线性可分）— 原始问题：</strong></p>
+  <div class="formula">
+    <span class="label label-primal">Primal</span>
+    $$\min_{w,b,\xi} \frac{1}{2}\|w\|^2 + C\sum_{i=1}^{N}\xi_i \quad \text{s.t. } y_i(w\cdot x_i + b) \ge 1 - \xi_i,\ \xi_i \ge 0$$
+  </div>
+
+  <p><strong>核化软间隔（线性不可分）— 对偶问题：</strong></p>
+  <div class="formula alt">
+    <span class="label label-dual">Dual</span>
+    $$\min_{\alpha} \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j K(x_i,x_j) - \sum_i\alpha_i$$
+    $$\text{s.t. } \sum_i \alpha_i y_i = 0,\quad 0 \le \alpha_i \le C$$
+  </div>
+</div>
+
+<!-- KKT条件 Conditions -->
+<div class="section">
+  <h2>2. KKT条件 条件（强对偶的充要条件）</h2>
+  <div class="formula">
+    <span class="label label-kkt">KKT条件</span>
+    $$\begin{aligned}
+    \nabla_w L &= w - \sum\alpha_i y_i x_i = 0 &&\text{(平稳性)}\\
+    \nabla_b L &= -\sum\alpha_i y_i = 0 &&\text{(平稳性)}\\
+    y_i(w\cdot x_i + b) &\ge 1 - \xi_i,\ \xi_i \ge 0 &&\text{(原始可行性)}\\
+    \alpha_i &\ge 0,\ \mu_i \ge 0 &&\text{(对偶可行性)}\\
+    \alpha_i\big[y_i(w\cdot x_i + b) - 1 + \xi_i\big] &= 0 &&\text{(互补松弛)}\\
+    \mu_i \xi_i &= 0 &&\text{(互补松弛)}
+    \end{aligned}$$
+  </div>
+  <p>关键推论：\(\alpha_i > 0\) → 该点为支持向量；\(\alpha_i = 0\) → 对模型无贡献。</p>
+</div>
+
+<!-- Key Formulas -->
+<div class="section">
+  <h2>3. 必背公式清单</h2>
+
+  <div class="grid2">
+    <div>
+      <p><strong>间隔 (Margin)：</strong></p>
+      <div class="formula">$$\text{margin} = \frac{2}{\|w\|}$$</div>
+    </div>
+    <div>
+      <p><strong>几何间隔：</strong></p>
+      <div class="formula">$$\gamma_i = y_i\left(\frac{w}{\|w\|}\cdot x_i + \frac{b}{\|w\|}\right)$$</div>
+    </div>
+    <div>
+      <p><strong>\(w^*\) 表达式：</strong></p>
+      <div class="formula">$$w^* = \sum_{i=1}^{N}\alpha_i^* y_i x_i$$</div>
+    </div>
+    <div>
+      <p><strong>\(b^*\) 计算：</strong></p>
+      <div class="formula">$$b^* = y_j - \sum_{i=1}^{N}\alpha_i^* y_i K(x_i, x_j)$$</div>
+    </div>
+    <div>
+      <p><strong>决策函数：</strong></p>
+      <div class="formula">$$f(x) = \text{sign}\left(\sum_{i=1}^{N}\alpha_i^* y_i K(x_i, x) + b^*\right)$$</div>
+    </div>
+    <div>
+      <p><strong>Hinge Loss：</strong></p>
+      <div class="formula">$$L_{\text{hinge}} = \big[1 - y f(x)\big]_+$$</div>
+    </div>
+  </div>
+</div>
+
+<!-- Kernels -->
+<div class="section">
+  <h2>4. 常用核函数速查</h2>
+  <table>
+    <tr><th>核函数</th><th>公式 \(K(x,z)\)</th><th>映射空间</th><th>使用场景</th></tr>
+    <tr><td>线性核</td><td>\(x \cdot z\)</td><td>原空间</td><td>高维稀疏特征（文本）</td></tr>
+    <tr><td>多项式核</td><td>\((x\cdot z + c)^d\)</td><td>有限维</td><td>已知特征交互阶数</td></tr>
+    <tr><td>高斯核 (径向基函数 (RBF))</td><td>\(\exp\!\left(-\frac{\|x-z\|^2}{2\sigma^2}\right)\)</td><td><strong>无穷维</strong></td><td>通用，最常用</td></tr>
+    <tr><td>Sigmoid激活函数 核</td><td>\(\tanh(\kappa x\cdot z + \theta)\)</td><td>—</td><td>神经网络视角</td></tr>
+  </table>
+  <p><strong>正定核判定：</strong>Gram 矩阵 \(G_{ij}=K(x_i,x_j)\) 半正定 ⇔ \(K\) 为正定核。</p>
+</div>
+
+<!-- Parameter C -->
+<div class="section">
+  <h2>5. 参数 C 的影响</h2>
+  <table>
+    <tr><th>C 取值</th><th>效果</th><th>偏差-方差</th></tr>
+    <tr><td>\(C \to \infty\)</td><td>退化为硬间隔，不允许错误</td><td>可能过拟合（低偏差、高方差）</td></tr>
+    <tr><td>\(C\) 很大</td><td>容忍少量错误，间隔窄</td><td>倾向过拟合</td></tr>
+    <tr><td>\(C\) 适中</td><td>平衡间隔与错误</td><td>较好泛化</td></tr>
+    <tr><td>\(C\) 很小</td><td>允许较多错误，间隔宽</td><td>倾向欠拟合（高偏差、低方差）</td></tr>
+  </table>
+</div>
+
+<!-- Multi-class -->
+<div class="section">
+  <h2>6. 多分类 支持向量机 策略</h2>
+  <table>
+    <tr><th>策略</th><th>分类器数</th><th>预测方式</th></tr>
+    <tr><td>一对一 (OvO) (一对一)</td><td>\(K(K-1)/2\)</td><td>投票，众数类别</td></tr>
+    <tr><td>一对剩余 (OvR) (一对多)</td><td>\(K\)</td><td>\(\arg\max_k(b_k + w_k^T x)\)</td></tr>
+  </table>
+</div>
+
+<!-- 支持向量回归 (SVR) -->
+<div class="section">
+  <h2>7. 支持向量回归 (支持向量回归 (SVR)) 要点</h2>
+  <ul>
+    <li><strong>核心思想：</strong>找一个函数 \(f(x)\)，使大多数样本的偏差 ≤ ε</li>
+    <li><strong>ε-不敏感管：</strong>落在管内的点不计损失，管外的点才有损失</li>
+    <li><strong>类比 支持向量机：</strong>间隔带 → ε-管，最大化间隔 → 最小化管外误差</li>
+  </ul>
+</div>
+
+<!-- Exam Pitfalls -->
+<div class="section" style="border-color:#c62828; background:#fff5f5;">
+  <h2>⚠ 考试易错点</h2>
+  <ul>
+    <li>特征缩放对 支持向量机 <strong>非常必要</strong>——依赖距离度量的模型都受量纲影响</li>
+    <li>核技巧是<strong>在低维计算，等价于高维内积效果</strong>，并非显式映射</li>
+    <li>支持向量是 \( \alpha_i > 0 \) 的点，不是所有样本点</li>
+    <li>\( \alpha_i = 0 \) 的点对超平面 <strong>完全无贡献</strong></li>
+    <li>软间隔 支持向量机 中 \(b^*\) 不唯一，但 \(w^*\) 唯一</li>
+    <li>弱对偶：\(d^* \le p^*\)；强对偶：\(d^* = p^*\)（凸问题 + Slater 条件）</li>
+  </ul>
+</div>
+
+</div></body></html>

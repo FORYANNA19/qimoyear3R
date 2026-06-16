@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4讲 决策树入门 - 章节测试</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "Microsoft YaHei", sans-serif; background: #fafafa; color: #212121; line-height:1.8; }
+.container { max-width: 900px; margin:0 auto; padding: 20px; }
+
+h1 { text-align: center; color: #1a237e; margin-bottom: 24px; }
+h2 { color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 6px; margin: 30px 0 14px; }
+h3 { color: #3949ab; margin: 16px 0 8px; }
+
+.q-block { background: #fff; border-radius: 8px; padding: 18px 22px; margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.q-num { display: inline-block; background: #1a237e; color:#fff; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; margin-right: 8px; font-size: 14px; font-weight: bold; }
+
+.options { margin: 8px 0 8px 36px; list-style: upper-latin; }
+.options li { padding: 2px 0; }
+.options li.correct { background: #e8f5e9; }
+
+input[type="radio"] { margin-right: 6px; }
+
+.answer-toggle { display: inline-block; background: #2e7d32; color: #fff; border: none; padding: 4px 16px; border-radius: 4px; cursor: pointer; margin: 8px 0 8px 36px; font-size: 13px; }
+.answer-toggle:hover { background: #1b5e20; }
+
+.answer { display: none; background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 10px 16px; margin: 8px 0 8px 36px; border-radius: 0 6px 6px 0; font-size: 14px; }
+.answer.show { display: block; }
+
+/* Fill-in */
+.fill-blank { display: inline-block; border-bottom: 2px dashed #1a237e; min-width: 80px; margin: 0 4px; padding: 0 4px; color: #1a237e; font-weight: bold; }
+
+/* Short answer */
+.sa-lines { border-top: 1px dashed #ccc; margin: 12px 0; height: 60px; }
+
+/* Code */
+pre { background: #263238; color: #eeffff; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; margin: 8px 0; }
+
+.formula { background: #fff9c4; border: 1px solid #f9a825; padding: 8px 14px; border-radius: 4px; margin: 6px 0; text-align: center; }
+
+.note { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 8px 14px; margin: 10px 0; font-size: 14px; }
+
+footer { text-align: center; margin-top: 30px; color: #999; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>第4讲 决策树入门 — 章节测试</h1>
+<div class="note">测试范围：决策树概念、熵与信息增益、ID3算法、C4.5算法、剪枝</div>
+
+<!-- ==================== 选择题 ==================== -->
+<h2>一、选择题 (×7)</h2>
+
+<div class="q-block">
+<span class="q-num">1</span>决策树的学习过程通常被描述为一个自顶向下的递归过程。这种构建方式本质上属于哪种算法策略？
+<ol class="options">
+  <li>动态规划 (Dynamic Programming)</li>
+  <li class="correct">贪心算法 (Greedy Algorithm)</li>
+  <li>穷举搜索 (Exhaustive Search)</li>
+  <li>随机优化 (Stochastic Optimization)</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：B</strong> — ID3/C4.5 每一步选择当前最优属性（信息增益最大/增益率最大），不回溯，属于贪心策略。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">2</span>在 ID3 算法中，使用信息增益作为分裂标准会导致算法倾向于选择以下哪类特征？
+<ol class="options">
+  <li>缺失值较少的特征</li>
+  <li>取值较少的特征（如：性别）</li>
+  <li class="correct">取值较多且分布稀疏的特征（如：身份证号、日期）</li>
+  <li>数值型特征</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：C</strong> — 信息增益偏向取值多的特征。例如"编号"每个样本唯一，条件熵=0，信息增益=H(D)最大，但毫无泛化能力。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">3</span>为了修正信息增益的缺点，C4.5 算法引入了"信息增益率"。关于增益率，下列说法正确的是：
+<ol class="options">
+  <li>增益率完全解决了对取值较多特征的偏好</li>
+  <li class="correct">增益率在分母上增加了一个反映特征固有属性的熵（Intrinsic Value），从而惩罚了取值过多的特征</li>
+  <li>增益率倾向于选择取值极少的特征</li>
+  <li>增益率不再需要计算信息增益</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：B</strong> — 增益率 = g(D,A) / H<sub>A</sub>(D)，分母 H<sub>A</sub>(D) 为特征 A 的固有熵。特征取值越多 → H<sub>A</sub>(D) 越大 → 增益率降低，从而起到惩罚作用。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">4</span>决策树生成的决策边界 (Decision Boundary) 具有什么物理几何特征？
+<ol class="options">
+  <li>决策边界总是平滑的曲线</li>
+  <li>决策边界是倾斜的超平面</li>
+  <li class="correct">决策边界总是与坐标轴平行或垂直的</li>
+  <li>决策边界呈现圆形或椭圆形</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：C</strong> — 决策树每次分裂仅在单一特征上做条件判断（如 年龄 ≥ 30?），因此决策边界是与坐标轴平行或垂直的阶梯状界线。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">5</span>决策树在处理连续型特征（如年龄、收入）时，通常采取什么手段？
+<ol class="options">
+  <li>无法处理，必须先手动离散化</li>
+  <li class="correct">采用二分法 (Bi-partition) 寻找最优划分点</li>
+  <li>直接计算每个数值的信息增益</li>
+  <li>使用均值代替</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：B</strong> — C4.5 使用二分法：将连续值排序，取相邻值的中间点作为候选划分点，选择使信息增益最大的划分点。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">6</span>预剪枝 (Pre-pruning) 和后剪枝 (Post-pruning) 相比，以下说法错误的是：
+<ol class="options">
+  <li>预剪枝在构建过程中提前停止，计算效率更高</li>
+  <li class="correct">预剪枝通常比后剪枝产生的树更大、更复杂</li>
+  <li>预剪枝可能导致"欠拟合"，因为它可能会错过后续更好的分裂</li>
+  <li>后剪枝通常保留了更多的细节，泛化性能往往优于预剪枝</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：B</strong> — 预剪枝提前停止，产生的树<strong>更小、更简单</strong>（而非更大更复杂）。后剪枝先生成完整树再剪，泛化性能更好但计算开销更大。</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">7</span>在训练决策树时，如果某些样本的某个特征缺失，C4.5 算法的处理方式是：
+<ol class="options">
+  <li>直接丢弃这些样本</li>
+  <li>用该特征的众数填充后再计算</li>
+  <li class="correct">根据已知该特征权重的比例，将样本分配到所有子节点中</li>
+  <li>随机选择一个子节点分配</li>
+</ol>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：C</strong> — C4.5 按概率将缺失样本分配到各个子节点，而非简单丢弃或填充。这是 ID3 不具备的能力。</div>
+</div>
+
+<!-- ==================== 填空题 ==================== -->
+<h2>二、填空题 (×4)</h2>
+
+<div class="q-block">
+<span class="q-num">1</span>决策树本质上是<span class="fill-blank">if-then 规则</span>的集合，从根节点到叶节点的每条路径对应一条规则，且任意两条路径之间<span class="fill-blank">互斥且完备</span>。
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：</strong> if-then 规则；互斥且完备</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">2</span>ID3 算法以<span class="fill-blank">信息增益</span>作为属性选择准则，C4.5 以<span class="fill-blank">信息增益率</span>作为准则。
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：</strong> 信息增益；信息增益率</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">3</span>决策树是<span class="fill-blank">判别</span>模型（生成/判别），它学习的是条件概率分布 P(Y|X)，而非联合分布 P(X,Y)。
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：</strong> 判别</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">4</span>剪枝的损失函数为 C<sub>α</sub>(T) = C(T) + α|T|，其中 C(T) 衡量<span class="fill-blank">模型拟合程度</span>，|T| 衡量<span class="fill-blank">模型复杂度</span>，α 取值越大则决策树越<span class="fill-blank">小</span>。
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer"><strong>答案：</strong> 模型拟合程度；模型复杂度；小</div>
+</div>
+
+<!-- ==================== 简答题 ==================== -->
+<h2>三、简答题 (×3)</h2>
+
+<div class="q-block">
+<span class="q-num">1</span>简述 ID3 算法的三种停止条件，并说明每种情况下叶节点标签如何确定。
+<div class="sa-lines"></div>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer">
+<strong>答案：</strong><br>
+(1) 当前节点包含的样本全属于同一类别 → 将该节点标记为叶节点，类别为该类。<br>
+(2) 当前属性集为空（所有属性已用完）→ 标记为叶节点，类别为该节点样本的<strong>多数类</strong>。<br>
+(3) 当前节点包含的样本集合为空 → 标记为叶节点，类别为<strong>父节点样本的多数类</strong>。
+</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">2</span>为什么 ID3 算法会产生偏向取值较多特征的问题？C4.5 是如何修正这一缺陷的？
+<div class="sa-lines"></div>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer">
+<strong>答案：</strong><br>
+ID3 使用信息增益 g(D,A) = H(D) − H(D|A) 选择特征。当特征取值越多时，每个取值对应的子集越"纯净"（熵越小），条件熵 H(D|A) 越接近 0，信息增益越接近 H(D) 最大。极端情况如"编号"：每个样本编号唯一，H(D|编号)=0，信息增益=H(D) 最大，但无泛化能力。<br><br>
+C4.5 使用<strong>信息增益率</strong> g<sub>R</sub>(D,A) = g(D,A) / H<sub>A</sub>(D)，分母 H<sub>A</sub>(D) 是特征 A 的固有熵。特征取值越多 → H<sub>A</sub>(D) 越大 → 增益率被惩罚，从而修正偏好。
+</div>
+</div>
+
+<div class="q-block">
+<span class="q-num">3</span>简述决策树预剪枝和后剪枝的区别及各自优缺点。
+<div class="sa-lines"></div>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer">
+<strong>答案：</strong><br>
+<strong>预剪枝：</strong>在构建过程中提前停止分裂（如限制最大深度、叶节点最小样本数）。优点：计算效率高。缺点：可能欠拟合，错过后续更好的分裂。<br><br>
+<strong>后剪枝：</strong>先生成完整树，然后自下而上剪去不具代表性的子树，通过最小化损失函数 C<sub>α</sub>(T)=C(T)+α|T| 来选择最优子树。优点：泛化性能更优。缺点：计算开销较大。
+</div>
+</div>
+
+<!-- ==================== 计算题 ==================== -->
+<h2>四、计算题 (×1)</h2>
+
+<div class="q-block">
+<span class="q-num">1</span>
+给定训练数据集（买计算机），总样本 1024 个，其中买=641，不买=383。年龄属性的取值分布如下：<br>
+&nbsp;&nbsp;青年(384样本)：买=128，不买=256<br>
+&nbsp;&nbsp;中年(256样本)：买=256，不买=0<br>
+&nbsp;&nbsp;老年(384样本)：买=257，不买=127<br>
+<strong>(1)</strong> 求数据集 D 的经验熵 H(D)。（保留4位小数）<br>
+<strong>(2)</strong> 求年龄属性对数据集 D 的条件熵 H(D|年龄)。<br>
+<strong>(3)</strong> 求年龄属性的信息增益 g(D, 年龄)。<br>
+<strong>(4)</strong> 青年子集中，若仅有"学生"和"信誉"两个候选属性，如何选择下一步分裂属性？（需计算说明）
+
+<div class="sa-lines"></div>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer">
+<strong>答案：</strong><br>
+<strong>(1) H(D) = </strong><br>
+p(买) = 641/1024 = 0.6260, p(不买) = 383/1024 = 0.3740<br>
+H(D) = −0.6260×log<sub>2</sub>(0.6260) − 0.3740×log<sub>2</sub>(0.3740) = −0.6260×(−0.6764) − 0.3740×(−1.4190) = 0.4236 + 0.5301 = <strong>0.9537</strong><br><br>
+
+<strong>(2) H(D|年龄) = </strong><br>
+青年: p(买)=128/384=1/3, H = −(1/3)log<sub>2</sub>(1/3) − (2/3)log<sub>2</sub>(2/3) = 0.9183<br>
+中年: p(买)=256/256=1, H = 0<br>
+老年: p(买)≈257/384≈0.6693, p(不买)≈127/384≈0.3307, H ≈ 0.9157<br>
+H(D|年龄) = (384/1024)×0.9183 + (256/1024)×0 + (384/1024)×0.9157<br>
+&nbsp;= 0.375×0.9183 + 0.25×0 + 0.375×0.9157<br>
+&nbsp;= 0.3444 + 0 + 0.3434 = <strong>0.6877</strong><br><br>
+
+<strong>(3) g(D, 年龄) = </strong>H(D) − H(D|年龄) = 0.9537 − 0.6877 = <strong>0.2660</strong><br><br>
+
+<strong>(4)</strong> 青年子集(384样本)：买=128, 不买=256，H(D<sub>青年</sub>)=0.9183<br>
+&nbsp;• g(D, 学生) = 0.9183 − 0 = <strong>0.9183</strong> (学生属性完美划分)<br>
+&nbsp;• g(D, 信誉) = 0.9183 − 0.8741 = <strong>0.0441</strong><br>
+选择<span class="red">学生</span>作为下一个分裂属性（信息增益最大）。
+</div>
+</div>
+
+<!-- ==================== 代码分析题 ==================== -->
+<h2>五、代码分析题 (×1)</h2>
+
+<div class="q-block">
+<span class="q-num">1</span>阅读以下R语言代码，回答问题：
+<pre>
+library(rpart)
+library(rpart.plot)
+
+# 训练决策树
+model <- rpart(Species ~ ., data = iris,
+               method = "class",
+               control = rpart.control(minsplit = 20, 
+                                       cp = 0.01, 
+                                       maxdepth = 5))
+
+# 查看CP表
+printcp(model)
+
+# 预测
+pred <- predict(model, iris, type = "class")
+conf <- table(iris$Species, pred)
+accuracy <- sum(diag(conf)) / sum(conf)
+print(paste("准确率:", round(accuracy * 100, 2), "%"))
+
+# 可视化
+rpart.plot(model, type = 4, extra = 101)
+</pre>
+  <p>(1) <code>method = "class"</code> 的含义是什么？如果不写这个参数，rpart会怎样？（4分）</p>
+  <p>(2) <code>cp = 0.01</code> 和 <code>minsplit = 20</code> 分别控制什么？增大 cp 值对树的大小有何影响？（4分）</p>
+  <p>(3) <code>printcp(model)</code> 输出的CP表中，如何根据CP值选择最优树？（4分）</p>
+<button class="answer-toggle" onclick="toggleAnswer(this)">显示答案</button>
+<div class="answer">
+<strong>答案：</strong><br>
+<strong>(1) </strong><code>method = "class"</code> 表示构建<strong>分类树</strong>（使用Gini指数作为不纯性度量）。如果不写，rpart会尝试推断：当目标变量为因子型时自动使用"class"，数值型时使用"anova"（回归树）。但显式指定更安全。<br><br>
+<strong>(2) </strong><code>cp</code>（复杂度参数）控制剪枝程度——<strong>分裂必须使R²提升至少cp值</strong>。cp越大，允许的分裂越少，树越小。<code>minsplit</code> 表示节点继续分裂所需的最小样本数（默认20）。增大cp值会使决策树<strong>更小、更简单</strong>，是预剪枝的方式。<br><br>
+<strong>(3) </strong>CP表中关键列：<code>CP</code>（复杂度参数值）、<code>nsplit</code>（分裂次数）、<code>rel error</code>（相对误差）、<code>xerror</code>（交叉验证误差）、<code>xstd</code>（xerror的标准差）。选择<strong>xerror最小</strong>的CP值对应的树；或采用"1-SE规则"——选择xerror不超过 min(xerror)+xstd 的最简单（cp最大）的树。
+</div>
+</div>
+
+<footer>数据挖掘与机器学习 · 第4讲 决策树入门 · 章节测试</footer>
+
+</div>
+
+<script>
+function toggleAnswer(btn) {
+  var answer = btn.nextElementSibling;
+  if (answer.classList.contains('show')) {
+    answer.classList.remove('show');
+    btn.textContent = '显示答案';
+  } else {
+    answer.classList.add('show');
+    btn.textContent = '隐藏答案';
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

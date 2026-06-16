@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11讲 知识清单 — BP反向传播算法</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <a href="#">深度学习模式</a> <span class="sep">/</span>
+  <strong>第11讲-知识清单</strong>
+</div>
+
+<div class="nav-row">
+  <a href="#">&larr; 上一章（第10讲）</a>
+  <a href="#">下一章（第12讲）&rarr;</a>
+</div>
+
+<h1>第11讲：神经网络 — BP反向传播算法</h1>
+<div class="meta">
+  上海对外经贸大学 · 数据挖掘与机器学习（王昭文） &nbsp;|&nbsp; 更新：2026年5月25日
+</div>
+
+<!-- ==================== STEP 1 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">1</span>多层感知机 (MLP) 多层感知机架构 <span class="tag-read">细读</span></h2>
+  <div class="step-subtitle">Step 1: 理解神经网络的基本拓扑结构</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必考</span>
+    <span class="tag tag-key">核心概念</span>
+  </div>
+
+  <p style="font-size:15px; margin:12px 0;">
+    <span class="kp">多层前馈神经网络 (Multi-Layer Feedforward Neural Network)</span> 是深度学习的基础架构。
+    每层神经元与下一层神经元<span class="kp">全互连 (fully connected)</span>，
+    但<span class="exp">不存在同层连接，也不存在跨层连接</span>。
+  </p>
+
+  <div class="mermaid-placeholder">
+    【网络拓扑图】<br>
+    Input Layer (d) ────→ Hidden Layer (q) ────→ Output Layer (l)<br>
+    x₁, x₂, ..., x<sub>d</sub> &nbsp; → &nbsp; b₁, b₂, ..., b<sub>q</sub> &nbsp; → &nbsp; ŷ₁, ŷ₂, ..., ŷ<sub>l</sub>
+  </div>
+
+  <blockquote class="info">
+    <strong>单层感知机 vs 多层感知机：</strong>多层感知机 (MLP) 引入了<span class="kp">隐藏层 (Hidden Layer)</span>，
+    从而能够处理<span class="exp">线性不可分问题</span>。如果 多层感知机 (MLP) 中全部使用线性激活函数，
+    则整个网络等价于一个<span class="exp">简单的线性模型</span>（多层线性变换的复合依然是线性变换）。
+  </blockquote>
+
+  <table>
+    <tr><th>符号</th><th>含义</th><th>维度/范围</th></tr>
+    <tr><td><strong>d</strong></td><td>输入层神经元个数</td><td>= 输入属性维度</td></tr>
+    <tr><td><strong>q</strong></td><td>隐层神经元个数</td><td>超参数</td></tr>
+    <tr><td><strong>l</strong></td><td>输出层神经元个数</td><td>= 输出维度</td></tr>
+    <tr><td><strong>v<sub>ih</sub></strong></td><td>输入层 i → 隐层 h 的连接权</td><td>d × q 个参数</td></tr>
+    <tr><td><strong>w<sub>hj</sub></strong></td><td>隐层 h → 输出层 j 的连接权</td><td>q × l 个参数</td></tr>
+    <tr><td><strong>γ<sub>h</sub></strong></td><td>隐层第 h 个神经元的阈值 (bias)</td><td>q 个</td></tr>
+    <tr><td><strong>θ<sub>j</sub></strong></td><td>输出层第 j 个神经元的阈值 (bias)</td><td>l 个</td></tr>
+  </table>
+
+  <p style="font-size:14px;">
+    可训练参数总数（不计偏置）：<span class="kp">d × q + q × l</span><br>
+    例如：d=10, q=20, l=5 → 10×20 + 20×5 = <strong>300</strong> 个权重参数
+  </p>
+</div>
+
+<!-- ==================== STEP 2 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">2</span>前向传播 (Forward Propagation) <span class="tag-read">细读</span></h2>
+  <div class="step-subtitle">Step 2: 输入信号流经网络，生成预测并计算损失</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必考</span>
+    <span class="tag tag-key">核心流程</span>
+  </div>
+
+  <p style="font-size:15px; margin:12px 0;">
+    训练集 \(D = \{(\mathbf{x}_1, \mathbf{y}_1), (\mathbf{x}_2, \mathbf{y}_2), \dots, (\mathbf{x}_m, \mathbf{y}_m)\}\),
+    其中 \(\mathbf{x}_i \in \mathbb{R}^d\), \(\mathbf{y}_i \in \mathbb{R}^l\).
+  </p>
+
+  <div class="formula-box">
+    <strong>隐层第 h 个神经元的输入（加权和）：</strong>
+    $$\alpha_h = \sum_{i=1}^{d} v_{ih} \, x_i$$
+    <strong>隐层第 h 个神经元的输出（经激活函数）：</strong>
+    $$b_h = f(\alpha_h - \gamma_h)$$
+    <strong>输出层第 j 个神经元的输入：</strong>
+    $$\beta_j = \sum_{h=1}^{q} w_{hj} \, b_h$$
+    <strong>输出层第 j 个神经元的预测值：</strong>
+    $$\hat{y}_j = f(\beta_j - \theta_j)$$
+    <div class="desc">
+      其中 \(f(\cdot)\) 为激活函数，通常使用 <span class="kp">Sigmoid激活函数</span>：\(f(x) = \frac{1}{1+e^{-x}}\)，
+      满足性质 \(f'(x) = f(x)(1 - f(x))\)。
+    </div>
+  </div>
+
+  <p style="font-size:14px;">
+    <span class="exp">前向传播的目的：</span>给定输入 \(\mathbf{x}\)，逐层计算直至输出 \(\hat{\mathbf{y}}\)，
+    然后与真实标签 \(\mathbf{y}\) 比较，计算损失 \(E_k\)（通常为均方误差）：
+    $$E_k = \frac{1}{2} \sum_{j=1}^{l} (\hat{y}_j^k - y_j^k)^2$$
+  </p>
+</div>
+
+<!-- ==================== STEP 3 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">3</span>反向传播 推导：链式法则 (Chain Rule) <span class="tag-read">细读</span></h2>
+  <div class="step-subtitle">Step 3: 损失沿网络反向传播，逐层求梯度</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必考</span>
+    <span class="tag tag-key">核心推导</span>
+    <span class="tag tag-freq">高频</span>
+  </div>
+
+  <p style="font-size:14px;">
+    反向传播 算法基于<span class="kp">梯度下降策略</span>，以目标函数的<span class="exp">负梯度方向</span>对参数进行调整。
+    更新权重的核心数学工具是微积分中的<span class="kp">链式法则 (Chain Rule)</span>。
+  </p>
+
+  <!-- w_hj 梯度推导 -->
+  <div class="formula-box">
+    <strong>▎ \(w_{hj}\) 的梯度链式分解：</strong>
+    <p style="font-size:14px; margin-top:6px;">\(w_{hj}\) 先影响输出层神经元 j 的输入值 \(\beta_j\)，再影响其输出 \(\hat{y}_j^k\)，最后影响误差 \(E_k\)：</p>
+    $$\frac{\partial E_k}{\partial w_{hj}} = \frac{\partial E_k}{\partial \hat{y}_j^k} \cdot \frac{\partial \hat{y}_j^k}{\partial \beta_j} \cdot \frac{\partial \beta_j}{\partial w_{hj}}$$
+
+    <div class="desc">
+      <strong>三项分别计算：</strong><br>
+      ① \(\displaystyle \frac{\partial \beta_j}{\partial w_{hj}} = b_h\)（由定义 \(\beta_j = \sum_h w_{hj} b_h\) 直接得出）<br>
+      ② \(\displaystyle \frac{\partial \hat{y}_j^k}{\partial \beta_j} = f'(\beta_j - \theta_j)\)（Sigmoid激活函数 导数）<br>
+      ③ \(\displaystyle \frac{\partial E_k}{\partial \hat{y}_j^k} = \hat{y}_j^k - y_j^k\)（均方误差 (MSE) 导数，负号已吸收进 g_j 定义）
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <strong>▎ 定义梯度中间变量 \(g_j\)（输出层误差信号）：</strong>
+    $$g_j = -\frac{\partial E_k}{\partial \hat{y}_j^k} \cdot \frac{\partial \hat{y}_j^k}{\partial \beta_j} = (\hat{y}_j^k - y_j^k) \cdot f'(\beta_j - \theta_j)$$
+    <div class="desc">
+      对于 Sigmoid 函数，利用 \(f'(x)=f(x)(1-f(x))\) 可得简化形式：
+      $$g_j = \hat{y}_j^k (1 - \hat{y}_j^k)(y_j^k - \hat{y}_j^k)$$
+      这是最常用的实用形式，只需知道预测值 \(\hat{y}_j^k\) 和真实值 \(y_j^k\) 即可计算。
+    </div>
+  </div>
+
+  <!-- 隐层 e_h 梯度推导 -->
+  <div class="formula-box">
+    <strong>▎ 隐层误差信号 \(e_h\)（反向传播至隐层）：</strong>
+    $$e_h = -\frac{\partial E_k}{\partial b_h} \cdot \frac{\partial b_h}{\partial \alpha_h} = \sum_{j=1}^{l} w_{hj}\, g_j \cdot f'(\alpha_h - \gamma_h)$$
+    <div class="desc">
+      对于 Sigmoid激活函数 隐层神经元：
+      $$e_h = b_h (1 - b_h) \sum_{j=1}^{l} w_{hj} \, g_j$$
+      \(e_h\) 综合了所有输出层误差 \(g_j\) 经权重 \(w_{hj}\) 反向传播至隐层的结果。
+    </div>
+  </div>
+
+  <blockquote class="pitfall">
+    混淆 \(g_j\)（输出层误差）和 \(e_h\)（隐层误差）的公式。\(g_j\) 只需要局部信息（\(\hat{y}_j^k, y_j^k\)），
+    \(e_h\) 需要聚合所有输出层的 \(g_j\) 乘以对应权重 \(w_{hj}\)。这是 反向传播 最核心的两步反向传递。
+  </blockquote>
+</div>
+
+<!-- ==================== STEP 4 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">4</span>梯度计算公式汇总</h2>
+  <div class="step-subtitle">Step 4: 四个核心参数的梯度公式</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必背</span>
+    <span class="tag tag-key">公式卡</span>
+  </div>
+
+  <table>
+    <tr><th>参数</th><th>梯度公式</th><th>更新公式 \(\Delta\)</th></tr>
+    <tr>
+      <td><strong>w<sub>hj</sub></strong>（隐→输出权重）</td>
+      <td>\(\displaystyle \frac{\partial E_k}{\partial w_{hj}} = -g_j \, b_h\)</td>
+      <td>\(\Delta w_{hj} = \eta \, g_j \, b_h\)</td>
+    </tr>
+    <tr>
+      <td><strong>θ<sub>j</sub></strong>（输出层阈值）</td>
+      <td>\(\displaystyle \frac{\partial E_k}{\partial \theta_j} = g_j\)</td>
+      <td>\(\Delta \theta_j = -\eta \, g_j\)</td>
+    </tr>
+    <tr>
+      <td><strong>v<sub>ih</sub></strong>（输入→隐层权重）</td>
+      <td>\(\displaystyle \frac{\partial E_k}{\partial v_{ih}} = -e_h \, x_i\)</td>
+      <td>\(\Delta v_{ih} = \eta \, e_h \, x_i\)</td>
+    </tr>
+    <tr>
+      <td><strong>γ<sub>h</sub></strong>（隐层阈值）</td>
+      <td>\(\displaystyle \frac{\partial E_k}{\partial \gamma_h} = e_h\)</td>
+      <td>\(\Delta \gamma_h = -\eta \, e_h\)</td>
+    </tr>
+  </table>
+
+  <blockquote class="info">
+    <strong>统一规律：</strong>权重更新 = 学习率 × 误差信号 × 输入信号；
+    阈值更新 = −学习率 × 误差信号。
+    权重更新中始终包含"上一层神经元的输出"作为因子。
+  </blockquote>
+</div>
+
+<!-- ==================== STEP 5 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">5</span>权重更新与学习率 <span class="tag-read">细读</span></h2>
+  <div class="step-subtitle">Step 5: 梯度下降的参数更新策略</div>
+  <div class="tags-row">
+    <span class="tag tag-key">关键</span>
+    <span class="tag tag-freq">常考</span>
+  </div>
+
+  <p style="font-size:14px;">
+    <span class="kp">学习率 \(\eta\)</span> 控制算法每一轮迭代中的<span class="exp">更新步长</span>：
+  </p>
+  <ul>
+    <li><span class="kp">\(\eta\) 太大</span>：容易<span class="exp">振荡 (oscillation)</span>，在最优解附近反复横跳，无法收敛</li>
+    <li><span class="kp">\(\eta\) 太小</span>：<span class="exp">收敛速度过慢</span>，训练时间过长</li>
+    <li><span class="kp">\(\eta\) 适中</span>：平衡收敛速度与稳定性，现代常用 Adam 等自适应学习率方法</li>
+  </ul>
+
+  <p style="font-size:14px; margin-top:12px;">
+    标准 反向传播 算法的参数更新（对单个样本 \((\mathbf{x}_k, \mathbf{y}_k)\)）：
+  </p>
+  <div class="formula-box">
+    $$w_{hj} \leftarrow w_{hj} + \eta \, g_j \, b_h$$
+    $$\theta_j \leftarrow \theta_j - \eta \, g_j$$
+    $$v_{ih} \leftarrow v_{ih} + \eta \, e_h \, x_i$$
+    $$\gamma_h \leftarrow \gamma_h - \eta \, e_h$$
+  </div>
+</div>
+
+<!-- ==================== STEP 6 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">6</span>Mini-Batch 与优化器对比 <span class="tag-skip">不考</span></h2>
+  <div class="step-subtitle">Step 6: 批量策略与优化算法的选择</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必考</span>
+    <span class="tag tag-freq">高频概念</span>
+  </div>
+
+  <table class="compare-table">
+    <tr><th>策略</th><th>每次梯度计算样本数</th><th>优点</th><th>缺点</th></tr>
+    <tr>
+      <td><strong>全批量 (Full Batch)</strong></td>
+      <td>全部 m 个样本</td>
+      <td>梯度估计准确，收敛稳定</td>
+      <td>内存吃不消，计算极慢</td>
+    </tr>
+    <tr>
+      <td><strong>随机梯度下降 (随机梯度下降 (SGD))</strong></td>
+      <td>1 个样本</td>
+      <td>计算快，可在线更新</td>
+      <td>梯度估计方差极大，路径"横冲直撞"</td>
+    </tr>
+    <tr>
+      <td><strong>Mini-Batch</strong></td>
+      <td>小批量（32/64/128）</td>
+      <td>GPU 并行高效；梯度方差适中；噪声助正则化</td>
+      <td>需调 batch size 超参</td>
+    </tr>
+  </table>
+
+  <p style="font-size:14px; margin-top:12px;">
+    <span class="kp">Mini-Batch 的深层原理：</span>
+  </p>
+  <ul>
+    <li><span class="exp">统计学意义：</span>是总体梯度的<span class="kp">无偏估计</span>；根据大数定律，batch size 越大，梯度方差越低</li>
+    <li><span class="exp">计算优势：</span>现代 GPU 高度并行，处理一个 batch 的时间不比处理单个样本慢多少，极大提高吞吐量</li>
+    <li><span class="exp">噪声正则化：</span>Mini-batch 带来的适度噪声能帮助模型跳出局部最小值 (shallow pit)，找到泛化能力更好的平坦区域</li>
+  </ul>
+
+  <h3 style="font-size:16px; color:var(--primary); margin-top:20px;">Adam vs 随机梯度下降 (SGD) 对比 <span class="tag-skip">不考</span></h3>
+  <table>
+    <tr><th>维度</th><th>随机梯度下降 (SGD)</th><th>Adam</th></tr>
+    <tr><td><strong>学习率</strong></td><td>固定，需手动调参和衰减策略</td><td>自适应 (Adaptive)，每参数独立调整</td></tr>
+    <tr><td><strong>动量</strong></td><td>可选 Momentum 随机梯度下降 (SGD)</td><td>内置一阶动量（均值）</td></tr>
+    <tr><td><strong>二阶矩</strong></td><td>无</td><td>内置二阶动量（方差），自动缩放步长</td></tr>
+    <tr><td><strong>收敛速度</strong></td><td>较慢（尤其在鞍点附近停滞）</td><td>较快，对稀疏梯度友好</td></tr>
+    <tr><td><strong>泛化能力</strong></td><td>有时泛化更好（平坦极小值）</td><td>收敛快但可能在尖锐极小值处停留</td></tr>
+    <tr><td><strong>超参数</strong></td><td>\(\eta\) + momentum 系数</td><td>\(\eta, \beta_1=0.9, \beta_2=0.999, \epsilon=10^{-8}\)</td></tr>
+    <tr><td><strong>默认首选</strong></td><td>CV/NLP 大模型训练（如 ViT）</td><td>大多数任务的默认选择</td></tr>
+  </table>
+
+  <blockquote class="pitfall">
+    认为 Adam 在所有场景下都优于 随机梯度下降 (SGD)。实际上许多最新的视觉模型（如 Vision Transformer）使用 随机梯度下降 (SGD) + momentum + cosine decay 取得了比 Adam 更好的泛化性能。Adam 的指数移动平均在训练末期可能引入不稳定性。
+  </blockquote>
+</div>
+
+<!-- ==================== STEP 7 ==================== -->
+<div class="step-block">
+  <h2><span class="step-num">7</span>反向传播 算法完整流程总结 <span class="tag-read">细读</span></h2>
+  <div class="step-subtitle">Step 7: 端到端的训练流程与常见陷阱</div>
+  <div class="tags-row">
+    <span class="tag tag-must">必考</span>
+    <span class="tag tag-info">综述</span>
+  </div>
+
+  <p style="font-size:14px; font-weight:700; margin-bottom:8px;">反向传播 算法一次迭代的完整步骤：</p>
+  <ol>
+    <li><strong>前向传播：</strong>输入 \(\mathbf{x}_k\) → 计算 \(\alpha_h, b_h\)（隐层）→ 计算 \(\beta_j, \hat{y}_j\)（输出层）→ 算损失 \(E_k\)</li>
+    <li><strong>反向传播输出层：</strong>计算 \(g_j = \hat{y}_j(1-\hat{y}_j)(y_j - \hat{y}_j)\) → 更新 \(w_{hj}, \theta_j\)</li>
+    <li><strong>反向传播隐层：</strong>计算 \(e_h = b_h(1-b_h)\sum_j w_{hj} g_j\) → 更新 \(v_{ih}, \gamma_h\)</li>
+    <li><strong>参数更新：</strong>按梯度下降公式更新所有权重和阈值</li>
+    <li><strong>重复：</strong>对下一个 mini-batch 重复以上步骤，直至收敛</li>
+  </ol>
+
+  <blockquote class="pitfall">
+    <strong>常见错误：</strong>在反向传播阶段计算的是"损失函数对网络中各个权值和偏置的<span class="kp">梯度</span>"，
+    而不是激活值、特征分布或预测准确率。前向传播计算激活值和预测值，反向传播只计算梯度。
+  </blockquote>
+
+  <blockquote class="pitfall">
+    <strong>激活函数选择：</strong>如果在 多层感知机 (MLP) 中使用线性激活函数 \(f(x)=x\)，由于多层线性变换的复合依然是线性变换，
+    整个 多层感知机 (MLP) 等价于一个简单的线性模型，失去了引入非线性（处理线性不可分问题）的根本意义。
+  </blockquote>
+
+  <blockquote class="pitfall">
+    <strong>批量 (Batch) 概念：</strong>教材中的 Batch 指"在更新一次参数之前，计算多个样本的平均梯度"，
+    而不是一次性处理整个生命周期的数据，也不是隐藏层的层数。
+  </blockquote>
+</div>
+
+<div class="footer">
+  第11讲 知识清单 &mdash; BP反向传播算法 &nbsp;|&nbsp; 上海对外经贸大学 数据挖掘与机器学习
+</div>
+
+</div>
+</body>
+</html>

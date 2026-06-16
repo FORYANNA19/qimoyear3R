@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考试模式 — 速查手册导航</title>
+<style>
+* { margin:0;padding:0;box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif; background:#f5f7fa; color:#263238; display:flex; flex-direction:column; min-height:100vh; }
+header { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; padding:32px 24px; text-align:center; }
+header h1 { font-size:1.8em; margin-bottom:4px; }
+header p { color:#ef9a9a; font-size:0.9em; }
+.breadcrumb { background:#ffebee; padding:10px 24px; font-size:0.85em; }
+.breadcrumb a { color:#c62828; text-decoration:none; }
+.breadcrumb a:hover { text-decoration:underline; }
+main { flex:1; max-width:960px; margin:24px auto; padding:0 24px; }
+.chapters { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.chapter-card { background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.06); text-decoration:none; color:#263238; display:block; transition:box-shadow 0.2s,transform 0.2s; border-left:4px solid #c62828; }
+.chapter-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.12); transform:translateY(-2px); }
+.chapter-card .num { font-size:0.75em; color:#e57373; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.chapter-card .title { font-size:1.05em; font-weight:700; margin:4px 0; }
+.chapter-card .subtitle { font-size:0.82em; color:#78909c; }
+.chapter-card.knn { border-left-color:#ef6c00; }
+footer { text-align:center; padding:24px; color:#90a4ae; font-size:0.82em; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>考试模式</h1>
+  <p>浓缩速查手册 — 公式 + 结论 + 考点标签</p>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">复习导航</a> &nbsp;/&nbsp; 考试模式
+</div>
+
+<main>
+<div class="chapters">
+  <a class="chapter-card" href="第1讲-考试速查.html"><div class="num">第 1-2 章 / Lec 1-2</div><div class="title">机器学习概论</div><div class="subtitle">ML三要素 · 损失函数表 · 评估方法</div></a>
+  <a class="chapter-card" href="第2讲-考试速查.html"><div class="num">第 1 章 / Lec 2</div><div class="title">模型评估与选择</div><div class="subtitle">过拟合 · 交叉验证 · 偏差-方差</div></a>
+  <a class="chapter-card" href="第3讲-考试速查.html"><div class="num">第 2 章 / Lec 3</div><div class="title">K近邻法 (K近邻法)</div><div class="subtitle">距离公式 · K值 · 维度灾难</div></a>
+  <a class="chapter-card" href="第4讲-考试速查.html"><div class="num">第 3 章 / Lec 4</div><div class="title">决策树入门</div><div class="subtitle">信息熵 · 信息增益 · ID3/C4.5</div></a>
+  <a class="chapter-card" href="第5讲-考试速查.html"><div class="num">第 3 章 / Lec 5</div><div class="title">CART与集成学习入门</div><div class="subtitle">基尼指数 · 回归树 · 剪枝</div></a>
+  <a class="chapter-card" href="第6讲-考试速查.html"><div class="num">第 3 章 / Lec 6</div><div class="title">Bagging与随机森林</div><div class="subtitle">Bootstrap · 袋外 (OOB) · 方差缩减</div></a>
+  <a class="chapter-card" href="第7讲-考试速查.html"><div class="num">第 3 章 / Lec 7</div><div class="title">AdaBoost</div><div class="subtitle">Boosting · 权重更新 · 指数损失</div></a>
+  <a class="chapter-card" href="第9讲-考试速查.html"><div class="num">第 4 章 / Lec 9</div><div class="title">神经网络入门</div><div class="subtitle">神经元 · 感知机 · 多层感知机 (MLP)</div></a>
+  <a class="chapter-card" href="第10讲-考试速查.html"><div class="num">第 4 章 / Lec 10</div><div class="title">神经网络：感知机</div><div class="subtitle">随机梯度下降 (SGD) · 对偶形式 · 激活函数</div></a>
+  <a class="chapter-card" href="第11讲-考试速查.html"><div class="num">第 4 章 / Lec 11</div><div class="title">BP反向传播算法</div><div class="subtitle">链式法则 · 梯度公式 · 优化器</div></a>
+  <a class="chapter-card" href="第12讲-考试速查.html"><div class="num">第 5 章 / Lec 12</div><div class="title">支持向量机)</div><div class="subtitle">最大间隔 · 对偶 · 核函数</div></a>
+  <a class="chapter-card" href="第13讲-考试速查.html"><div class="num">第 5 章 / Lec 13</div><div class="title">SVM回顾与关联规则</div><div class="subtitle">支持向量回归 (SVR) · Apriori · Lift</div></a>
+  <a class="chapter-card knn" href="KNN专题-考试速查.html"><div class="num">专题</div><div class="title">KNN分类模拟分析</div><div class="subtitle">3种评估法 · K值效应 · R代码</div></a>
+</div>
+</main>
+
+<footer>数据挖掘与机器学习 · 期末复习 · 2026年6月9日</footer>
+
+</body>
+</html>

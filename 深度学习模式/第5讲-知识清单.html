@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5讲 知识清单 — 决策树：CART算法、剪枝与集成学习入门</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header>
+  <h1>第5讲 知识清单</h1>
+  <p class="subtitle">决策树：CART算法、剪枝与集成学习入门</p>
+</header>
+<div class="container">
+
+<div class="breadcrumb">
+  <span>深度学习模式 / <strong>第5讲-知识清单</strong></span>
+  <span><a href="#">← 上一章</a> | <a href="#">下一章 →</a></span>
+</div>
+
+<!-- ========== SECTION 1: CART 算法概览 ========== -->
+<div class="section">
+  <h2>1. CART 算法总览 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-must">tag-must</span> <span class="tag tag-key">tag-key</span>
+
+  <div class="intuition-box">
+    ID3/C4.5 产生多叉树，无法处理回归；CART 统一分类与回归，生成二叉树，每次分裂只问「是/否」。
+  </div>
+
+  <p><span class="kp">CART（Classification And Regression Trees）</span><span class="exp">由 Breiman, Friedman, Olshen &amp; Stone 于1984年提出，是决策树家族中唯一<strong>同时支持分类和回归</strong>的二叉树算法。</span></p>
+
+  <table class="comparison-table">
+    <tr><th>维度</th><th>ID3 / C4.5</th><th>CART</th></tr>
+    <tr><td><span class="kp">任务类型</span></td><td>仅分类</td><td>分类 + 回归</td></tr>
+    <tr><td><span class="kp">树结构</span></td><td>多叉树（特征有多少值分多少叉）</td><td>二叉树（每个节点只分两支）</td></tr>
+    <tr><td><span class="kp">分裂准则（分类）</span></td><td>信息增益 / 信息增益比</td><td>基尼指数 Gini Index</td></tr>
+    <tr><td><span class="kp">分裂准则（回归）</span></td><td>不支持</td><td>最小平方残差 / 最小绝对残差</td></tr>
+  </table>
+
+  <h3>三步骤 <span class="tag-read">细读</span></h3>
+  <div class="steps">
+    <ol>
+      <li><span class="kp">特征选择</span>：分类用 <strong>Gini Index</strong>，回归用 <strong>平方误差最小化</strong></li>
+      <li><span class="kp">决策树生成</span>：基于训练数据生成尽量大的决策树（不剪枝地生长）</li>
+      <li><span class="kp">决策树剪枝</span>：用验证集对生成的树剪枝并选择最优子树</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ========== SECTION 2: 分类树 ========== -->
+<div class="section">
+  <h2>2. 分类树：基尼指数 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-must">tag-must</span> <span class="tag tag-freq">tag-freq</span>
+
+  <h3>定义（Definition） <span class="tag-read">细读</span></h3>
+  <p>假设有 <em>K</em> 个类，样本点属于类别 <em>k</em> 的概率为 <em>p<sub>k</sub></em>：</p>
+
+  <div class="formula-block">
+    $$\text{Gini}(p) = \sum_{k=1}^{K} p_k (1 - p_k) = 1 - \sum_{k=1}^{K} p_k^2$$
+  </div>
+
+  <p><span class="exp">基尼指数度量<strong>类别不确定性</strong>，表示从总体中任意抽取两个样本，其类别不一致的概率。</span></p>
+
+  <h3>二分类特例（Motivation &amp; Derivation） <span class="tag-read">细读</span></h3>
+  <div class="formula-block">
+    $$\text{Gini}(p) = 2p(1-p)$$
+  </div>
+  <p>当 <em>p = 0.5</em>（1:1均匀分布）时，基尼指数最大为 <strong>0.5</strong>；当 <em>p = 0</em> 或 <em>p = 1</em>（纯节点）时，基尼指数最小为 <strong>0</strong>。</p>
+
+  <h3>给定特征后的条件基尼指数 <span class="tag-read">细读</span></h3>
+  <p>数据集 <em>D</em> 根据特征 <em>A</em> 是否取值 <em>a</em> 被分为 <em>D₁</em> 与 <em>D₂</em>：</p>
+
+  <div class="formula-block">
+    $$\text{Gini}(D, A=a) = \frac{|D_1|}{|D|} \text{Gini}(D_1) + \frac{|D_2|}{|D|} \text{Gini}(D_2)$$
+  </div>
+  <p><span class="exp">该值越小，说明以特征 <em>A=a</em> 划分后的不确定性越低，划分效果越好。</span></p>
+
+  <h3>与熵、分类误差率的对比 <span class="tag-read">细读</span></h3>
+  <p>对二分类问题，基尼指数是熵之半 <em>H(p)/2</em> 的近似（一阶泰勒展开的替代），计算更简便且与熵的行为高度一致。</p>
+
+  <blockquote class="pitfall">
+    基尼指数与信息增益\信息增益比\"越小越好\"相反——选择使基尼指数最小的特征作为最优划分特征，因为基尼指数本身就是不确定性度量（越小越纯）。
+  </blockquote>
+</div>
+
+<!-- ========== SECTION 3: 分类树 CART 算法步骤 ========== -->
+<div class="section">
+  <h2>3. 分类树 CART 算法流程 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-key">tag-key</span> <span class="tag tag-must">tag-must</span>
+
+  <div class="steps">
+    <ol>
+      <li>设当前结点数据集为 <em>D</em>，对每个特征 <em>A</em>，对 <em>A</em> 中每个值 <em>a</em>，根据 <em>A</em> 是否取值为 <em>a</em> 将 <em>D</em> 分为 <em>D₁</em>, <em>D₂</em>，计算 <em>Gini(D, A=a)</em></li>
+      <li>在所有特征及所有可能的切分点 <em>a</em> 中，选择<strong>基尼指数最小</strong>的特征和切分点，将数据集分配到两个子结点</li>
+      <li>对两个子结点递归调用步骤1、2，直至达到停止条件</li>
+      <li>生成CART树</li>
+    </ol>
+    <p><strong>停止条件：</strong>(1) 结点样本数小于预定阈值；(2) 样本集基尼指数小于预定阈值；(3) 没有更多特征</p>
+  </div>
+</div>
+
+<!-- ========== SECTION 4: 回归树 ========== -->
+<div class="section">
+  <h2>4. 回归树 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-key">tag-key</span> <span class="tag tag-info">tag-info</span>
+
+  <h3>定义（Definition） <span class="tag-read">细读</span></h3>
+  <p>将输入空间划分为 <em>M</em> 个互不相交且完备的单元 <em>R₁, R₂, ..., R<sub>M</sub></em>，每个单元 <em>R<sub>m</sub></em> 上有一个固定的输出值 <em>c<sub>m</sub></em>：</p>
+
+  <div class="formula-block">
+    $$f(x) = \sum_{m=1}^{M} c_m \cdot I(x \in R_m)$$
+  </div>
+
+  <h3>最优预测值（Derivation） <span class="tag-read">细读</span></h3>
+  <p>给定划分 <em>R<sub>m</sub></em>，采用<strong>均方误差损失</strong>，可以证明最优预测值为：</p>
+
+  <div class="formula-block">
+    $$\hat{c}_m = \text{avg}(y_i \mid x_i \in R_m) = \frac{1}{|R_m|} \sum_{x_i \in R_m} y_i$$
+  </div>
+  <p>即区域 <em>R<sub>m</sub></em> 内所有输出变量的<strong>平均值</strong>。若换用绝对值损失，则最优值为<strong>中位数</strong>。</p>
+
+  <h3>划分准则：最小平方误差 <span class="tag-read">细读</span></h3>
+  <p>对当前节点，寻找最优切分变量 <em>j</em> 和切分点 <em>s</em>，使得：</p>
+
+  <div class="formula-block">
+    $$\min_{j,s} \left[ \min_{c_1} \sum_{x_i \in R_1(j,s)} (y_i - c_1)^2 + \min_{c_2} \sum_{x_i \in R_2(j,s)} (y_i - c_2)^2 \right]$$
+  </div>
+
+  <p><span class="exp">先固定 <em>j</em> 求最优 <em>s</em>，再扫描所有 <em>j</em> 得到全局最优——每个区域用其内 <em>y</em> 的样本均值作为预测值。</span></p>
+
+  <table class="comparison-table">
+    <tr><th>维度</th><th>分类树</th><th>回归树</th></tr>
+    <tr><td>目标变量</td><td>离散类别</td><td>连续值</td></tr>
+    <tr><td>分裂准则</td><td>Gini Index（最小化）</td><td>平方误差最小化</td></tr>
+    <tr><td>叶结点输出</td><td>多数类</td><td>该区域 <em>y</em> 的均值</td></tr>
+    <tr><td>损失函数</td><td>0-1 损失 / Gini</td><td>均方误差 (MSE) / MAE</td></tr>
+  </table>
+</div>
+
+<!-- ========== SECTION 5: CART 剪枝 ========== -->
+<div class="section">
+  <h2>5. CART 剪枝 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-must">tag-must</span> <span class="tag tag-freq">tag-freq</span>
+
+  <h3>动机（Motivation） <span class="tag-read">细读</span></h3>
+  <p>完全生长的决策树容易过拟合训练数据，需要通过剪枝移除不具代表性的子树来提升泛化能力。</p>
+
+  <h3>剪枝损失函数 <span class="tag-read">细读</span></h3>
+  <div class="formula-block">
+    $$C_\alpha(T) = C(T) + \alpha |T|$$
+  </div>
+  <p>其中：<em>C(T)</em> — 对训练数据的预测误差（Gini/均方误差 (MSE)）；<em>|T|</em> — 子树 <em>T</em> 的叶结点总个数；<em>α ≥ 0</em> — 调节参数。</p>
+
+  <table class="comparison-table">
+    <tr><th>α 取值</th><th>效果</th></tr>
+    <tr><td><em>α = 0</em></td><td>不惩罚复杂度 → 整体树 <em>T₀</em> 最优（最大树）</td></tr>
+    <tr><td><em>α → ∞</em></td><td>极度惩罚复杂度 → 单结点树最优（最小树）</td></tr>
+    <tr><td><em>α</em> 适中</td><td>在拟合与复杂度间权衡 → 某个子树最优</td></tr>
+  </table>
+
+  <h3>生成子树序列（Derivation） <span class="tag-read">细读</span></h3>
+  <p>Breiman 等人证明：虽然 <em>α</em> 连续，但可将 <em>α</em> 分割成有限个区间，每个区间内最优子树相同。</p>
+  <p>对树 <em>T₀</em> 中每个内部节点 <em>t</em>，计算剪枝临界值：</p>
+
+  <div class="formula-block">
+    $$g(t) = \frac{C(t) - C(T_t)}{|T_t| - 1}$$
+  </div>
+
+  <p><span class="exp">每次剪掉具有<strong>最小临界值</strong> <em>g(t)</em> 的节点，得到子树序列 <em>T₀, T₁, T₂, ..., T<sub>n</sub></em>（相互嵌套）。</span></p>
+
+  <h3>选择最优子树 <span class="tag-read">细读</span></h3>
+  <div class="steps">
+    <ol>
+      <li>从 <em>T₀</em> 底端开始，剪枝直到根结点，形成子树序列</li>
+      <li>在独立的<strong>验证集</strong>上通过交叉验证法测试每棵子树的误差</li>
+      <li>选择验证集上误差最小的子树作为最终决策树</li>
+    </ol>
+  </div>
+
+  <blockquote class="pitfall">
+    预剪枝（pre-pruning）是在生长过程中提前停止，后剪枝（post-pruning）是先生成完整树再修剪。CART剪枝属于后者，效果通常优于预剪枝，因为预剪枝可能过早停止导致欠拟合。
+  </blockquote>
+</div>
+
+<!-- ========== SECTION 6: Bagging ========== -->
+<div class="section">
+  <h2>6. Bagging（Bootstrap Aggregating） <span class="tag-read">细读</span></h2>
+  <span class="tag tag-must">tag-must</span> <span class="tag tag-freq">tag-freq</span>
+
+  <h3>Bootstrap 自助法 <span class="tag-read">细读</span></h3>
+  <p>有放回地从原始样本集 <em>D</em>（含 <em>m</em> 个样本）抽取 <em>m</em> 次得到训练集 <em>D'</em>，每次不被抽到的概率为 <em>(1 - 1/m)</em>，<em>m</em> 次采样中始终不被抽到的概率：</p>
+
+  <div class="formula-block">
+    $$\lim_{m \to \infty} \left(1 - \frac{1}{m}\right)^m = \frac{1}{e} \approx 0.368$$
+  </div>
+  <p><span class="exp">约 <strong>63.2%</strong> 样本进入训练集，<strong>36.8%</strong> 作为包外（袋外 (OOB)）样本。</span></p>
+
+  <h3>Bagging 算法流程 <span class="tag-read">细读</span></h3>
+  <div class="steps">
+    <ol>
+      <li>从训练集中有放回地选出 <em>n</em> 个样本</li>
+      <li>在这 <em>n</em> 个样本上训练基学习器（如一棵决策树）</li>
+      <li>重复以上步骤 <em>B</em> 次，得到 <em>B</em> 个学习器</li>
+      <li><strong>分类</strong>：多数投票决定最终类别；<strong>回归</strong>：取 <em>B</em> 个预测器结果的平均</li>
+    </ol>
+  </div>
+
+  <h3>Bagging 如何降低方差（Derivation） <span class="tag-read">细读</span></h3>
+  <p>设同分布基学习器方差为 <em>σ²</em>，两两相关系数为 <em>ρ</em>，则集成后的方差为：</p>
+
+  <div class="formula-block">
+    $$\text{Var}\left(\frac{1}{B}\sum_{i=1}^{B} f_i\right) = \rho \sigma^2 + \frac{1-\rho}{B}\sigma^2$$
+  </div>
+  <p><span class="exp">当 <em>B</em> 增大时，<em>(1-ρ)σ²/B</em> 项趋近于 0，但 <em>ρσ²</em> 项无法靠增大 <em>B</em> 消除——因此进一步降低方差需降低基学习器之间的相关性。</span></p>
+
+  <table class="comparison-table">
+    <tr><th>特点</th><th>说明</th></tr>
+    <tr><td>时间复杂度</td><td><em>T(O(m)) ≈ B · O(m) + O(s)</em>，与使用基学习器同阶</td></tr>
+    <tr><td>可并行性</td><td>各学习器之间独立，可并行训练</td></tr>
+    <tr><td>包外估计 (袋外 (OOB))</td><td>用约36.8%未参与训练的样本估计泛化误差，无需单独划分验证集</td></tr>
+  </table>
+
+  <blockquote class="pitfall">
+    Bagging 主要降低方差，对偏差的影响很小。如果基学习器本身偏差很大（欠拟合），Bagging 效果有限。
+  </blockquote>
+</div>
+
+<!-- ========== SECTION 7: 随机森林 ========== -->
+<div class="section">
+  <h2>7. 随机森林（Random Forest） <span class="tag-read">细读</span></h2>
+  <span class="tag tag-must">tag-must</span> <span class="tag tag-key">tag-key</span>
+
+  <div class="intuition-box">
+    Bagging 的基学习器之间仍有相关性（Bootstrap采样共享原始数据集）。随机森林在每个节点再对特征进行随机采样，进一步降低树与树之间的相关性，从而进一步降低方差。
+  </div>
+
+  <h3>算法步骤 <span class="tag-read">细读</span></h3>
+  <div class="steps">
+    <ol>
+      <li>有放回地随机选择 <em>N</em> 个样本（Bootstrap）</li>
+      <li>在每个节点分裂时，从 <em>M</em> 个特征中随机选取 <em>m ≪ M</em> 个特征，再从这 <em>m</em> 个特征中选最优属性分裂</li>
+      <li>重复步骤1~2共 <em>B</em> 次，构建 <em>B</em> 棵决策树</li>
+      <li>回归：取平均；分类：多数表决</li>
+    </ol>
+  </div>
+
+  <h3>关键超参数 <span class="tag-read">细读</span></h3>
+  <table class="comparison-table">
+    <tr><th>参数</th><th>含义</th><th>分类默认</th><th>回归默认</th></tr>
+    <tr><td><em>m</em> (mtry)</td><td>节点分裂时随机选取的特征数</td><td>⌊√M⌋</td><td>⌊M/3⌋</td></tr>
+    <tr><td>最小节点样本</td><td>叶结点最小样本数</td><td>1</td><td>5</td></tr>
+    <tr><td><em>B</em> (ntree)</td><td>森林中树的棵数</td><td>越大越好，收益递减</td><td>同左</td></tr>
+  </table>
+
+  <blockquote class="pitfall">
+    随机森林中的决策树<strong>完全生长、不需要剪枝</strong>。这是 RF 与单棵 CART 的一个重要区别。同时，过大的 <em>m</em>（接近 <em>M</em>）会使 RF 退化为普通 Bagging。
+  </blockquote>
+
+  <h3>变量重要性度量 <span class="tag-read">细读</span></h3>
+  <div class="steps">
+    <ol>
+      <li><span class="kp">平均准确率下降 (MDA)</span>：对包外样本中变量 <em>j</em> 的值进行随机排列，观察预测准确率下降幅度</li>
+      <li><span class="kp">平均纯度下降 (MDI)</span>：统计变量 <em>j</em> 在所有树的所有节点上作为分裂变量带来的纯度下降平均值</li>
+      <li><span class="kp">SHAP 值</span>：基于博弈论Shapley值的变量重要性</li>
+    </ol>
+  </div>
+
+  <h3>随机森林 vs Bagging vs 单棵决策树 <span class="tag-read">细读</span></h3>
+  <table class="comparison-table">
+    <tr><th>维度</th><th>单棵决策树</th><th>Bagging</th><th>随机森林</th></tr>
+    <tr><td>样本采样</td><td>全部样本</td><td>Bootstrap</td><td>Bootstrap</td></tr>
+    <tr><td>特征采样</td><td>全部特征</td><td>全部特征</td><td>随机子集</td></tr>
+    <tr><td>方差</td><td>高</td><td>较低</td><td>更低</td></tr>
+    <tr><td>可解释性</td><td>高（树可画）</td><td>低（黑箱）</td><td>低（黑箱）</td></tr>
+    <tr><td>过拟合风险</td><td>高</td><td>较低</td><td>低</td></tr>
+  </table>
+
+  <blockquote class="pitfall">
+    随机森林的主要缺点是<strong>丧失了模型的可解释性</strong>——无法像单棵决策树那样直观理解决策规则。
+  </blockquote>
+</div>
+
+<!-- ========== SECTION 8: 总结 ========== -->
+<div class="section">
+  <h2>8. 本章知识结构 <span class="tag-read">细读</span></h2>
+  <span class="tag tag-info">tag-info</span>
+  <table class="comparison-table" style="font-size:0.92em;">
+    <tr><th>主题</th><th>核心内容</th><th>关键公式/概念</th></tr>
+    <tr><td>CART 分类树</td><td>二叉树 + Gini Index 选择特征</td><td>Gini(D, A=a)</td></tr>
+    <tr><td>CART 回归树</td><td>二叉树 + 平方误差最小化</td><td>min 均方误差 (MSE), ĉ = avg(y)</td></tr>
+    <tr><td>CART 剪枝</td><td>损失函数 C(T) + α|T|, 生成子树序列, 交叉验证选优</td><td>g(t) = [C(t)-C(Tₜ)]/[|Tₜ|-1]</td></tr>
+    <tr><td>Bootstrap</td><td>有放回抽样，约63.2%训练，36.8% 袋外 (OOB)</td><td>(1-1/m)ᵐ → 1/e</td></tr>
+    <tr><td>Bagging</td><td>并行训练 B 个基学习器 + 投票/平均</td><td>Var集成 = ρσ² + (1-ρ)σ²/B</td></tr>
+    <tr><td>随机森林</td><td>Bagging + 随机特征子集，树不剪枝</td><td>m ≪ M, OOB误差估计</td></tr>
+  </table>
+</div>
+
+<footer>上海对外经贸大学 · 数据挖掘与机器学习 · 第5讲 决策树与集成学习</footer>
+</div>
+</body>
+</html>

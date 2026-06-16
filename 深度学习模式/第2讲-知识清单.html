@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2讲 知识清单 — 机器学习概论：模型评估与选择</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<div class="breadcrumb">
+  <span>深度学习模式 / 第2讲-知识清单</span>
+  <span><a href="#">←上一章</a> | <a href="#">下一章→</a></span>
+</div>
+
+<h1>第2讲：机器学习概论——模型评估与选择</h1>
+<p style="color:#888;font-size:0.88rem;margin-bottom:1.2rem;">上海对外经贸大学 · 数据挖掘与机器学习 · 王昭文 | 2026年3月9日</p>
+
+<!-- ====== SECTION 1: 模型评估与模型选择 ====== -->
+<h2>一、模型评估与模型选择 <span class="tag-must">必考</span></h2>
+
+<div class="section-card">
+  <h3>1.1 泛化能力 <span class="tag-key">重点</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：我们训练模型就像准备考试——刷题（训练集）成绩好，不代表高考（未知数据）也能考好。真正重要的是「举一反三」的能力。</span></p>
+  <p><span class="kp">定义</span>：<span class="kp">泛化能力 (Generalization Ability)</span><span class="exp">是指学习方法学习到的模型对<span class="kp">未知数据</span>的预测能力。</span></p>
+  <p><span class="kp">动机</span><span class="exp">：机器学习的本质目的是学到一个模型能够有好的泛化能力。泛化能力越好，方法越好。</span></p>
+
+  <div class="decompose">
+    <div>
+      <div class="label">泛化误差 (Generalization Error)</div>
+      <div class="formula">$$R_{\text{exp}}(f) = \mathbb{E}_{(X,Y)\sim\mathcal{D}}[L(Y, f(X))]$$</div>
+      <p class="exp">模型在未知数据上的期望损失。我们无法直接计算，因为数据分布 $\mathcal{D}$ 未知。</p>
+    </div>
+    <div>
+      <div class="label">经验误差 (Empirical Error)</div>
+      <div class="formula">$$R_{\text{emp}}(f) = \frac{1}{N}\sum_{i=1}^{N}L(y_i, f(x_i))$$</div>
+      <p class="exp">模型在训练数据集上的平均损失，是可以直接计算的。</p>
+    </div>
+  </div>
+
+  <blockquote>
+    不能简单通过经验误差来衡量模型的泛化能力。经验误差最小化可能导致过拟合。
+  </blockquote>
+</div>
+
+<div class="section-card">
+  <h3>1.2 过拟合与欠拟合 <span class="tag-must">必考</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：用M次多项式拟合数据。M=0（常数），模型太简单，连基本趋势都抓不住 --> <span class="kp">欠拟合</span>；M=9（高次多项式），模型记住了每一条训练数据的噪声，换一组数据就崩溃 --> <span class="kp">过拟合</span>。</span></p>
+
+  <table>
+    <tr><th>现象</th><th>训练误差</th><th>测试误差</th><th>本质</th><th>类比</th></tr>
+    <tr>
+      <td><span class="kp">欠拟合 (Underfitting)</span></td>
+      <td style="color:#c62828;">高</td><td style="color:#c62828;">高</td>
+      <td>模型复杂度过低，未能充分学习数据规律</td>
+      <td>「误认为绿色的都是树叶」</td>
+    </tr>
+    <tr>
+      <td><span class="kp">过拟合 (Overfitting)</span></td>
+      <td style="color:#2e7d32;">低</td><td style="color:#c62828;">高</td>
+      <td>模型复杂度过高，将训练数据中的噪声也学进去了</td>
+      <td>「误认为树叶必须有锯齿」</td>
+    </tr>
+  </table>
+
+  <p><span class="kp">推导</span><span class="exp">：给定数据集 $\{(x_i, y_i)\}_{i=1}^N$，用M次多项式 $f(x;w) = w_0 + w_1x + \cdots + w_Mx^M$ 拟合，采用平方损失最小化经验风险：</span></p>
+  <div class="formula">$$\min_w \frac{1}{N}\sum_{i=1}^{N}(f(x_i; w) - y_i)^2$$</div>
+
+  <p><span class="kp">比较</span><span class="exp">：</span></p>
+  <table>
+    <tr><th>方面</th><th>欠拟合 (M=0)</th><th>适中 (M=3)</th><th>过拟合 (M=9)</th></tr>
+    <tr><td>模型复杂度</td><td>过低</td><td>适中</td><td>过高</td></tr>
+    <tr><td>偏差 (Bias)</td><td>高</td><td>适中</td><td>低</td></tr>
+    <tr><td>方差 (Variance)</td><td>低</td><td>适中</td><td>高</td></tr>
+    <tr><td>泛化能力</td><td>差</td><td>好</td><td>差</td></tr>
+  </table>
+</div>
+
+<div class="section-card">
+  <h3>1.3 正则化 <span class="tag-key">重点</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：模型太复杂容易过拟合，太简单又欠拟合。正则化就像给模型加了「复杂度税」——越复杂的模型交的税越多，迫使它在拟合数据和保持简单之间找到平衡。</span></p>
+  <p><span class="kp">定义</span><span class="exp">：在经验风险基础之上加一个<span class="kp">正则化项 (Regularizer)</span>或<span class="kp">惩罚项 (Penalty Term)</span>：</span></p>
+  <div class="formula">$$R_{\text{struct}}(f) = R_{\text{emp}}(f) + \lambda \cdot J(f)$$</div>
+  <p><span class="exp">其中 $\lambda \geq 0$ 是<span class="kp">调节参数 (Tuning Parameter)</span>，$J(f)$ 衡量模型复杂度。以多项式拟合为例：</span></p>
+  <div class="formula">$$J(f) = \|w\|^2 = \sum_{j=1}^{M} w_j^2, \quad R_{\text{struct}}(f) = \frac{1}{N}\sum_{i=1}^{N}(f(x_i; w)-y_i)^2 + \lambda \sum_{j=1}^{M} w_j^2$$</div>
+
+  <table>
+    <tr><th>$\lambda$ 取值</th><th>含义</th><th>后果</th></tr>
+    <tr><td>$\lambda = 0$</td><td>不进行正则化</td><td>仅最小化经验风险，容易过拟合</td></tr>
+    <tr><td>$\lambda = \infty$</td><td>惩罚项主导</td><td>所有参数趋向于0，模型退化为常数，严重欠拟合</td></tr>
+    <tr><td>$\lambda$ 适中</td><td>权衡拟合与复杂度</td><td>较好的泛化能力</td></tr>
+  </table>
+
+  <blockquote>
+    $\lambda$ 不是越大越好也不是越小越好。需要通过模型选择方法（如交叉验证）来找到最优的 $\lambda$。
+  </blockquote>
+</div>
+
+<div class="section-card">
+  <h3>1.4 模型选择方法 <span class="tag-must">必考</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：我们无法用训练集来客观评价模型的好坏（就像无法用你做过的题来测试你的真实水平）。因此需要把数据划分为训练集和测试集，用「没见过的新题」来测试。</span></p>
+  <p><span class="kp">定义</span><span class="exp">：测试集上的<span class="kp">测试误差 (Test Error)</span>作为泛化误差的近似。测试集应尽可能与训练集<span class="kp">互斥</span>。</span></p>
+
+  <table>
+    <tr><th>方法</th><th>描述</th><th>关键特点</th></tr>
+    <tr>
+      <td><span class="kp">留出法</span><br>(Hold-out)</td>
+      <td>直接将数据集划分为互斥的训练集和测试集。用训练集训练，测试集计算误差选择最优模型。</td>
+      <td>
+        <ul>
+          <li>又称<span class="kp">简单交叉验证</span></li>
+          <li>适用于样本多的情形</li>
+          <li>训练集比例一般为 <span class="kp">2/3 ~ 4/5</span></li>
+          <li>划分要保持数据分布一致性</li>
+          <li>可多次随机划分取平均值</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><span class="kp">k折交叉验证</span><br>(k-fold CV)</td>
+      <td>将D划分为k个互斥子集，每次用k-1份训练，1份测试，进行k次训练/测试，取均值。</td>
+      <td>
+        <ul>
+          <li>k=N 时称为<span class="kp">留一法 (LOO)</span></li>
+          <li>通常随机重复p次求均值</li>
+          <li>常用 <span class="kp">k=10</span>（10折交叉验证）</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><span class="kp">自助法</span><br>(Bootstrap)</td>
+      <td>从D中有放回抽取m个样本形成训练集D'，未抽到的作为测试集。</td>
+      <td>
+        <ul>
+          <li>约 <span class="kp">36.8%</span> 的样本不出现在训练集中</li>
+          <li>训练集与原样本集同规模</li>
+          <li>改变了初始数据的分布</li>
+          <li>训练样本充足时优先用留出法+交叉验证</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <p><span class="kp">推导（自助法36.8%）</span><span class="exp">：样本每次不被抽到的概率是 $(1-1/m)$，在m次采样中始终不被抽到的概率为：</span></p>
+  <div class="formula">$$\lim_{m \to \infty} \left(1 - \frac{1}{m}\right)^m = \frac{1}{e} \approx 0.368$$</div>
+
+  <p><span class="kp">验证集 (Validation Set)</span><span class="exp">：实际中，用于模型选择的那部分测试集称为验证集。最终用独立测试集评估泛化能力。</span></p>
+
+  <blockquote>
+    留一法（k=N）虽然评估准确，但计算复杂度太高（要训练N次模型），不适用于大规模数据集。
+  </blockquote>
+</div>
+
+<hr>
+
+<!-- ====== SECTION 2: 性能度量 ====== -->
+<h2>二、性能度量 (Performance Measure) <span class="tag-must">必考</span></h2>
+
+<div class="section-card">
+  <h3>2.1 回归任务的性能度量 <span class="tag-freq">高频</span></h3>
+  <p><span class="kp">定义</span><span class="exp">：性能度量衡量模型泛化能力的评价标准，反映了任务需求。不同性能度量可能得出不同的评判结果，模型好坏是相对的。</span></p>
+
+  <table>
+    <tr><th>度量</th><th>公式</th><th>说明</th></tr>
+    <tr>
+      <td><span class="kp">均方误差 (MSE))</span></td>
+      <td class="formula">$$\text{均方误差 (MSE)} = \frac{1}{m}\sum_{i=1}^{m}(f(x_i) - y_i)^2$$</td>
+      <td>最常用的回归度量，对大误差惩罚更重</td>
+    </tr>
+    <tr>
+      <td><span class="kp">平均绝对偏差 (MAE)</span></td>
+      <td class="formula">$$\text{MAE} = \frac{1}{m}\sum_{i=1}^{m}|f(x_i) - y_i|$$</td>
+      <td>对异常值更鲁棒</td>
+    </tr>
+    <tr>
+      <td><span class="kp">R² (决定系数)</span></td>
+      <td class="formula">$$R^2 = 1 - \frac{\sum(y_i - \hat{y}_i)^2}{\sum(y_i - \bar{y})^2}$$</td>
+      <td>衡量模型对数据方差的解释程度，取值范围通常[0,1]</td>
+    </tr>
+  </table>
+</div>
+
+<div class="section-card">
+  <h3>2.2 分类任务基本指标 <span class="tag-freq">高频</span></h3>
+  <p><span class="kp">混淆矩阵</span><span class="exp">：</span></p>
+  <table>
+    <tr><th></th><th>预测正例 (P)</th><th>预测负例 (N)</th></tr>
+    <tr><td><span class="kp">真实正例</span></td><td><span class="kp">TP</span> (True Positive) 正确标记为正</td><td><span class="kp">FN</span> (False Negative) 错误标记为负</td></tr>
+    <tr><td><span class="kp">真实负例</span></td><td><span class="kp">FP</span> (False Positive) 错误标记为正</td><td><span class="kp">TN</span> (True Negative) 正确标记为负</td></tr>
+  </table>
+
+  <p>
+    <span class="kp">错误率</span> = $\frac{FP+FN}{TP+FP+FN+TN}$ &nbsp;&nbsp;
+    <span class="kp">正确率 (Accuracy)</span> = $\frac{TP+TN}{TP+FP+FN+TN}$
+  </p>
+
+  <blockquote>
+    当类别不平衡时，错误率/正确率可能产生误导。例如正例仅占1%，全判为负例也能得到99%正确率，但没有任何实用价值。
+  </blockquote>
+</div>
+
+<div class="section-card">
+  <h3>2.3 查准率与查全率 <span class="tag-must">必考</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：瓜农关心两个问题——「挑出的瓜中有多少是真正的好瓜」（查准率）和「所有好瓜中有多少被挑出来」（查全率）。</span></p>
+
+  <table>
+    <tr><th>指标</th><th>公式</th><th>含义</th><th>核心问题</th></tr>
+    <tr>
+      <td><span class="kp">查准率 (Precision)</span></td>
+      <td class="formula">$$P = \frac{TP}{TP + FP}$$</td>
+      <td>预测为正例的样本中真正为正例的比例</td>
+      <td>「挑出的好瓜有多少是真好瓜」</td>
+    </tr>
+    <tr>
+      <td><span class="kp">查全率/召回率 (Recall)</span></td>
+      <td class="formula">$$R = \frac{TP}{TP + FN}$$</td>
+      <td>所有正例中被正确预测的比例</td>
+      <td>「所有好瓜有多少被挑出」</td>
+    </tr>
+  </table>
+
+  <p><span class="kp">关键性质</span>：查准率和查全率是一对<span class="kp">矛盾的度量</span>——查准率高时，查全率往往偏低；查全率高时，查准率往往偏低。</p>
+
+  <p><span class="kp">F1度量</span><span class="exp">（查准率与查全率的调和平均）：</span></p>
+  <div class="formula">$$F1 = \frac{2 \times P \times R}{P + R}$$</div>
+
+  <p><span class="kp">Fβ度量</span><span class="exp">（加权调和平均，表达对P/R的不同偏好）：</span></p>
+  <div class="formula">$$F_\beta = \frac{(1+\beta^2) \times P \times R}{(\beta^2 \times P) + R}$$</div>
+
+  <table>
+    <tr><th>$\beta$ 值</th><th>含义</th><th>适用场景</th></tr>
+    <tr><td>$\beta = 1$</td><td>标准F1，P和R同等重要</td><td>一般分类任务</td></tr>
+    <tr><td>$\beta > 1$</td><td>查全率影响更大</td><td>逃犯检索系统——「宁可错抓不可漏放」</td></tr>
+    <tr><td>$\beta < 1$</td><td>查准率影响更大</td><td>商品推荐系统——「尽量不打扰用户」</td></tr>
+  </table>
+
+  <p><span class="kp">P-R曲线</span><span class="exp">：以查准率为纵轴、查全率为横轴绘制的曲线。</span></p>
+  <p><span class="kp">平衡点 (BEP)</span>：<span class="exp">查准率=查全率时的取值。若一学习器的P-R曲线完全包住另一个，则可断言前者性能优于后者；若交叉则比较BEP。</span></p>
+
+  <blockquote>
+    将所有样本都预测为正例时，查全率=1（所有正例都被挑出），但查准率极低。这解释了查准率与查全率的矛盾关系。
+  </blockquote>
+</div>
+
+<div class="section-card">
+  <h3>2.4 ROC与AUC <span class="tag-must">必考</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：分类器输出的是一个概率/实值分数，需要设定阈值来划分正负类。ROC曲线描述了「阈值变化时，真正的正例检出率 vs 假正例误报率」的权衡。</span></p>
+
+  <table>
+    <tr><th>指标</th><th>公式</th><th>含义</th></tr>
+    <tr><td><span class="kp">真正例率 (TPR)</span></td><td>$TPR = \frac{TP}{TP+FN}$</td><td>所有正例中被正确识别的比例（即查全率）</td></tr>
+    <tr><td><span class="kp">假正例率 (FPR)</span></td><td>$FPR = \frac{FP}{FP+TN}$</td><td>所有负例中被错误识别为正例的比例</td></tr>
+  </table>
+
+  <p><span class="kp">ROC曲线</span><span class="exp">：以TPR为纵轴、FPR为横轴。与P-R曲线类似，若一个ROC曲线完全包住另一个，则前者性能更优。</span></p>
+  <p><span class="kp">AUC (Area Under ROC Curve)</span><span class="exp">：ROC曲线下的面积，是衡量分类器性能的综合指标。</span></p>
+
+  <table>
+    <tr><th>AUC值</th><th>含义</th></tr>
+    <tr><td>AUC = 1</td><td>完美分类器（现实中几乎不存在）</td></tr>
+    <tr><td>0.5 < AUC < 1</td><td>优于随机猜测，有预测价值</td></tr>
+    <tr><td>AUC = 0.5</td><td>等同于随机猜测，模型没有预测价值</td></tr>
+    <tr><td>AUC < 0.5</td><td>比随机猜测还差（但反着预测即可优于随机）</td></tr>
+  </table>
+
+  <p><span class="kp">P-R曲线 vs ROC曲线比较</span><span class="exp">：</span></p>
+  <table>
+    <tr><th></th><th>P-R曲线</th><th>ROC曲线</th></tr>
+    <tr><td>横轴</td><td>查全率 (Recall)</td><td>假正例率 (FPR)</td></tr>
+    <tr><td>纵轴</td><td>查准率 (Precision)</td><td>真正例率 (TPR)</td></tr>
+    <tr><td>关注点</td><td>关注正例预测的准确性</td><td>关注正负例区分能力</td></tr>
+    <tr><td>适用</td><td>类别不平衡时对正例更敏感</td><td>类别分布变化时更稳定</td></tr>
+  </table>
+</div>
+
+<div class="section-card">
+  <h3>2.5 Lift 提升度 <span class="tag-info">了解</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：不使用模型时，我们只能随机猜测正例比例（baseline）。使用模型后，挑出的正例比例提高了多少倍？这就是Lift。</span></p>
+  <p><span class="kp">定义</span>：</p>
+  <div class="formula">$$\text{Lift} = \frac{\text{模型预测正例的准确率}}{\text{正例的先验比例}} = \frac{TP/(TP+FP)}{(TP+FN)/(TP+FP+FN+TN)}$$</div>
+  <p><span class="exp">Lift > 1 表示模型预测能力有提升；Lift = 3 表示效果提升了<span class="kp">3倍</span>；Lift < 1 表示模型不如随机猜测。</span></p>
+</div>
+
+<hr>
+
+<!-- ====== SECTION 3: 偏差与方差分解 ====== -->
+<h2>三、偏差与方差分解 <span class="tag-must">必考</span></h2>
+
+<div class="section-card">
+  <h3>3.1 基本概念 <span class="tag-key">重点</span></h3>
+  <p><span class="kp">直觉</span><span class="exp">：假设你是一位弓箭手——偏差衡量你的箭平均偏离靶心的距离（系统偏差，瞄准偏了），方差衡量你多次射箭的散布程度（稳定性差，手抖）。完美射手需要偏差小+方差小。</span></p>
+
+  <p><span class="kp">设定</span><span class="exp">：真实模型 $y = f(x) + \varepsilon$，其中 $\varepsilon \sim \mathcal{N}(0, \sigma^2)$。给定训练集学习到 $\hat{f}(x)$。</span></p>
+
+  <table>
+    <tr><th>概念</th><th>定义</th><th>刻画</th></tr>
+    <tr>
+      <td><span class="kp">偏差 (Bias)</span></td>
+      <td>$\text{Bias}^2(x_0) = \left(\mathbb{E}[\hat{f}(x_0)] - f(x_0)\right)^2$</td>
+      <td>学习算法的期望预测与真实值的偏离程度——<span class="kp">拟合能力</span></td>
+    </tr>
+    <tr>
+      <td><span class="kp">方差 (Variance)</span></td>
+      <td>$\text{Var}(x_0) = \mathbb{E}\left[(\hat{f}(x_0) - \mathbb{E}[\hat{f}(x_0)])^2\right]$</td>
+      <td>训练集变动导致学习性能的变化——<span class="kp">数据扰动造成的影响</span></td>
+    </tr>
+    <tr>
+      <td><span class="kp">噪声 (Noise)</span></td>
+      <td>$\sigma^2$，随机误差的方差</td>
+      <td>不可约误差，任何模型都无法消除</td>
+    </tr>
+  </table>
+
+  <p><span class="kp">核心分解公式</span><span class="exp">：</span></p>
+  <div class="formula-block">
+    <div class="formula">$$\mathbb{E}\left[(Y - \hat{f}(x_0))^2\right] = \underbrace{\text{Bias}^2(x_0)}_{\text{偏差平方}} + \underbrace{\text{Var}(x_0)}_{\text{方差}} + \underbrace{\sigma^2}_{\text{不可约误差}}$$</div>
+  </div>
+
+  <p><span class="kp">推导思路</span><span class="exp">：将 $(Y - \hat{f})^2 = (Y - f + f - \mathbb{E}[\hat{f}] + \mathbb{E}[\hat{f}] - \hat{f})^2$ 展开，利用交叉项期望为零的性质，得到上述三项分解。</span></p>
+</div>
+
+<div class="section-card">
+  <h3>3.2 模型复杂度与偏差-方差关系 <span class="tag-key">重点</span></h3>
+
+  <table>
+    <tr><th>模型复杂度</th><th>偏差</th><th>方差</th><th>泛化误差</th><th>现象</th></tr>
+    <tr><td>低 (如d=1)</td><td style="color:#c62828;">高</td><td style="color:#2e7d32;">低</td><td>高</td><td><span class="kp">欠拟合</span></td></tr>
+    <tr><td>适中</td><td>适中</td><td>适中</td><td>最低</td><td><span class="kp">最佳泛化</span></td></tr>
+    <tr><td>高 (如d=5)</td><td style="color:#2e7d32;">低</td><td style="color:#c62828;">高</td><td>高</td><td><span class="kp">过拟合</span></td></tr>
+  </table>
+
+  <p><span class="kp">实例</span><span class="exp">：用d次多项式拟合数据，重复6次试验——d=1的模型在不同训练样本下变化不大（低方差），但偏离真实曲线较远（高偏差）；d=5的模型紧密贴合每次训练数据（低偏差），但不同样本间波动剧烈（高方差）。</span></p>
+
+  <p><span class="kp">比较（诊断准则）</span>：</p>
+  <table>
+    <tr><th>情况</th><th>训练误差</th><th>测试误差</th><th>偏差</th><th>方差</th></tr>
+    <tr><td><span class="kp">High Bias</span></td><td style="color:#c62828;">大</td><td style="color:#c62828;">大</td><td>高</td><td>低</td></tr>
+    <tr><td><span class="kp">High Variance</span></td><td style="color:#2e7d32;">小</td><td style="color:#c62828;">大</td><td>低</td><td>高</td></tr>
+  </table>
+
+  <blockquote>
+    测试误差总是高于训练误差——这本身是正常的。关键是差距的大小：差距巨大意味着过拟合（High Variance）；两者都大意味着欠拟合（High Bias）。
+  </blockquote>
+</div>
+
+<div class="section-card">
+  <h3>3.3 正则化与偏差-方差 <span class="tag-key">重点</span></h3>
+  <p><span class="kp">关系</span>：</p>
+  <ul>
+    <li>$\lambda$ <span class="kp">过大</span> → 惩罚过强，模型趋近于简单（如0次多项式）→ <span class="kp">High Bias（高偏差）</span></li>
+    <li>$\lambda$ <span class="kp">过小</span> → 惩罚微弱，模型趋近于复杂（如5次多项式）→ <span class="kp">High Variance（高方差）</span></li>
+  </ul>
+  <p><span class="exp">$\lambda$ 与模型复杂度成反比——$\lambda$ 越大，有效的模型复杂度越低。</span></p>
+</div>
+
+<div class="section-card">
+  <h3>3.4 最小二乘回归分析 <span class="tag-freq">高频</span></h3>
+  <p><span class="kp">结论</span>：</p>
+  <ul>
+    <li>最小二乘估计是<span class="kp">无偏</span>的（偏差 = 0）</li>
+    <li>当真实模型复杂度 p 固定时，样本量 n 增加 → 方差 $\sigma^2 \cdot \text{tr}((X^TX)^{-1})$ 降低</li>
+    <li>样本量固定时，维度 p 每增加1 → 方差增大</li>
+  </ul>
+  <p><span class="kp">In-sample Error</span>：$\frac{1}{N}\sum_{i=1}^{N}\mathbb{E}[(\hat{y}_i - y_i)^2] = \sigma^2\frac{p}{N}$</p>
+</div>
+
+<div class="section-card">
+  <h3>3.5 岭回归分析 <span class="tag-freq">高频</span></h3>
+  <p><span class="kp">核心关系</span><span class="exp">：岭估计是<span class="kp">最小二乘的压缩估计</span>。</span></p>
+  <div class="formula">$$\hat{\beta}_{\text{ridge}} = (X^TX + \lambda I)^{-1}X^Ty = (X^TX + \lambda I)^{-1}(X^TX)\hat{\beta}_{\text{OLS}}$$</div>
+
+  <table>
+    <tr><th>$\lambda$</th><th>偏差</th><th>方差</th><th>总体</th></tr>
+    <tr><td>$\lambda \to 0$</td><td>趋于0</td><td>趋于OLS方差</td><td>近似最小二乘</td></tr>
+    <tr><td>$\lambda \to \infty$</td><td>趋于最大值</td><td>趋于0</td><td>系数压缩至零</td></tr>
+    <tr><td>$\lambda$ 适中</td><td>非零</td><td>低于OLS</td><td>可能获得更低预测误差</td></tr>
+  </table>
+
+  <p><span class="kp">本质</span><span class="exp">：岭回归通过</span><span class="kp">引入偏差来换取方差的降低</span><span class="exp">，从而可能获得更低的总体预测误差。最优 $\lambda$ 应使预测误差的上界最小。</span></p>
+</div>
+
+<hr>
+
+<!-- ====== SECTION 4: 学习诊断 ====== -->
+<h2>四、学习诊断 <span class="tag-key">重点</span></h2>
+
+<div class="section-card">
+  <h3>4.1 学习曲线 <span class="tag-freq">高频</span></h3>
+  <p><span class="kp">定义</span><span class="exp">：描绘训练误差和测试误差随训练样本量变化而变化的曲线。是诊断偏差/方差问题的重要工具。</span></p>
+</div>
+
+<div class="section-card">
+  <h3>4.2 诊断与对策 <span class="tag-must">必考</span></h3>
+
+  <table>
+    <tr><th>诊断</th><th>现象</th><th>有效对策</th><th>无效对策</th></tr>
+    <tr>
+      <td><span class="kp">High Bias</span><br>(欠拟合)</td>
+      <td>训练误差和测试误差都很大，且趋于收敛</td>
+      <td>
+        <ol>
+          <li>获取额外的输入变量</li>
+          <li>降低 $\lambda$，增加模型复杂度</li>
+        </ol>
+      </td>
+      <td style="color:#c62828;">增加训练集大小帮助不大</td>
+    </tr>
+    <tr>
+      <td><span class="kp">High Variance</span><br>(过拟合)</td>
+      <td>训练误差小，测试误差大，两者差距大</td>
+      <td>
+        <ol>
+          <li>增加训练集大小</li>
+          <li>减少输入变量个数</li>
+          <li>增大 $\lambda$，降低模型复杂度</li>
+        </ol>
+      </td>
+      <td>—</td>
+    </tr>
+  </table>
+
+  <blockquote>
+    常见误区：模型表现不好就盲目加数据。如果是High Bias（欠拟合），加数据是无效的！需要先诊断再行动。
+  </blockquote>
+</div>
+
+<hr>
+
+<div style="text-align:center;color:#888;font-size:0.85rem;padding:2rem 0 0;">
+  <p>本知识清单基于 上海对外经贸大学《数据挖掘与机器学习》课程 第2讲讲义生成</p>
+  <p>深度学习模式 · 期末复习专用</p>
+</div>
+
+</body>
+</html>

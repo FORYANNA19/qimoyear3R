@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10讲 知识清单 — 神经网络：感知机</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <a href="#">深度学习模式</a> / 第10讲-知识清单 |
+  <a href="#">←上一章</a> | <a href="#">下一章 →</a>
+</div>
+
+<div class="header">
+  <h1>第10讲 知识清单：神经网络 — 感知机</h1>
+  <div class="meta">2026年5月18日 · 上海对外经贸大学 · 王昭文 · 数据挖掘与机器学习</div>
+  <div class="tag-row" style="margin-top:12px;">
+    <span class="tag tag-must">tag-must</span>
+    <span class="tag tag-key">tag-key</span>
+    <span class="tag tag-freq">tag-freq</span>
+    <span class="tag tag-info">tag-info</span>
+  </div>
+</div>
+
+<!-- ========== SECTION 1: 直觉理解 ========== -->
+<div class="card">
+  <h2>1. 直觉理解 Intuition <span class="tag-read">细读</span></h2>
+  <p><span class="kp">人工神经网络 (ANN)</span> 的核心思想：<span class="exp">模仿生物神经元的信号处理机制——多个输入信号经加权求和后，与阈值比较，再经激活函数处理产生输出。</span></p>
+  <p><span class="kp">感知机 (Perceptron)</span>：<span class="exp">最简单的神经网络结构，由输入层 + 单层 M-P 神经元（输出层）组成，本质是在特征空间中寻找一个<strong>分离超平面</strong>来进行二分类。</span></p>
+  <p>类比理解：感知机就像在二维平面上画一条直线，把两类点分开。在高维空间中，这条"直线"变成了"超平面"。</p>
+  <blockquote>直觉陷阱：感知机只能解决线性可分问题。如果数据线性不可分（如 XOR 问题），单层感知机永远无法收敛。</blockquote>
+</div>
+
+<!-- ========== SECTION 2: 核心定义 ========== -->
+<div class="card">
+  <h2>2. 核心定义 Definitions <span class="tag-read">细读</span></h2>
+
+  <h3>2.1 M-P 神经元模型 (McCulloch-Pitts, 1943) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">神经元</span>：<span class="exp">接收到来自 n 个其他神经元的输入信号，这些信号通过<strong>带权重的连接</strong>传递，神经元将接收到的<strong>总输入值</strong>与<strong>阈值</strong>比较，然后通过<strong>激活函数</strong>处理以产生输出。</span></p>
+  <div class="formula-block">$$y = f\left(\sum_{i=1}^{n} w_i x_i - \theta\right)$$</div>
+  <p class="formula-comment">其中 w_i 为连接权值，θ 为阈值，f 为激活函数。</p>
+
+  <h3>2.2 感知机模型 (Rosenblatt, 1958) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">感知机定义</span>：<span class="exp">输入空间 ⊆ ℝⁿ，输出空间 = {+1, -1}。由输入空间到输出空间的函数 f(x) = sign(w·x + b) 称为感知机，是一种<strong>线性分类模型</strong>，属于<strong>判别模型</strong>。</span></p>
+  <p><span class="kp">权值 w</span> <span class="exp">ℝⁿ 中的向量，决定超平面的方向（法向量）</span></p>
+  <p><span class="kp">偏置 b</span> <span class="exp">实数，决定超平面的位置（截距）</span></p>
+  <p><span class="kp">分离超平面</span> <span class="exp">线性方程 w·x + b = 0 对应于特征空间中的一个超平面 S</span></p>
+
+  <h3>2.3 线性可分数据集 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">线性可分</span>：<span class="exp">存在某个超平面 w·x + b = 0 能够将正实例点 (y=+1) 和负实例点 (y=-1) 完全正确地划分到超平面的两侧。</span></p>
+  <p>对所有 yᵢ = +1 的实例，有 w·xᵢ + b &gt; 0；对所有 yᵢ = -1 的实例，有 w·xᵢ + b &lt; 0。</p>
+</div>
+
+<!-- ========== SECTION 3: 动机与背景 ========== -->
+<div class="card">
+  <h2>3. 动机与背景 Motivation <span class="tag-read">细读</span></h2>
+  <h3>3.1 为什么需要感知机？ <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="kp">神经网络的开山之作</span>：1958年 Rosenblatt 提出，是第一个正式的人工神经网络模型，开启了连接主义 (Connectionism) 研究。</li>
+    <li><span class="kp">可证伪的学习理论</span>：对于线性可分数据，感知机算法被严格证明会在有限步内收敛。</li>
+    <li><span class="kp">基础构建块</span>：多层感知机 (MLP)) 和深度学习的基础——理解单层是理解多层的先决条件。</li>
+  </ul>
+  <h3>3.2 感知机的局限 <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="kp">异或问题 (XOR)</span>：1969年 Minsky &amp; Papert 证明单层感知机无法求解 XOR 问题，因为 XOR 是线性不可分的。</li>
+    <li><span class="kp">第一次 AI 寒冬</span>：这一缺陷导致神经网络研究停滞十余年。</li>
+  </ul>
+</div>
+
+<!-- ========== SECTION 4: 数学推导 ========== -->
+<div class="card">
+  <h2>4. 数学推导 Derivation <span class="tag-read">细读</span></h2>
+
+  <h3>4.1 感知机损失函数 <span class="tag-read">细读</span></h3>
+  <p><strong>任一点 x₀ 到超平面 S 的距离：</strong></p>
+  <div class="formula-block">$$\frac{|w \cdot x_0 + b|}{\|w\|}$$</div>
+  <p>其中 ‖w‖ 是 w 的 L₂ 范数。</p>
+  <p><strong>对于误分类点 (xᵢ, yᵢ)：</strong></p>
+  <p>当 w·xᵢ + b &gt; 0 时，yᵢ = -1；当 w·xᵢ + b &lt; 0 时，yᵢ = +1。</p>
+  <p>因此 <span class="kp">-yᵢ(w·xᵢ + b) &gt; 0</span> 恒成立。误分类点 xᵢ 到超平面的距离为：</p>
+  <div class="formula-block">$$-\frac{1}{\|w\|} y_i (w \cdot x_i + b)$$</div>
+  <p><strong>感知机损失函数</strong>（经验风险函数）：忽略 1/‖w‖，定义</p>
+  <div class="formula-block">$$L(w, b) = -\sum_{x_i \in M} y_i (w \cdot x_i + b)$$</div>
+  <p class="formula-comment">M 为误分类点集合。该损失函数非负且关于 w, b 连续可导。本质是误分类点到超平面的总距离。</p>
+
+  <h3>4.2 随机梯度下降 (随机梯度下降 (SGD)) 求解 <span class="tag-read">细读</span></h3>
+  <p>损失函数的梯度：</p>
+  <div class="formula-block">$$\nabla_w L(w, b) = -\sum_{x_i \in M} y_i x_i, \quad \nabla_b L(w, b) = -\sum_{x_i \in M} y_i$$</div>
+
+  <p><span class="step-num">1</span><strong>算法输入/输出：</strong></p>
+  <p>输入：训练集 T = {(x₁,y₁), …, (x_N, y_N)}，xᵢ ∈ ℝⁿ, yᵢ ∈ {-1, +1}，学习率 η (0 &lt; η ≤ 1)</p>
+  <p>输出：w, b；感知机模型 f(x) = sign(w·x + b)</p>
+
+  <p><span class="step-num">2</span><strong>迭代过程：</strong></p>
+  <ol>
+    <li>初始化 w₀, b₀</li>
+    <li>在训练集中随机选取数据 (xᵢ, yᵢ)</li>
+    <li><strong>如果 yᵢ(w·xᵢ + b) ≤ 0</strong>（误分类条件），则更新：
+      <div class="formula-block">$$w \leftarrow w + \eta \cdot y_i \cdot x_i, \quad b \leftarrow b + \eta \cdot y_i$$</div>
+    </li>
+    <li>转至 (2)，直至训练集中没有误分类点。</li>
+  </ol>
+
+  <p class="formula-comment">几何直观：当一个实例被误分类时，调整 w, b 使分离超平面向该误分类点移动，直至超平面越过该点使其被正确分类。</p>
+
+  <h3>4.3 收敛性定理 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">Novikoff 定理</span>：<span class="exp">对于<strong>线性可分</strong>数据集，感知机算法在有限步内收敛（找到一个能够完全正确分开样本的超平面）。学习率 η 仅影响收敛速度，不影响最终收敛性。</span></p>
+  <blockquote>记忆要点：收敛的<strong>充要条件</strong>是数据集线性可分。η 大小 → 不改变是否收敛，只改变迭代次数。</blockquote>
+
+  <h3>4.4 激活函数 <span class="tag-read">细读</span></h3>
+  <p>感知机使用 <span class="kp">符号函数 (符号函数 (Sign) Function)</span> 作为激活函数：</p>
+  <div class="formula-block">$$\text{sign}(z) = \begin{cases} +1, & z \geq 0 \\ -1, & z < 0 \end{cases}$$</div>
+
+  <table>
+    <tr><th>激活函数</th><th>公式</th><th>取值范围</th><th>特点</th><th>用于</th></tr>
+    <tr>
+      <td><span class="kp">阶跃函数 (Step)</span></td>
+      <td>1 if z≥0 else 0</td>
+      <td>{0, 1}</td>
+      <td>不连续、不光滑</td>
+      <td>M-P 神经元基础</td>
+    </tr>
+    <tr>
+      <td><span class="kp">符号函数 (符号函数 (Sign))</span></td>
+      <td>±1</td>
+      <td>{-1, +1}</td>
+      <td>不连续、不光滑</td>
+      <td><strong>感知机</strong></td>
+    </tr>
+    <tr>
+      <td><span class="kp">Sigmoid激活函数</span></td>
+      <td>1/(1+e⁻ᶻ)</td>
+      <td>(0, 1)</td>
+      <td>光滑可导，导数最大 0.25，深层易梯度消失</td>
+      <td>多层感知机 (MLP) / 反向传播 算法</td>
+    </tr>
+    <tr>
+      <td><span class="kp">ReLU激活函数</span></td>
+      <td>max(0, z)</td>
+      <td>[0, +∞)</td>
+      <td>x&gt;0 时导数为 1，缓解梯度消失</td>
+      <td>现代深度学习</td>
+    </tr>
+    <tr>
+      <td><span class="kp">Tanh激活函数</span></td>
+      <td>(eᶻ-e⁻ᶻ)/(eᶻ+e⁻ᶻ)</td>
+      <td>(-1, 1)</td>
+      <td>零中心输出，比 Sigmoid激活函数 更优</td>
+      <td>RNN / LSTM</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ========== SECTION 5: 实例演示 ========== -->
+<div class="card">
+  <h2>5. 实例演示 Examples <span class="tag-read">细读</span></h2>
+
+  <h3>5.1 感知机更新示例 <span class="tag-read">细读</span></h3>
+  <p>设有 3 个二维样本：正类 x₁=(3,3), y₁=+1；负类 x₂=(1,1), y₂=-1；初始 w=(0,0), b=0, η=1。</p>
+  <table>
+    <tr><th>轮次</th><th>误分类点</th><th>w·x+b 值</th><th>更新</th><th>新 w</th><th>新 b</th></tr>
+    <tr><td>1</td><td>x₁ (正类)</td><td>0 &le; 0 ✘</td><td>w←w+1·(+1)·(3,3), b←b+1</td><td>(3,3)</td><td>1</td></tr>
+    <tr><td>2</td><td>x₂ (负类)</td><td>3+3+1=7, y₂=-1 → -7 &le; 0 ✘</td><td>w←w+1·(-1)·(1,1), b←b-1</td><td>(2,2)</td><td>0</td></tr>
+    <tr><td>3</td><td>x₁ (正类)</td><td>6+6+0=12, y₁=+1 → 12 &gt; 0 ✓</td><td>正确，不更新</td><td>—</td><td>—</td></tr>
+    <tr><td>4</td><td>x₂ (负类)</td><td>2+2+0=4, y₂=-1 → -4 &le; 0 ✘</td><td>w←(2,2)-1·(1,1), b←0-1</td><td>(1,1)</td><td>-1</td></tr>
+    <tr><td>5</td><td>x₁ (正类)</td><td>3+3-1=5, y₁=+1 → 5 &gt; 0 ✓</td><td>正确</td><td>—</td><td>—</td></tr>
+    <tr><td>6</td><td>x₂ (负类)</td><td>1+1-1=1, y₂=-1 → -1 &le; 0 ✘</td><td>w←(1,1)-1·(1,1), b←-1-1</td><td>(0,0)</td><td>-2</td></tr>
+    <tr><td>7</td><td>x₁ (正类)</td><td>0+0-2=-2, y₁=+1 → -2 &le; 0 ✘</td><td>w←(0,0)+(3,3), b←-2+1</td><td>(3,3)</td><td>-1</td></tr>
+    <tr><td>8</td><td>x₂ (负类)</td><td>3+3-1=5, y₂=-1 → -5 &le; 0 ✘</td><td>w←(3,3)-1·(1,1), b←-1-1</td><td>(2,2)</td><td>-2</td></tr>
+  </table>
+  <p class="formula-comment">最终超平面：2x₁ + 2x₂ - 2 = 0，即 x₁ + x₂ - 1 = 0，将 (3,3) 和 (1,1) 正确分开。</p>
+
+  <h3>5.2 课堂练习题精析 <span class="tag-read">细读</span></h3>
+  <p><strong>Q1：感知机能够收敛的前提条件</strong></p>
+  <p><span class="exp">答案：C — 数据集必须是线性可分的。</span>感知机收敛的充要条件。A、B、D 均不是必要条件。</p>
+
+  <p><strong>Q2：感知机损失函数 L(w,b) 在最小化什么</strong></p>
+  <p><span class="exp">答案：B — 误分类点到超平面的总距离。</span>不最小化错误个数（不可导），不是距离平方和，不是交叉熵。</p>
+
+  <p><strong>Q3：权重更新的几何解释</strong></p>
+  <p><span class="exp">答案：B — 让超平面向该误分类点旋转，试图将其包含在正确的一侧。</span>w ← w + ηyᵢxᵢ 使法向量向正确方向偏转。</p>
+
+  <p><strong>Q4：感知机的激活函数</strong></p>
+  <p><span class="exp">答案：C — 符号函数 (符号函数 (Sign) Function)。</span>Sigmoid激活函数、ReLU激活函数、Tanh激活函数 是 多层感知机 (MLP) 中使用的激活函数。</p>
+
+  <p><strong>Q5：学习率 η 对收敛的影响</strong></p>
+  <p><span class="exp">答案：C — 只要数据线性可分，η 的大小不影响收敛性（仅影响迭代次数）。</span>η 控制步长，步长大可能导致"过冲"，但不改变能否收敛。</p>
+</div>
+
+<!-- ========== SECTION 6: 对比分析 ========== -->
+<div class="card">
+  <h2>6. 对比分析 Comparison <span class="tag-read">细读</span></h2>
+
+  <h3>6.1 反向传播 算法的三种变体 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>特性</th><th>标准 反向传播 (随机梯度下降 (SGD))</th><th>累积 反向传播 (Batch)</th><th>Mini-batch BP</th></tr>
+    <tr><td><span class="kp">权重更新频率</span></td><td>每个样本更新一次</td><td>每个 Epoch 更新一次</td><td>每个小批量更新一次</td></tr>
+    <tr><td><span class="kp">单次迭代计算量</span></td><td>极小</td><td>极大</td><td>适中（适合 GPU）</td></tr>
+    <tr><td><span class="kp">收敛路径</span></td><td>剧烈震荡（极其随机）</td><td>非常平滑</td><td>略有震荡但方向明确</td></tr>
+    <tr><td><span class="kp">内存需求</span></td><td>极低</td><td>极高（需载入全量数据）</td><td>适中（可调）</td></tr>
+    <tr><td><span class="kp">跳出局部最优</span></td><td>能力最强</td><td>几乎没有</td><td>较强</td></tr>
+  </table>
+
+  <h3>6.2 单层感知机 vs 多层感知机 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>特性</th><th>单层感知机</th><th>多层感知机 (MLP))</th></tr>
+    <tr><td><span class="kp">结构</span></td><td>输入层 + 输出层（两层）</td><td>输入层 + 隐藏层 + 输出层</td></tr>
+    <tr><td><span class="kp">解决的问题</span></td><td>仅线性可分问题</td><td>线性不可分问题（如 XOR）</td></tr>
+    <tr><td><span class="kp">激活函数</span></td><td>符号函数 (符号函数 (Sign))</td><td>Sigmoid激活函数 / ReLU激活函数 / Tanh激活函数 等</td></tr>
+    <tr><td><span class="kp">训练算法</span></td><td>感知机学习算法 (随机梯度下降 (SGD))</td><td>反向传播 算法（反向传播）</td></tr>
+    <tr><td><span class="kp">表达能力</span></td><td>线性超平面</td><td>万能近似器（理论上可逼近任意连续函数）</td></tr>
+  </table>
+</div>
+
+<!-- ========== SECTION 7: 常见陷阱 ========== -->
+<div class="card">
+  <h2>7. 常见陷阱与注意点 Pitfalls <span class="tag-read">细读</span></h2>
+  <blockquote>陷阱1：误以为感知机能处理任意分类问题。<br>单层感知机只能处理<strong>线性可分</strong>的数据集。XOR 问题、同心圆等非线性问题无法处理。</blockquote>
+
+  <blockquote>陷阱2：混淆损失函数和误分类个数。<br>感知机的损失函数是最小化<strong>误分类点到超平面的总距离</strong>，而非误分类样本个数。因为误分类个数不可导，无法用梯度下降优化。</blockquote>
+
+  <blockquote>陷阱3：忘记收敛的前提条件。<br>感知机算法 <strong>仅在数据线性可分时收敛</strong>。若数据线性不可分，算法将无限循环（不收敛），需要在训练前做停止条件限制。</blockquote>
+
+  <blockquote>陷阱4：以为学习率 η 影响收敛性。<br>η 只影响<strong>收敛速度</strong>和<strong>迭代次数</strong>，不影响是否收敛。即使 η 很大导致震荡，只要数据线性可分，最终仍会收敛。注意 η ∈ (0, 1]。</blockquote>
+
+  <blockquote>陷阱5：将感知机与逻辑回归混淆。<br>感知机使用 sign 函数输出 ±1，属于<strong>硬分类</strong>；逻辑回归使用 sigmoid 输出概率，属于<strong>软分类</strong>。两者虽都是线性模型，但损失函数和输出完全不同。</blockquote>
+
+  <blockquote>陷阱6：以为线性激活函数叠加多层有意义。<br>如果在 多层感知机 (MLP) 所有层使用线性激活函数，整个网络等价于一个单层线性模型——多层无用！必须使用<strong>非线性</strong>激活函数才能获得深层网络的优势。</blockquote>
+</div>
+
+<!-- ========== SECTION 8: 多层感知机 (MLP) 与 反向传播 扩展 ========== -->
+<div class="card">
+  <h2>8. 多层感知机 (MLP) 与反向传播扩展知识 <span class="tag-read">细读</span></h2>
+
+  <h3>8.1 万能近似定理 (Universal Approximation Theorem) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">核心结论</span>：<span class="exp">只要神经元数量足够多，<strong>仅需一个隐藏层</strong>的神经网络就能以<strong>任意精度</strong>近似任何<strong>连续函数</strong>。</span></p>
+  <ul>
+    <li><span class="kp">隐藏层数量</span>：理论上仅需 1 层（宽度足够）</li>
+    <li><span class="kp">激活函数 σ</span>：必须是非多项式的（线性的不行）</li>
+    <li><span class="kp">紧集 K</span>：函数必须在一个有限范围内进行逼近</li>
+  </ul>
+  <blockquote>深层 vs 宽层：虽然单隐藏层理论上可以拟合任何函数，但可能需要指数级数量的神经元（维数灾难）。深层网络在表达具有层次结构的数据时比单层网络高效得多。</blockquote>
+
+  <h3>8.2 反向传播 (Back Propagation, BP) 算法 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">前向传播</span>：<span class="exp">输入信号通过各层神经元处理，最终在输出层产生预测值，并计算与真实值的损失 (Loss)。</span></p>
+  <p><span class="kp">反向传播</span>：<span class="exp">将损失从输出层开始，沿着网络结构"反向"传播，通过<strong>链式法则 (Chain Rule)</strong> 计算每一层权重对损失的贡献（即梯度），进而更新权重。</span></p>
+
+  <div class="formula-block">$$\frac{\partial E_k}{\partial w_{hj}} = \frac{\partial E_k}{\partial \hat{y}_j^k} \cdot \frac{\partial \hat{y}_j^k}{\partial \beta_j} \cdot \frac{\partial \beta_j}{\partial w_{hj}}$$</div>
+  <p class="formula-comment">链式法则：误差对权重的偏导 = 误差对输出的偏导 × 输出对输入的偏导 × 输入对权重的偏导。</p>
+
+  <h3>8.3 梯度消失 (Vanishing Gradient) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">原因</span>：<span class="exp">传统 Sigmoid 函数的导数最大值仅 0.25。在深层网络中，连乘项 0.25ⁿ 迅速衰减至接近 0，导致靠近输入层的权重几乎不更新。</span></p>
+  <p><span class="kp">解决方案</span>：使用 ReLU激活函数（x&gt;0 时导数为 1）替代 Sigmoid激活函数，有效缓解梯度消失问题。</p>
+
+  <h3>8.4 Mini-batch 的优势 <span class="tag-read">细读</span></h3>
+  <ul>
+    <li><span class="kp">统计意义</span>：总体梯度的无偏估计；Batch Size 增大，梯度方差降低</li>
+    <li><span class="kp">计算优势</span>：利用 GPU 并行性，处理 Batch 的时间远比串行处理快</li>
+    <li><span class="kp">噪声作为正则化</span>：适度噪声帮助跳出局部最小值，找到泛化更好的平坦区域</li>
+  </ul>
+</div>
+
+<!-- ========== SECTION 9: 历史脉络 ========== -->
+<div class="card">
+  <h2>9. 神经网络发展简史 <span class="tag-read">细读</span></h2>
+  <table>
+    <tr><th>时期</th><th>里程碑</th><th>关键人物</th></tr>
+    <tr><td>1943</td><td><span class="kp">M-P 神经元模型</span></td><td>McCulloch &amp; Pitts</td></tr>
+    <tr><td>1958</td><td><span class="kp">感知机 (Perceptron)</span> — 第一个 ANN 正式模型</td><td>Frank Rosenblatt</td></tr>
+    <tr><td>1969</td><td><span class="kp">《Perceptrons》</span> — 证明单层感知机无法求解 XOR；<strong>第一次 AI 寒冬</strong></td><td>Minsky &amp; Papert</td></tr>
+    <tr><td>1980s</td><td><span class="kp">反向传播 算法</span> 解决多层训练问题；<span class="kp">LeNet</span> 手写数字识别；<span class="kp">LSTM</span></td><td>Rumelhart / LeCun / Hochreiter</td></tr>
+    <tr><td>1990s</td><td><span class="kp">支持向量机 崛起</span>，神经网络研究进入<strong>第二次寒冬</strong></td><td>Vapnik</td></tr>
+    <tr><td>2006</td><td><span class="kp">深度信念网络 (DBN)</span> — 无监督逐层预训练，正式打响"深度学习"</td><td>Hinton</td></tr>
+    <tr><td>2012</td><td><span class="kp">AlexNet</span> — ImageNet 竞赛夺冠，深度学习统治计算机视觉</td><td>Krizhevsky et al.</td></tr>
+    <tr><td>2017</td><td><span class="kp">Transformer</span> — 《Attention is All You Need》奠定大模型基石</td><td>Google</td></tr>
+    <tr><td>2024</td><td><span class="kp">Hinton 获诺贝尔物理学奖</span></td><td>Geoffrey Hinton</td></tr>
+  </table>
+</div>
+
+<div class="footer-nav">
+  <a href="#">← 上一章：第9讲</a>
+  <a href="#">下一章：第11讲 →</a>
+</div>
+
+</div>
+</body>
+</html>

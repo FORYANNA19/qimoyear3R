@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2讲 章节测试 — 模型评估与选择</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", Georgia, serif;
+  background: #f5f0eb; color: #1a1a1a; line-height: 1.8;
+  max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem;
+}
+h1 { font-size: 1.5rem; color: #1a237e; border-bottom: 3px double #1a237e; padding-bottom: 0.4rem; margin-bottom: 0.8rem; }
+h2 { font-size: 1.15rem; color: #c62828; margin: 1.6rem 0 0.5rem; border-left: 4px solid #c62828; padding-left: 0.6rem; }
+.breadcrumb {
+  font-size: 0.85rem; color: #6a1b9a; margin-bottom: 1.5rem; padding: 0.5rem 0.8rem;
+  background: #ede7f6; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+}
+.breadcrumb a { color: #6a1b9a; text-decoration: none; font-weight: bold; }
+.breadcrumb a:hover { text-decoration: underline; }
+.question {
+  background: #fff; border-radius: 8px; padding: 1rem 1.2rem; margin: 0.8rem 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 3px solid #1a237e;
+}
+.q-title { font-weight: bold; color: #1a237e; margin-bottom: 0.5rem; }
+.q-options { margin-left: 1rem; }
+.q-options div { margin: 0.2rem 0; }
+.answer-block {
+  background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 6px; padding: 0.6rem 0.9rem;
+  margin-top: 0.6rem; display: none;
+}
+.answer-label { font-weight: bold; color: #2e7d32; }
+.detail { font-size: 0.88rem; color: #555; margin-top: 0.3rem; }
+.btn {
+  display: inline-block; padding: 0.35rem 1rem; margin-top: 0.5rem;
+  background: #1a237e; color: #fff; border: none; border-radius: 4px;
+  cursor: pointer; font-size: 0.85rem;
+}
+.btn:hover { background: #283593; }
+.btn.showing { background: #c62828; }
+.formula { text-align: center; margin: 0.3rem 0; }
+table { width: 100%; border-collapse: collapse; margin: 0.4rem 0; font-size: 0.9rem; }
+th { background: #1a237e; color: #fff; padding: 0.4rem 0.6rem; text-align: left; }
+td { padding: 0.35rem 0.6rem; border-bottom: 1px solid #e0e0e0; }
+tr:nth-child(even) td { background: #f5f5f5; }
+.calc-box { background: #fafafa; border: 1px dashed #bbb; padding: 0.6rem 0.9rem; margin: 0.4rem 0; font-size: 0.9rem; }
+code { background: #f5f5f5; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
+pre { background: #263238; color: #aed581; padding: 0.7rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+#toggle-all { margin-bottom: 1rem; }
+@media (max-width: 600px) { body { padding: 1rem 0.8rem; } }
+</style>
+<script>
+function toggleAnswer(id) {
+  var el = document.getElementById(id);
+  var btn = document.getElementById('btn-' + id);
+  if (el.style.display === 'block') {
+    el.style.display = 'none';
+    btn.className = 'btn';
+    btn.textContent = '显示答案';
+  } else {
+    el.style.display = 'block';
+    btn.className = 'btn showing';
+    btn.textContent = '隐藏答案';
+  }
+}
+function toggleAll() {
+  var blocks = document.querySelectorAll('.answer-block');
+  var btns = document.querySelectorAll('.toggle-btn');
+  var allShow = true;
+  for (var i = 0; i < blocks.length; i++) {
+    if (blocks[i].style.display !== 'block') { allShow = false; break; }
+  }
+  for (var i = 0; i < blocks.length; i++) {
+    if (allShow) {
+      blocks[i].style.display = 'none';
+      if (btns[i]) { btns[i].className = 'btn toggle-btn'; btns[i].textContent = '显示答案'; }
+    } else {
+      blocks[i].style.display = 'block';
+      if (btns[i]) { btns[i].className = 'btn showing toggle-btn'; btns[i].textContent = '隐藏答案'; }
+    }
+  }
+  var toggleAllBtn = document.getElementById('toggle-all');
+  toggleAllBtn.textContent = allShow ? '显示全部答案' : '隐藏全部答案';
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<div class="breadcrumb">
+  <span>章节测试 / 第2讲-章节测试</span>
+  <span><a href="#">←上一章</a> | <a href="#">下一章→</a></span>
+</div>
+
+<h1>第2讲 章节测试：模型评估与选择</h1>
+<p style="color:#888;font-size:0.88rem;margin-bottom:1rem;">共 <strong>16</strong> 道题 · 单选题7 + 填空题3 + 简答题3 + 计算题2 + 编程题1</p>
+
+<button id="toggle-all" class="btn" onclick="toggleAll()" style="margin-bottom:0.5rem;">显示全部答案</button>
+
+<!-- ===== PART 1: 选择题 ===== -->
+<h2>一、选择题（7题）</h2>
+
+<div class="question" id="q1">
+  <div class="q-title">1. 在机器学习三要素中，使用"梯度下降法"求解逻辑回归的参数属于哪一个要素？<span style="color:#888;font-size:0.85rem;">（课堂原题）</span></div>
+  <div class="q-options">
+    <div>A. 模型</div>
+    <div>B. 算法</div>
+    <div>C. 特征</div>
+    <div>D. 策略</div>
+  </div>
+  <button id="btn-ans1" class="btn toggle-btn" onclick="toggleAnswer('ans1')">显示答案</button>
+  <div class="answer-block" id="ans1">
+    <span class="answer-label">答案：B</span>
+    <div class="detail">三要素中：模型指定假设空间（如逻辑回归函数形式），策略定义损失函数（如对数似然损失），<strong>算法</strong>指定如何求解最优参数（如梯度下降法）。</div>
+  </div>
+</div>
+
+<div class="question" id="q2">
+  <div class="q-title">2. 在模型选择中，如果模型在训练集上表现极好，但在测试集上表现很差，这种现象通常称为什么？<span style="color:#888;font-size:0.85rem;">（课堂原题）</span></div>
+  <div class="q-options">
+    <div>A. 欠拟合</div>
+    <div>B. 过拟合</div>
+  </div>
+  <button id="btn-ans2" class="btn toggle-btn" onclick="toggleAnswer('ans2')">显示答案</button>
+  <div class="answer-block" id="ans2">
+    <span class="answer-label">答案：B. 过拟合</span>
+    <div class="detail">过拟合：训练误差低但泛化能力差（测试误差高），模型过度学习了训练数据中的噪声。</div>
+  </div>
+</div>
+
+<div class="question" id="q3">
+  <div class="q-title">3. 在二分类问题中，如果一个模型将所有样本都预测为正例，那么该模型的哪个指标一定很高？<span style="color:#888;font-size:0.85rem;">（课堂原题）</span></div>
+  <div class="q-options">
+    <div>A. 查全率 (Recall)</div>
+    <div>B. 查准率 (Precision)</div>
+    <div>C. F1</div>
+  </div>
+  <button id="btn-ans3" class="btn toggle-btn" onclick="toggleAnswer('ans3')">显示答案</button>
+  <div class="answer-block" id="ans3">
+    <span class="answer-label">答案：A. 查全率</span>
+    <div class="detail">全部预测为正例时，FN=0，所以 Recall = TP/(TP+FN) = 1。但 FP 很大，Precision = TP/(TP+FP) 很低。</div>
+  </div>
+</div>
+
+<div class="question" id="q4">
+  <div class="q-title">4. 以下关于查准率 (Precision) 和查全率 (Recall) 的说法，<strong>错误的是</strong>：</div>
+  <div class="q-options">
+    <div>A. 查准率和查全率是一对矛盾的度量</div>
+    <div>B. F1值是查准率和查全率的调和平均</div>
+    <div>C. F<sub>β</sub> 中 β > 1 表示查准率有更大影响</div>
+    <div>D. P-R曲线完全被包住时，被包住的学习器性能更差</div>
+  </div>
+  <button id="btn-ans4" class="btn toggle-btn" onclick="toggleAnswer('ans4')">显示答案</button>
+  <div class="answer-block" id="ans4">
+    <span class="answer-label">答案：C</span>
+    <div class="detail">F<sub>β</sub> 中 β > 1 表示<strong>查全率 (Recall)</strong> 有更大影响（如逃犯检索）；β < 1 才是查准率有更大影响（如商品推荐）。</div>
+  </div>
+</div>
+
+<div class="question" id="q5">
+  <div class="q-title">5. 自助法 (Bootstrap) 中，训练集和原始数据集D规模相同，但约有___的样本不会出现在训练集中：</div>
+  <div class="q-options">
+    <div>A. 50%</div>
+    <div>B. 25%</div>
+    <div>C. 36.8%</div>
+    <div>D. 10%</div>
+  </div>
+  <button id="btn-ans5" class="btn toggle-btn" onclick="toggleAnswer('ans5')">显示答案</button>
+  <div class="answer-block" id="ans5">
+    <span class="answer-label">答案：C. 36.8%</span>
+    <div class="detail">推导：每次不被抽到的概率为 (1-1/m)，m次后 $(1-1/m)^m \to 1/e \approx 0.368$。</div>
+  </div>
+</div>
+
+<div class="question" id="q6">
+  <div class="q-title">6. 下列哪个是留一法 (Leave-One-Out) 的正确描述？</div>
+  <div class="q-options">
+    <div>A. 将数据集分为两部分，一部分训练，一部分测试</div>
+    <div>B. k折交叉验证中 k=N 时的特殊情况</div>
+    <div>C. 有放回地抽取样本构成训练集</div>
+    <div>D. 训练集和测试集按 4:1 划分</div>
+  </div>
+  <button id="btn-ans6" class="btn toggle-btn" onclick="toggleAnswer('ans6')">显示答案</button>
+  <div class="answer-block" id="ans6">
+    <span class="answer-label">答案：B</span>
+    <div class="detail">留一法是k折交叉验证的特例（k=N），每次留一个样本作测试，其余用于训练，评估准确但计算复杂度高。</div>
+  </div>
+</div>
+
+<div class="question" id="q7">
+  <div class="q-title">7. 关于AUC，以下说法正确的是：</div>
+  <div class="q-options">
+    <div>A. AUC = 0.8 说明模型优于随机猜测，有预测价值</div>
+    <div>B. AUC = 0.4 比 AUC = 0.5 的模型更差，且无法改善</div>
+    <div>C. AUC 值越大一定说明分类效果越好</div>
+    <div>D. AUC = 0.5 表示模型分类完全正确</div>
+  </div>
+  <button id="btn-ans7" class="btn toggle-btn" onclick="toggleAnswer('ans7')">显示答案</button>
+  <div class="answer-block" id="ans7">
+    <span class="answer-label">答案：A</span>
+    <div class="detail">A：正确，0.5 < AUC < 1 优于随机；B：错误，AUC < 0.5 反着预测即可优于随机；C：AUC在不同问题间不可直接比较绝对大小；D：错误，AUC = 0.5 等同于随机猜测。</div>
+  </div>
+</div>
+
+<!-- ===== PART 2: 填空题 ===== -->
+<h2>二、填空题（3题）</h2>
+
+<div class="question" id="f1">
+  <div class="q-title">8. 泛化误差可分解为三项之和：$\text{泛化误差} = \text{Bias}^2 + \text{Var} + \boxed{\qquad}$</div>
+  <button id="btn-ans8" class="btn toggle-btn" onclick="toggleAnswer('ans8')">显示答案</button>
+  <div class="answer-block" id="ans8">
+    <span class="answer-label">答案：$\sigma^2$（不可约误差/噪声方差）</span>
+    <div class="detail">$\mathbb{E}[(Y-\hat{f})^2] = \text{Bias}^2 + \text{Var} + \sigma^2$。前两项可通过改进模型控制，$\sigma^2$ 是数据固有的随机误差，任何模型都无法消除。</div>
+  </div>
+</div>
+
+<div class="question" id="f2">
+  <div class="q-title">9. 结构风险由经验风险和正则化项构成：$R_{\text{struct}}(f) = R_{\text{emp}}(f) + \boxed{\qquad}$，其中调节参数用 $\boxed{\qquad}$ 表示。</div>
+  <button id="btn-ans9" class="btn toggle-btn" onclick="toggleAnswer('ans9')">显示答案</button>
+  <div class="answer-block" id="ans9">
+    <span class="answer-label">答案：$\lambda \cdot J(f)$；$\lambda$</span>
+    <div class="detail">$J(f)$ 衡量模型复杂度，$\lambda$ 是调节参数 (tuning parameter)，用于权衡经验风险和模型复杂度。</div>
+  </div>
+</div>
+
+<div class="question" id="f3">
+  <div class="q-title">10. 混淆矩阵中，TP表示真实为<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>且预测为<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>的样本数；FP表示真实为<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>且预测为<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>的样本数。</div>
+  <button id="btn-ans10" class="btn toggle-btn" onclick="toggleAnswer('ans10')">显示答案</button>
+  <div class="answer-block" id="ans10">
+    <span class="answer-label">答案：正例/正例(Positive/Positive)；负例/正例(Negative/Positive)</span>
+    <div class="detail">P=正例（好西瓜），N=负例（坏西瓜）。T=预测正确，F=预测错误。TP：正确标记为正；FP：错误标记为正。</div>
+  </div>
+</div>
+
+<!-- ===== PART 3: 简答题 ===== -->
+<h2>三、简答题（3题）</h2>
+
+<div class="question" id="s1">
+  <div class="q-title">11. 简述留出法、k折交叉验证法和自助法三者的区别与适用场景。</div>
+  <button id="btn-ans11" class="btn toggle-btn" onclick="toggleAnswer('ans11')">显示答案</button>
+  <div class="answer-block" id="ans11">
+    <span class="answer-label">答案要点：</span>
+    <div class="detail">
+      <ol>
+        <li><strong>留出法</strong>：直接将数据划分为训练/测试集，最简单。适用于<strong>样本量大</strong>的情形。缺点是评估结果受划分方式影响大。</li>
+        <li><strong>k折交叉验证</strong>：将数据分k份，轮换k次训练/测试取均值。评估更稳定可靠，但计算量比留出法大k倍。适用于<strong>中等规模数据</strong>。</li>
+        <li><strong>自助法</strong>：有放回抽样，约36.8%样本作测试集。适用于<strong>数据集较小</strong>的情况。但改变了数据分布，训练样本充足时不推荐。</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="question" id="s2">
+  <div class="q-title">12. 从偏差-方差分解的角度解释：为什么增加训练样本数量可以有效缓解过拟合，但对欠拟合帮助不大？</div>
+  <button id="btn-ans12" class="btn toggle-btn" onclick="toggleAnswer('ans12')">显示答案</button>
+  <div class="answer-block" id="ans12">
+    <span class="answer-label">答案要点：</span>
+    <div class="detail">
+      <p><strong>过拟合 (High Variance)</strong>：模型方差大，即不同训练集导致模型预测波动剧烈。增加样本量可以稳定模型估计，降低方差 → 有效。</p>
+      <p><strong>欠拟合 (High Bias)</strong>：模型偏差大，即模型本身的拟合能力不足以捕捉数据规律（如用线性模型拟合非线性数据）。偏差来源于模型结构限制，不随样本量增加而减小 → 帮助不大。需要增加模型复杂度或引入更多特征。</p>
+      <p>直观理解：给一个近视的人（低复杂度模型）看再多数据，他也看不清远处的细节（高偏差）。</p>
+    </div>
+  </div>
+</div>
+
+<div class="question" id="s3">
+  <div class="q-title">13. 岭回归的偏差-方差分解中，$\lambda$ 对偏差和方差分别有何影响？为什么岭回归可能获得比最小二乘更低的预测误差？</div>
+  <button id="btn-ans13" class="btn toggle-btn" onclick="toggleAnswer('ans13')">显示答案</button>
+  <div class="answer-block" id="ans13">
+    <span class="answer-label">答案要点：</span>
+    <div class="detail">
+      <p>$\lambda$ 增大 → 系数向零压缩 → <strong>偏差增大，方差降低</strong>。</p>
+      <p>$\lambda$ 减小 → 趋近最小二乘 → <strong>偏差减小（趋于0），方差增大</strong>。</p>
+      <p>岭回归可能获得更低预测误差的原因：虽然引入了偏差，但如果方差降低的幅度大于偏差平方增加的幅度，总预测误差 $\text{Bias}^2 + \text{Var}$ 会低于最小二乘（无偏但方差大）。这就是<strong>"以偏差换方差"</strong>的策略。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 4: 计算题 ===== -->
+<h2>四、计算题（2题）</h2>
+
+<div class="question" id="c1">
+  <div class="q-title">14. 某二分类模型的测试结果混淆矩阵如下。请计算：准确率 (Accuracy)、查准率 (Precision)、查全率 (Recall)、F1值。</div>
+  <div class="calc-box">
+    <table style="width:60%">
+      <tr><th></th><th>预测为正</th><th>预测为负</th></tr>
+      <tr><td>真实为正</td><td>TP = 80</td><td>FN = 20</td></tr>
+      <tr><td>真实为负</td><td>FP = 30</td><td>TN = 70</td></tr>
+    </table>
+  </div>
+  <button id="btn-ans14" class="btn toggle-btn" onclick="toggleAnswer('ans14')">显示答案</button>
+  <div class="answer-block" id="ans14">
+    <span class="answer-label">答案：</span>
+    <div class="detail">
+      <p>总样本 = 80 + 20 + 30 + 70 = <strong>200</strong></p>
+      <p>准确率 Accuracy = (80+70)/200 = <strong>75%</strong></p>
+      <p>查准率 Precision = 80/(80+30) = 80/110 ≈ <strong>72.7%</strong></p>
+      <p>查全率 Recall = 80/(80+20) = 80/100 = <strong>80%</strong></p>
+      <p>F1 = 2 × 0.727 × 0.8 / (0.727 + 0.8) = 1.1632 / 1.527 ≈ <strong>0.762</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="question" id="c2">
+  <div class="q-title">15. 某在线问卷调查场景：向1000人邮寄问卷，baseline回收率为20%（即200人回复）。利用模型筛选出100人，其中60人回复。请计算Lift提升度。</div>
+  <button id="btn-ans15" class="btn toggle-btn" onclick="toggleAnswer('ans15')">显示答案</button>
+  <div class="answer-block" id="ans15">
+    <span class="answer-label">答案：Lift = 3</span>
+    <div class="detail">
+      <p>正例基线比例 (baseline) = 200/1000 = <strong>20%</strong></p>
+      <p>模型预测正例的准确率 = 60/100 = <strong>60%</strong></p>
+      <p>Lift = 60% / 20% = <strong>3</strong></p>
+      <p>含义：运用模型后效果提升了<strong>3倍</strong>。Lift > 1 说明模型有效。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 5: 代码分析题 ===== -->
+<h2>五、代码分析题（1题，12分）</h2>
+
+<div class="question" id="p1">
+  <div class="q-title">16. 阅读以下R语言代码，回答问题：</div>
+  <button id="btn-ans16" class="btn toggle-btn" onclick="toggleAnswer('ans16')">显示答案</button>
+  <div class="answer-block" id="ans16">
+    <span class="answer-label">参考答案：</span>
+    <div class="detail">
+<pre>library(caret)
+library(e1071)
+
+# 设置10折交叉验证
+ctrl <- trainControl(method = "cv", number = 10)
+
+# 训练逻辑回归模型
+model <- train(Species ~ ., data = iris,
+               method = "glm",
+               trControl = ctrl)
+
+print(model)
+print(model$results)</pre>
+      <p><strong>(1) <code>method = "cv", number = 10</code> 的含义是什么？这样设置后模型训练过程是如何进行的？（4分）</strong></p>
+      <p><code>method = "cv"</code> 表示采用<strong>交叉验证</strong>（Cross-Validation），<code>number = 10</code> 表示进行<strong>10折交叉验证</strong>。训练过程：将训练数据随机等分为10份，每次用9份训练、1份验证，轮换10次，最终取10次验证结果的平均值作为模型性能估计。</p>
+      <p><strong>(2) <code>Species ~ .</code> 公式的含义是什么？<code>.</code> 代表什么？（4分）</strong></p>
+      <p><code>Species ~ .</code> 表示以<strong>Species</strong>为响应变量（目标变量），以数据框中<strong>所有其他列</strong>为预测变量。<code>.</code> 是R公式中的简写符号，代表"除响应变量外的全部变量"。等价于 <code>Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width</code>。</p>
+      <p><strong>(3) <code>model$results</code> 会输出什么内容？其中哪个参数反映了交叉验证的效果？（4分）</strong></p>
+      <p><code>model$results</code> 输出模型的<strong>交叉验证详细结果</strong>，包括每个超参数组合下的Accuracy、Kappa等指标。对于 glm 方法，由于无超参数需要调优，它会显示单行结果。Accuracy 列反映了交叉验证对模型预测准确率的估计，是评估模型泛化能力的关键指标。</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div style="text-align:center;color:#888;font-size:0.85rem;padding:2rem 0 0;">
+  <p>章节测试 · 第2讲 模型评估与选择 · 期末复习专用</p>
+  <p>点击每题下方的「显示答案」按钮查看答案与解析</p>
+</div>
+
+</body>
+</html>

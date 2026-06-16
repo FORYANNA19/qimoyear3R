@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7讲 章节测试 — 集成学习：AdaBoost</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#f0f2f5;color:#212121;line-height:1.7;}
+.container{max-width:860px;margin:0 auto;padding:20px;}
+.header{background:linear-gradient(135deg,#00695c,#00897b);color:#fff;padding:24px 32px;border-radius:12px;margin-bottom:20px;}
+.header h1{font-size:24px;}
+.header .sub{font-size:13px;opacity:.85;margin-top:4px;}
+.card{background:#fff;border-radius:10px;padding:24px 28px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.card h2{font-size:19px;color:#00695c;border-bottom:2px solid #00695c;padding-bottom:8px;margin-bottom:16px;}
+.q{margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed #ddd;}
+.q:last-child{border-bottom:none;}
+.q p{font-size:15px;margin-bottom:8px;}
+.q ol,.q ul{padding-left:22px;margin:6px 0;}
+.q ol li,.q ul li{font-size:14px;margin:3px 0;}
+.q label{display:block;font-size:14px;margin:2px 0;cursor:pointer;padding:2px 8px;border-radius:4px;}
+.q label:hover{background:#e0f2f1;}
+.btn{margin-top:8px;padding:6px 18px;border:1px solid #00695c;background:#fff;color:#00695c;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;}
+.btn:hover{background:#00695c;color:#fff;}
+.ans{display:none;background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px 16px;margin-top:8px;border-radius:0 6px 6px 0;font-size:14px;}
+.ans.show{display:block;}
+.ans p{margin:4px 0;}
+.feedback{font-size:13px;margin-top:6px;font-weight:600;}
+.feedback.correct{color:#2e7d32;}
+.feedback.wrong{color:#c62828;}
+pre{background:#263238;color:#a5d6a7;padding:14px 18px;border-radius:6px;font-size:13px;overflow-x:auto;margin:8px 0;}
+code{font-family:"Consolas","Courier New",monospace;}
+.fill-blank{display:inline-block;border-bottom:2px solid #00695c;min-width:80px;text-align:center;margin:0 4px;padding:0 8px;color:transparent;cursor:pointer;}
+.fill-blank.revealed{color:#c62828;}
+.score-bar{display:flex;gap:6px;margin:12px 0;}
+.tag-t{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.tag-choice{background:#bbdefb;color:#1565c0;}
+.tag-fill{background:#c8e6c9;color:#2e7d32;}
+.tag-short{background:#ffe0b2;color:#e65100;}
+.tag-calc{background:#f8bbd0;color:#880e4f;}
+.tag-code{background:#d1c4e9;color:#4a148c;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>第7讲 章节测试</h1>
+  <div class="sub">集成学习：AdaBoost 算法 | 共 10 题</div>
+  <div class="score-bar">
+    <span class="tag-t tag-choice">选择题 ×4</span>
+    <span class="tag-t tag-fill">填空题 ×2</span>
+    <span class="tag-t tag-short">简答题 ×2</span>
+    <span class="tag-t tag-calc">计算题 ×1</span>
+    <span class="tag-t tag-code">代码题 ×1</span>
+  </div>
+</div>
+
+<!-- ==================== 选择题 ==================== -->
+<div class="card">
+  <h2>一、单项选择题（每题5分，共20分）</h2>
+
+  <!-- Q1 -->
+  <div class="q">
+    <p><strong>1.</strong> AdaBoost 中，弱分类器权重系数 α<sub>m</sub> 的计算公式为：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c1"> α<sub>m</sub> = ε<sub>m</sub> / (1-ε<sub>m</sub>)</label></li>
+      <li><label><input type="radio" name="c1"> α<sub>m</sub> = ln((1+ε<sub>m</sub>)/(1-ε<sub>m</sub>))</label></li>
+      <li><label><input type="radio" name="c1"> α<sub>m</sub> = ½ ln((1-ε<sub>m</sub>)/ε<sub>m</sub>)</label></li>
+      <li><label><input type="radio" name="c1"> α<sub>m</sub> = ln(ε<sub>m</sub>/(1-ε<sub>m</sub>))</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c1-a')">显示答案</button>
+    <div id="c1-a" class="ans"><p><strong>答案：C</strong></p><p>α<sub>m</sub> = ½ ln((1-ε<sub>m</sub>)/ε<sub>m</sub>)，其中 ε<sub>m</sub> 为加权分类误差率。</p></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q">
+    <p><strong>2.</strong> 下列关于 AdaBoost 的说法，<em>错误</em>的是：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c2"> AdaBoost 通过增加被错分样本的权重来提升模型</label></li>
+      <li><label><input type="radio" name="c2"> AdaBoost 的各弱分类器是串行生成的</label></li>
+      <li><label><input type="radio" name="c2"> AdaBoost 采用 Bootstrap 重采样来改变训练集分布</label></li>
+      <li><label><input type="radio" name="c2"> AdaBoost 优化的损失函数是指数损失</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c2-a')">显示答案</button>
+    <div id="c2-a" class="ans"><p><strong>答案：C</strong></p><p>AdaBoost 不采用 Bootstrap 重采样，而是直接调整样本权重。Bootstrap 是 Bagging/Random Forest 的做法。</p></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q">
+    <p><strong>3.</strong> 若某个弱分类器在训练集上的加权错误率 ε = 0.5（二分类问题），则：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c3"> α = 1，该分类器权重最高</label></li>
+      <li><label><input type="radio" name="c3"> α = 0，该分类器不提供任何有用信息</label></li>
+      <li><label><input type="radio" name="c3"> α = -1，该分类器起反作用</label></li>
+      <li><label><input type="radio" name="c3"> α = 0.5，该分类器权重适中</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c3-a')">显示答案</button>
+    <div id="c3-a" class="ans"><p><strong>答案：B</strong></p><p>α = ½ ln(0.5/0.5) = 0。ε=0.5 意味着分类器如同随机猜测，没有学习到任何信息。</p></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q">
+    <p><strong>4.</strong> AdaBoost 与随机森林最大的区别在于：</p>
+    <ol type="A">
+      <li><label><input type="radio" name="c4"> 随机森林是 Boosting，AdaBoost 是 Bagging</label></li>
+      <li><label><input type="radio" name="c4"> 随机森林并行训练，AdaBoost 串行训练</label></li>
+      <li><label><input type="radio" name="c4"> 随机森林改变样本权重，AdaBoost 改变样本分布</label></li>
+      <li><label><input type="radio" name="c4"> 随机森林只能做分类，AdaBoost 只能做回归</label></li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'c4-a')">显示答案</button>
+    <div id="c4-a" class="ans"><p><strong>答案：B</strong></p><p>随机森林各树可以并行训练（无依赖），AdaBoost 后一轮依赖前一轮结果（串行）。</p></div>
+  </div>
+
+  
+</div>
+
+<!-- ==================== 填空题 ==================== -->
+<div class="card">
+  <h2>二、填空题（每题5分，共10分）</h2>
+
+  <div class="q">
+    <p><strong>1.</strong> AdaBoost 算法中，第 m 轮的分类器权重 α<sub>m</sub> 与误差率 ε<sub>m</sub> 呈 <span class="fill-blank" onclick="this.classList.toggle('revealed')">负相关</span> 关系，ε<sub>m</sub> 越<span class="fill-blank" onclick="this.classList.toggle('revealed')">小</span>，α<sub>m</sub> 越<span class="fill-blank" onclick="this.classList.toggle('revealed')">大</span>。</p>
+    <button class="btn" onclick="toggleAns(this,'f1-a')">显示答案</button>
+    <div id="f1-a" class="ans"><p>答：负相关；小；大。α = ½ ln((1-ε)/ε) 是 ε 的单调递减函数。</p></div>
+  </div>
+
+  <div class="q">
+    <p><strong>2.</strong> AdaBoost 优化的损失函数是 <span class="fill-blank" onclick="this.classList.toggle('revealed')">指数损失</span>，其数学形式为 L(y, f(x)) = <span class="fill-blank" onclick="this.classList.toggle('revealed')">exp(-y·f(x))</span>。</p>
+    <button class="btn" onclick="toggleAns(this,'f2-a')">显示答案</button>
+    <div id="f2-a" class="ans"><p>答：指数损失 (Exponential Loss)；exp(-y·f(x))。</p></div>
+  </div>
+
+
+</div>
+
+<!-- ==================== 简答题 ==================== -->
+<div class="card">
+  <h2>三、简答题（每题10分，共20分）</h2>
+
+  <div class="q">
+    <p><strong>1.</strong> 简述 Bagging（如随机森林）与 Boosting（如 AdaBoost）在<strong>训练方式、样本处理、组合方式和优化目标</strong>四个方面的主要区别。</p>
+    <button class="btn" onclick="toggleAns(this,'s1-a')">显示答案</button>
+    <div id="s1-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <ul>
+        <li><strong>训练方式：</strong>Bagging 是并行训练（各分类器独立无依赖）；Boosting 是串行训练（后一个依赖前一个）。</li>
+        <li><strong>样本处理：</strong>Bagging 使用 Bootstrap 有放回抽样生成不同训练子集；AdaBoost 不重抽样，而是调整样本权重。梯度提升树 使用全部样本但拟合残差/负梯度。</li>
+        <li><strong>组合方式：</strong>Bagging 采用简单平均（回归）或多数投票（分类）；Boosting 采用加权投票（AdaBoost）或累加（梯度提升树）。</li>
+        <li><strong>优化目标：</strong>Bagging 主要降低方差（Variance）；Boosting 主要降低偏差（Bias）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q">
+    <p><strong>2.</strong> 简述 AdaBoost 与前向分步加法模型（Forward Stagewise Additive Modeling）之间的关系。</p>
+    <button class="btn" onclick="toggleAns(this,'s2-a')">显示答案</button>
+    <div id="s2-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <p>AdaBoost 可以从前向分步加法模型的角度重新解释：</p>
+      <ul>
+        <li><strong>加法模型：</strong>f(x) = Σ<sub>m</sub> α<sub>m</sub> · G<sub>m</sub>(x)，即多个基函数的线性组合。</li>
+        <li><strong>损失函数：</strong>采用指数损失 L(y, f(x)) = exp(-y · f(x))。</li>
+        <li><strong>前向分步：</strong>每次只优化当前步的 (α<sub>m</sub>, G<sub>m</sub>)，不回溯调整之前已确定的参数。</li>
+        <li><strong>推导等价：</strong>在指数损失下，前向分步算法的每一步更新恰好等价于 AdaBoost 的权重更新规则，证明了 AdaBoost 本质上是加法模型配合指数损失的前向分步优化。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 计算题 ==================== -->
+<div class="card">
+  <h2>四、计算题（15分）</h2>
+
+  <div class="q">
+    <p><strong>题目：</strong>某二分类问题有 5 个训练样本，初始权重均为 0.2。第 1 轮迭代后，弱分类器 G<sub>1</sub>(x) 正确分类了前 4 个样本，误分类了第 5 个样本。请计算：</p>
+    <ol>
+      <li>第 1 轮的加权分类误差率 ε<sub>1</sub></li>
+      <li>该分类器的权重系数 α<sub>1</sub></li>
+      <li>第 5 个样本在第 2 轮的权重（未经归一化前）</li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this,'calc-a')">显示解答</button>
+    <div id="calc-a" class="ans">
+      <p><strong>解答过程：</strong></p>
+      <p>(1) <strong>ε<sub>1</sub> = 0.2</strong>（只有第5个样本被误分类，其权重为0.2）</p>
+      <p>(2) α<sub>1</sub> = ½ ln((1-0.2)/0.2) = ½ ln(4) = ½ × 1.3863 = <strong>0.6931</strong></p>
+      <p>(3) 第5个样本被误分类，设 y<sub>5</sub> = +1, G<sub>1</sub>(x<sub>5</sub>) = -1（或反过来），则 y<sub>5</sub> · G<sub>1</sub>(x<sub>5</sub>) = -1。</p>
+      <p>更新前权重 w<sub>1,5</sub> = 0.2，更新后（未归一化）：</p>
+      <p>w<sub>2,5</sub> = 0.2 × exp(-0.6931 × (-1)) = 0.2 × exp(0.6931) = 0.2 × 2 = <strong>0.4</strong></p>
+      <p>正确分类的前4个样本（未归一化）：0.2 × exp(-0.6931) = 0.2 × 0.5 = 0.1</p>
+      <p>归一化因子 Z<sub>1</sub> = 4×0.1 + 0.4 = 0.8，归一化后第5个样本权重 = 0.4/0.8 = <strong>0.5</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 代码分析题 ==================== -->
+<div class="card">
+  <h2>五、代码分析题（12分）</h2>
+
+  <div class="q">
+    <p><strong>题目：</strong>阅读以下R语言代码，回答问题。</p>
+    <pre><code>library(adabag)
+library(rpart)
+
+# 加载数据
+data(iris)
+
+# 二分类设定：仅取两类
+iris2 <- iris[iris$Species != "virginica", ]
+iris2$Species <- factor(iris2$Species)
+
+# AdaBoost训练
+set.seed(123)
+model <- boosting(Species ~ ., data = iris2,
+                  mfinal = 50,
+                  coeflearn = "Breiman",
+                  control = rpart.control(maxdepth = 1))
+
+print(names(model))
+print(model$importance)
+
+# 预测
+pred <- predict.boosting(model, newdata = iris2)
+print(table(pred$class, iris2$Species))
+
+# 查看第10轮的分类器权重
+print(paste("第10个弱分类器权重:", model$weights[10]))</code></pre>
+    <p><strong>问题：</strong></p>
+    <ol>
+      <li><code>mfinal = 50</code> 的含义是什么？增大 mfinal 对模型有什么影响？（4分）</li>
+      <li><code>rpart.control(maxdepth = 1)</code> 为什么将深度设为1？这对应AdaBoost中的什么概念？（4分）</li>
+      <li><code>model$weights</code> 向量存储了什么？它的数值范围有什么特点？（4分）</li>
+    </ol>
+    <button class="btn" onclick="toggleAns(this, 'code-a')">显示答案</button>
+    <div id="code-a" class="ans">
+      <p><strong>参考答案：</strong></p>
+      <p><strong>(1) </strong><code>mfinal = 50</code> 表示进行<strong>50轮迭代</strong>，训练50个弱分类器。增大 mfinal 意味着更多轮Boosting，通常可以进一步<strong>降低偏差</strong>（纠错机会增多），但计算时间增加且可能过拟合（当弱分类器开始拟合噪声时）。AdaBoost的轮数相当于集成中的弱学习器个数。</p>
+      <p><strong>(2) </strong><code>maxdepth = 1</code> 将每棵决策树限制为<strong>决策树桩（Decision Stump）</strong>——只分裂一次即停止。这对应AdaBoost中<strong>弱分类器</strong>的概念：每个基分类器只需比随机猜测略好即可（弱学习器）。使用深度为1的树是最常见的弱分类器选择，因为它结构简单、方差小。</p>
+      <p><strong>(3) </strong><code>model$weights</code> 存储每个弱分类器在最终集成中的<strong>投票权重 α<sub>m</sub></strong>，共50个值。权重 α = ½ ln((1-ε)/ε)，其中 ε 是该轮加权误分类率。特点：误差率越小的分类器权重<strong>越大</strong>（贡献越大）；若 ε = 0.5（随机猜测），α = 0；若 ε → 0，α → +∞。</p>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function toggleAns(btn, id) {
+  var el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.textContent = '显示答案';
+  } else {
+    el.classList.add('show');
+    btn.textContent = '隐藏答案';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12讲 章节测试 — 支持向量机</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root {
+    --primary: #1a237e; --success: #2e7d32; --danger: #c62828;
+    --bg: #f5f5f5; --card: #fff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:#333; line-height:1.7; }
+  .header {
+    background:linear-gradient(135deg, #1a237e, #283593); color:#fff;
+    padding:16px 28px; font-size:20px; font-weight:700;
+    display:flex; align-items:center; gap:10px;
+  }
+  .container { max-width:900px; margin:0 auto; padding:20px 16px; }
+  .section-title {
+    font-size:18px; font-weight:700; color:var(--primary);
+    margin:28px 0 12px; padding-bottom:6px;
+    border-bottom:3px solid var(--primary);
+  }
+  .q-card {
+    background:var(--card); border-radius:8px; border:1px solid #e0e0e0;
+    margin-bottom:14px; padding:16px 20px;
+  }
+  .q-card:hover { box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+  .q-num { display:inline-block; background:var(--primary); color:#fff; border-radius:50%; width:28px; height:28px; text-align:center; line-height:28px; font-size:14px; font-weight:700; margin-right:8px; }
+  .q-stem { font-weight:600; display:inline; }
+  .q-type { font-size:11px; color:var(--danger); font-weight:600; margin-left:4px; }
+
+  .opts { margin:10px 0 6px 36px; }
+  .opts label { display:block; padding:6px 10px; margin:2px 0; border-radius:6px; cursor:pointer; transition: background 0.15s; }
+  .opts label:hover { background:#e8eaf6; }
+  .opts input[type="radio"] { margin-right:8px; }
+
+  .fill-input { width:100%; max-width:500px; padding:8px 12px; border:2px solid #c5cae9; border-radius:6px; font-size:14px; font-family:inherit; margin:8px 0 0 36px; }
+  .fill-input:focus { border-color:var(--primary); outline:none; }
+
+  .short-area { width:100%; max-width:600px; min-height:80px; padding:10px 12px; border:2px solid #c5cae9; border-radius:6px; font-size:14px; font-family:inherit; margin:8px 0 0 36px; resize:vertical; }
+  .short-area:focus { border-color:var(--primary); outline:none; }
+
+  .code-block { background:#263238; color:#eeffff; padding:14px 18px; border-radius:6px; font-family:Consolas,monospace; font-size:13px; margin:10px 0 6px 36px; overflow-x:auto; white-space:pre; }
+
+  .btn-show { display:inline-block; margin:8px 0 4px 36px; padding:6px 20px; background:var(--primary); color:#fff; border:none; border-radius:20px; font-size:13px; cursor:pointer; font-weight:600; }
+  .btn-show:hover { background:#283593; }
+
+  .answer-box { display:none; margin:10px 0 4px 36px; padding:12px 16px; background:#e8f5e9; border-left:4px solid var(--success); border-radius:0 8px 8px 0; font-size:14px; }
+  .answer-box.show { display:block; }
+  .answer-box.correct { background:#e8f5e9; border-left-color:var(--success); }
+  .answer-box.info { background:#e3f2fd; border-left-color:#1976d2; }
+
+  .score-board {
+    background:linear-gradient(135deg, var(--primary), #3949ab); color:#fff;
+    border-radius:12px; padding:20px 28px; margin-bottom:24px; text-align:center;
+  }
+  .score-board h3 { font-size:24px; margin-bottom:4px; }
+  .score-board p { opacity:0.8; font-size:14px; }
+
+  .stat-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+  .stat-item { background:var(--card); color:#333; border-radius:8px; padding:14px 20px; text-align:center; min-width:90px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+  .stat-item .count { font-size:26px; font-weight:700; color:var(--primary); }
+  .stat-item .label { font-size:12px; color:#666; }
+
+  hr { margin:20px 0; border:none; border-top:1px solid #e0e0e0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  📝 第12讲 章节测试 — 支持向量机 支持向量机
+</div>
+
+<div class="container">
+
+<div class="score-board">
+  <h3>支持向量机 章节自测</h3>
+  <p>共 5 题型 · 13 题 · 满分 100 分 | 时间 45 分钟</p>
+  <div class="stat-row">
+    <div class="stat-item"><div class="count">6</div><div class="label">选择题</div></div>
+    <div class="stat-item"><div class="count">3</div><div class="label">填空题</div></div>
+    <div class="stat-item"><div class="count">2</div><div class="label">简答题</div></div>
+    <div class="stat-item"><div class="count">1</div><div class="label">计算题</div></div>
+    <div class="stat-item"><div class="count">1</div><div class="label">编程题</div></div>
+  </div>
+</div>
+
+<!-- ===================== SECTION: 选择题 ===================== -->
+<h2 class="section-title">一、选择题（每题 5 分，共 30 分）</h2>
+
+<!-- Q1 -->
+<div class="q-card">
+  <span class="q-num">1</span><span class="q-stem">支持向量机 的核心目标是寻找一个超平面，该超平面满足什么条件？</span>
+  <div class="opts">
+    <label><input type="radio" name="q1" value="A"> A. 最小化所有样本点到超平面的距离之和</label>
+    <label><input type="radio" name="q1" value="B"> B. 将所有样本点完全正确地分类，且不考虑间隔</label>
+    <label><input type="radio" name="q1" value="C"> C. 在正确分类的前提下，最大化离超平面最近的样本点到该平面的距离（Margin）</label>
+    <label><input type="radio" name="q1" value="D"> D. 最小化特征空间的维度</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：C</strong><br>解析：支持向量机 的基本思想是求解能正确划分训练数据集且使得几何间隔最大的分离超平面。Margin 为 \(2/\|w\|\)，最大化间隔等价于最小化 \(\|w\|^2/2\)。</div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card">
+  <span class="q-num">2</span><span class="q-stem">在训练 支持向量机 之前，对数据进行特征缩放（如标准化）是否必要？</span>
+  <div class="opts">
+    <label><input type="radio" name="q2" value="A"> A. 非常必要。支持向量机 依赖距离度量，量纲不一会导致模型偏向于取值范围大的特征</label>
+    <label><input type="radio" name="q2" value="B"> B. 不必要。支持向量机 具有缩放不变性</label>
+    <label><input type="radio" name="q2" value="C"> C. 仅在使用线性核时需要</label>
+    <label><input type="radio" name="q2" value="D"> D. 仅在样本量 N&lt;1000 时需要</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：A</strong><br>解析：支持向量机 的目标函数涉及距离/内积计算，量纲不一会导致模型偏向于取值范围大的特征，因此标准化非常必要，无论是线性核还是高斯核。</div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card">
+  <span class="q-num">3</span><span class="q-stem">在线性可分 支持向量机 中，最终决定分类超平面的参数 w 和 b 仅取决于：</span>
+  <div class="opts">
+    <label><input type="radio" name="q3" value="A"> A. 训练集中的所有样本点</label>
+    <label><input type="radio" name="q3" value="B"> B. 训练集中的异常值（Outliers）</label>
+    <label><input type="radio" name="q3" value="C"> C. 训练集中的支持向量（Support Vectors）</label>
+    <label><input type="radio" name="q3" value="D"> D. 训练集中类别数量较少的那一类样本</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：C</strong><br>解析：\(w^* = \sum \alpha_i^* y_i x_i\)，只有 \(\alpha_i > 0\) 的样本（即支持向量）对 w 有贡献。移动或去掉非支持向量不影响最优解。</div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card">
+  <span class="q-num">4</span><span class="q-stem">在 支持向量机 对偶问题中，如果一个样本点的拉格朗日乘子 \(\alpha_i = 0\)，这意味着：</span>
+  <div class="opts">
+    <label><input type="radio" name="q4" value="A"> A. 该点是支持向量</label>
+    <label><input type="radio" name="q4" value="B"> B. 该点对最终的超平面决策没有任何贡献</label>
+    <label><input type="radio" name="q4" value="C"> C. 该点被错误分类了</label>
+    <label><input type="radio" name="q4" value="D"> D. 该点位于间隔边界上</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：B</strong><br>解析：由 KKT条件 互补松弛条件，\(\alpha_i = 0\) 时该点满足 \(y_i(w\cdot x_i+b) \ge 1\)，即被正确分类且不在间隔边界上，对 w 和 b 的求解无贡献。</div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card">
+  <span class="q-num">5</span><span class="q-stem">当数据不是完全线性可分时，支持向量机 引入"松弛变量"和惩罚参数 C。如果 C 设置得非常大，模型会倾向于：</span>
+  <div class="opts">
+    <label><input type="radio" name="q5" value="A"> A. 减少分类错误，但可能导致分类间隔变窄，甚至产生过拟合</label>
+    <label><input type="radio" name="q5" value="B"> B. 忽略错误，追求最大的分类间隔（欠拟合）</label>
+    <label><input type="radio" name="q5" value="C"> C. 自动将所有非线性问题转化为线性问题</label>
+    <label><input type="radio" name="q5" value="D"> D. 降低对异常值的敏感度</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：A</strong><br>解析：C 越大，对误分类惩罚越重，模型就会竭力减少错误，导致间隔变窄、对训练数据过拟合。C→∞ 退化为硬间隔 支持向量机。</div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card">
+  <span class="q-num">6</span><span class="q-stem">关于核函数（Kernel Trick），下列说法正确的是：</span>
+  <div class="opts">
+    <label><input type="radio" name="q6" value="A"> A. 核函数直接将原始数据映射到高维空间并存储</label>
+    <label><input type="radio" name="q6" value="B"> B. 使用核函数后，支持向量机 的计算复杂度会随着映射空间的维度呈指数增长</label>
+    <label><input type="radio" name="q6" value="C"> C. 核函数在低维空间进行计算，却能达到在高维空间计算内积的等价效果</label>
+    <label><input type="radio" name="q6" value="D"> D. 只有线性核函数能保证找到全局最优解</label>
+  </div>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：C</strong><br>解析：核技巧的核心优势就是在低维空间计算核函数 \(K(x,z)\)，从而隐式地等价于高维特征空间中的内积 \(\phi(x)\cdot\phi(z)\)，避免显式高维映射的计算灾难。</div>
+</div>
+
+<!-- ===================== SECTION: 填空题 ===================== -->
+<h2 class="section-title">二、填空题（每题 4 分，共 12 分）</h2>
+
+<!-- Q7 -->
+<div class="q-card">
+  <span class="q-num">7</span><span class="q-stem">在 支持向量机 中，分类间隔（Margin）的数学表达式为 ______，最大化间隔等价于最小化 ______。</span>
+  <input class="fill-input" type="text" placeholder="例如：margin = 2/||w||, min 1/2||w||^2">
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：</strong>\(\text{margin} = \frac{2}{\|w\|}\)，最小化 \(\frac{1}{2}\|w\|^2\)</div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card">
+  <span class="q-num">8</span><span class="q-stem">软间隔 支持向量机 的对偶问题中，拉格朗日乘子 \(\alpha_i\) 的取值范围是 ______（硬间隔中为 \(\alpha_i \ge 0\)），其中 C 是 ______ 参数。</span>
+  <input class="fill-input" type="text" placeholder="例如：[0, C]">
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：</strong>\(0 \le \alpha_i \le C\)；惩罚（或调节）参数</div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card">
+  <span class="q-num">9</span><span class="q-stem">常用的核函数中，______ 核函数可以将原始数据映射到无穷维特征空间。核函数 \(K(x,z)\) 是正定核的充要条件是：其对应的 Gram 矩阵是 ______ 矩阵。</span>
+  <input class="fill-input" type="text" placeholder="例如：高斯核(径向基函数 (RBF))">
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box correct"><strong>答案：</strong>高斯核（径向基函数 (RBF)）；半正定</div>
+</div>
+
+<!-- ===================== SECTION: 简答题 ===================== -->
+<h2 class="section-title">三、简答题（每题 10 分，共 20 分）</h2>
+
+<!-- Q10 -->
+<div class="q-card">
+  <span class="q-num">10</span><span class="q-stem">简述硬间隔 支持向量机 与软间隔 支持向量机 的区别，并说明软间隔中惩罚参数 C 的作用。</span>
+  <textarea class="short-area" placeholder="请从约束条件、优化目标、适用数据等方面简要回答..."></textarea>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box info" style="white-space:pre-wrap;"><strong>参考答案：</strong>
+① <strong>适用数据不同：</strong>硬间隔 支持向量机 要求数据严格线性可分；软间隔 支持向量机 适用于广义线性可分数据（存在异常值/噪声）。
+② <strong>约束条件不同：</strong>硬间隔要求 \(y_i(w\cdot x_i+b) \ge 1\)；软间隔放宽为 \(y_i(w\cdot x_i+b) \ge 1-\xi_i\)，引入了松弛变量 \(\xi_i \ge 0\)。
+③ <strong>优化目标不同：</strong>硬间隔为 \(\min \frac{1}{2}\|w\|^2\)；软间隔为 \(\min \frac{1}{2}\|w\|^2 + C\sum\xi_i\)，多了对误分类的惩罚项。
+④ <strong>C 的作用：</strong>C 是调节间隔最大化和误分类惩罚之间权衡的参数。C 越大，对误分类惩罚越重，模型倾向减少错误但间隔变窄（可能过拟合）；C 越小，越容忍错误，间隔更宽（可能欠拟合）。硬间隔是 C→∞ 的特例。
+⑤ <strong>对偶形式：</strong>硬间隔中 \(\alpha_i \ge 0\)；软间隔中 \(0 \le \alpha_i \le C\)。</div>
+</div>
+
+<!-- Q11 -->
+<div class="q-card">
+  <span class="q-num">11</span><span class="q-stem">什么是核技巧（Kernel Trick）？为什么 支持向量机 中使用核技巧能够高效处理非线性分类问题？</span>
+  <textarea class="short-area" placeholder="请从核函数定义、对偶问题结构、计算优势等方面回答..."></textarea>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box info" style="white-space:pre-wrap;"><strong>参考答案：</strong>
+① <strong>定义：</strong>核技巧是指通过非线性变换 \(\phi(x)\) 将输入空间映射到高维特征空间，在特征空间中学习线性 支持向量机。但由于 支持向量机 对偶问题中只出现样本间的内积 \(x_i\cdot x_j\)，因此只需定义核函数 \(K(x_i, x_j) = \phi(x_i)\cdot\phi(x_j)\) 即可隐式完成映射，无需显式计算 \(\phi(x)\)。
+② <strong>为何高效：</strong>核函数在低维空间计算，结果等价于高维空间的内积，避免了"维度灾难"。例如高斯核 \(K(x,z)=\exp(-\|x-z\|^2/2\sigma^2)\) 对应的 \(\phi(x)\) 是无穷维的，但计算仍在原空间完成。
+③ <strong>步骤：</strong>将对偶问题中的内积 \(x_i\cdot x_j\) 替换为 \(K(x_i, x_j)\)；决策函数变为 \(f(x) = \text{sign}(\sum \alpha_i^* y_i K(x_i, x) + b^*)\)。
+④ <strong>条件：</strong>核函数必须为正定核，即其 Gram 矩阵为半正定矩阵。</div>
+</div>
+
+<!-- ===================== SECTION: 计算题 ===================== -->
+<h2 class="section-title">四、计算题（共 20 分）</h2>
+
+<!-- Q12 -->
+<div class="q-card">
+  <span class="q-num">12</span><span class="q-stem">
+    设有三个样本点：\(x_1 = (0,0),\ y_1 = +1\)；\(x_2 = (2,2),\ y_2 = +1\)；\(x_3 = (2,0),\ y_3 = -1\)。
+    它们线性可分。
+    <br>(1) 写出硬间隔 支持向量机 的原始优化问题。
+    <br>(2) 求出最优超平面 \(w^*\) 和 \(b^*\)。
+    <br>(3) 给出分类决策函数和间隔宽度。
+  </span>
+  <textarea class="short-area" style="min-height:120px;" placeholder="请写出详细计算步骤..."></textarea>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box info" style="white-space:pre-wrap;"><strong>参考答案：</strong>
+
+(1) <strong>原始问题：</strong>
+\(\min_{w,b} \frac{1}{2}(w_1^2 + w_2^2)\)
+s.t. \(y_i(w_1 x_{i1} + w_2 x_{i2} + b) \ge 1,\ i=1,2,3\)
+
+代入三个样本点：
+① \(+1 \cdot (0\cdot w_1 + 0\cdot w_2 + b) \ge 1 \Rightarrow b \ge 1\)
+② \(+1 \cdot (2w_1 + 2w_2 + b) \ge 1 \Rightarrow 2w_1 + 2w_2 + b \ge 1\)
+③ \(-1 \cdot (2w_1 + 0\cdot w_2 + b) \ge 1 \Rightarrow -2w_1 - b \ge 1 \Rightarrow 2w_1 + b \le -1\)
+
+观察可知：\(x_1\) 和 \(x_3\) 最接近，直觉上支持向量应为 (0,0) 和 (2,0)。
+由几何直觉，分离超平面应为 x₁=1 这条垂直线，即 \(w = (1, 0), b = -1\)。
+
+验证：\(w = (1,0), b = -1\)
+① \(y_1(w\cdot x_1+b) = 1 \cdot (0+0-1) = -1 \ge 1\)？不成立！
+重新构造：最优超平面垂直于 (0,0) 和 (2,0) 的连线。
+
+重新分析：支持向量应为 (0,0) 和 (2,0)，它们之间的垂直平分线是 x₁=1。
+超平面形式：\(x_1 - 1 = 0\)，即 \(w_1 = 1, w_2 = 0, b = -1\)。
+
+代入检查约束：
+① \(y_1(w\cdot x_1+b) = +1 \cdot (1\times0 + 0\times0 - 1) = -1\) ❌ 不满足 ≥1
+
+分析：点 (0,0) 为正例，代入 x₁=1 直线得 0-1=-1 < 0，说明其被分到了负类一侧！这不对。
+
+重新观察数据：(0,0)要分到正类，(2,0)分到负类，因此决策边界应在 x₁ ∈ (0,2) 之间。
+设超平面为 \(w_1 x_1 + w_2 x_2 + b = 0\)，支持向量为 (0,0) 和 (2,0)。
+
+由 KKT条件 条件：\(\alpha_1(y_1(w\cdot x_1+b)-1) = 0\)，且 \(y_1(w\cdot x_1+b) \ge 1\)
+即 \(+1\cdot(w_1\cdot 0 + w_2\cdot 0 + b) \ge 1 \Rightarrow b \ge 1\)
+\(\alpha_3 > 0\) 且 \(-1\cdot(2w_1 + 0 + b) \ge 1 \Rightarrow -2w_1 - b \ge 1\)
+
+由于是支持向量（等号成立）：\(b = 1\)，\(-2w_1 - b = 1 \Rightarrow -2w_1 - 1 = 1 \Rightarrow w_1 = -1\)
+
+验证：\(w = (-1, 0),\ b = 1\)
+① \(+1 \cdot (0+0+1) = 1 \ge 1\) ✓（支持向量，等号成立）
+② \(+1 \cdot (-2-2+1) = -3\) ❌ 不满足！
+
+正例 (2,2) 不满足约束？问题出在这里。让我假设 (0,0) 和 (2,2) 是支持向量：
+支持向量处等号成立：\(+1\cdot(b) = 1 \Rightarrow b = 1\)；\(+1\cdot(2w_1 + 2w_2 + 1) = 1 \Rightarrow 2w_1 + 2w_2 = 0 \Rightarrow w_1 = -w_2\)
+
+另一侧负例支持向量是 (2,0)：\(-1\cdot(2w_1 + 0 + 1) = 1 \Rightarrow -2w_1 - 1 = 1 \Rightarrow w_1 = -1\)
+
+所以 \(w_1 = -1, w_2 = 1, b = 1\)。
+验证：\(w = (-1, 1),\ b = 1\)
+① \(+1\cdot(0+0+1) = 1 \ge 1\) ✓
+② \(+1\cdot(-2+2+1) = 1 \ge 1\) ✓
+③ \(-1\cdot(-2+0+1) = -1\cdot(-1) = 1 \ge 1\) ✓
+
+所有三个点都恰好满足等式约束，全部是支持向量！
+
+(2) <strong>最优解：</strong>\(w^* = (-1, 1),\ b^* = 1\)（或等价地，\(\tilde{w}^* = (1, -1),\ \tilde{b}^* = -1\) 因为乘以 -1 等价）
+
+规范形式一般取法向量：\(\tilde{w} = (1, -1),\ \tilde{b} = 1\)，超平面为 \(x_1 - x_2 + 1 = 0\)。
+
+(3) <strong>分类决策函数：</strong>\(f(x) = \text{sign}(-x_1 + x_2 + 1)\) 或 \(f(x) = \text{sign}(x_1 - x_2 - 1)\)
+<strong>间隔宽度：</strong>\(\text{margin} = \frac{2}{\|w\|} = \frac{2}{\sqrt{(-1)^2 + 1^2}} = \frac{2}{\sqrt{2}} = \sqrt{2}\)</div>
+</div>
+
+<h2 class="section-title">五、代码分析题（共 18 分）</h2>
+
+<div class="q-card">
+  <span class="q-num">13</span><span class="q-stem">
+    阅读以下使用 e1071 包训练 支持向量机 的 R 代码，回答后面问题：
+    <pre><code>library(e1071)
+data(iris)
+model <- svm(Species ~ ., data = iris,
+             kernel = "radial", cost = 1, 
+             gamma = 0.5, scale = TRUE)
+cat("支持向量数量:", nrow(model$SV), "\n")
+pred <- predict(model, iris)
+conf_matrix <- table(iris$Species, pred)
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat(sprintf("准确率: %.2f%%\n", accuracy * 100))</code></pre>
+    <p><strong>问题：</strong></p>
+    <ol>
+      <li><code>kernel = "radial"</code> 使用的是什么核函数？在期末考试中，哪几种核函数可以用于非线性建模？（4分）</li>
+      <li><code>scale = TRUE</code> 的作用是什么？为什么在训练支持向量机前要做这一步？（4分）</li>
+      <li><code>cost = 1</code> 参数控制什么？如果 cost 设置得过大或过小，分别会导致什么问题？（5分）</li>
+      <li><code>nrow(model$SV)</code> 返回的支持向量数量通常应该 <strong>多于</strong> 还是 <strong>少于</strong> 训练样本数？为什么？（5分）</li>
+    </ol>
+  </span>
+  <button class="btn-show" onclick="this.nextElementSibling.classList.toggle('show')">显示答案</button>
+  <div class="answer-box info">
+    <p><strong>参考答案：</strong></p>
+    <p><strong>(1)</strong> kernel="radial" 使用的是<strong>径向基函数核</strong>。可以用于非线性建模的核函数包括：径向基函数核、多项式核、Sigmoid核。线性核只能用于线性可分问题。期末考试中会考"以下哪个核函数不适合用于支持向量机非线性建模"——答案选择要对比各核的性质。</p>
+    <p><strong>(2)</strong> scale=TRUE 对数据进行<strong>标准化</strong>（均值为0，标准差为1）。支持向量机依赖距离度量，如果不做标准化，取值范围大的特征（如收入0~100000）会主导距离计算，使得模型偏向大方差特征。期末考试中这个知识点常客："在训练支持向量机之前标准化是否必要——非常必要"。</p>
+    <p><strong>(3)</strong> cost 是<strong>软间隔惩罚参数 C</strong>，控制对误分类的容忍度。cost 过大 → 过拟合（强制完美分类，间隔变小，泛化差）；cost 过小 → 欠拟合（容忍大量误分，间隔大但分类不准）。</p>
+    <p><strong>(4)</strong> <strong>少于</strong>训练样本数。支持向量机 的解具有稀疏性——只有落在间隔边界上或间隔内的样本（支持向量）才影响决策边界，其余样本不出现在解的表达式中。支持向量通常只占训练样本的一小部分，这是一个考点。</p></div>
+</div>
+
+<hr>
+
+<div style="text-align:center; color:#999; font-size:13px;">
+  —— 第12讲 章节测试结束 ——
+</div>
+
+</div>
+
+<script>
+(function() {
+  var style = document.createElement('style');
+  style.textContent = '.answer-box.show{display:block !important}';
+  document.head.appendChild(style);
+})();
+</script>
+</body>
+</html>

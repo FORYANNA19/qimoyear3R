@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4讲 决策树入门 - 深度学习知识清单</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  深度学习模式 <span class="sep">/</span> <span class="cur">第4讲-知识清单</span>
+  <span class="nav-links">
+    <a href="#">&larr; 上一章</a>
+    <a href="#">下一章 &rarr;</a>
+  </span>
+</div>
+
+<!-- ==================== 1. 决策树概念 ==================== -->
+<div class="card">
+  <h2>1. 决策树模型核心概念 <span class="tag-read">细读</span></h2>
+
+  <h3>1.1 直觉 (Intuition) <span class="tag-read">细读</span></h3>
+  <p>
+    就像我们日常生活中做决策——先问"年龄多大？"再问"是不是学生？"一步步缩小范围，最终得出结论。
+    <span class="kp">决策树</span>以树结构形式进行决策，每个内部节点代表一个属性测试，每个分支代表测试结果，每个叶节点代表分类标签。
+  </p>
+
+  <h3>1.2 定义 (Definition) <span class="tag-read">细读</span></h3>
+  <p>
+    <span class="kp">决策树 (Decision Tree)</span>是以树结构（包括二叉树和多叉树）形式来表达的<span class="exp">预测分析模型</span>，
+    常用于解决<span class="tag tag-key">分类</span>和<span class="tag tag-key">回归</span>问题。
+  </p>
+  <p>
+    <span class="tag tag-must">根节点 (Root node)</span> — 包含样本全集的最顶层节点<br>
+    <span class="tag tag-must">内部节点 (Internal node)</span> — 对应某个属性或特征的测试<br>
+    <span class="tag tag-must">叶节点 (Leaf node)</span> — 代表分类后所获得的分类标记<br>
+    <span class="tag tag-info">分支 (Branch)</span> — 对应于属性的某个取值
+  </p>
+
+  <h3>1.3 本质理解 <span class="tag-read">细读</span></h3>
+  <p>
+    决策树本质上是对<span class="kp">特征空间的一种完备划分</span>，每一种划分对应一种决策规则。
+    从根到叶的每条路径构成一条 <span class="highlight">if-then 规则</span>：内部节点 = 条件，叶节点 = 结论。
+  </p>
+  <div class="formula-box">
+    <strong>重要性质：</strong>任意两条路径之间<span class="kp">互斥且完备</span>——任意一个实例恰好被一条路径所覆盖。
+  </div>
+
+  <p>
+    决策树是<span class="kp">判别模型</span>：学习的是条件概率分布 P(Y|X)，而非联合分布 P(X,Y)。
+    将特征空间划分为互不相交的单元，每个单元给出类的条件概率分布。
+  </p>
+</div>
+
+<!-- ==================== 2. 决策树构建关键 ==================== -->
+<div class="card">
+  <h2>2. 决策树构建的四个关键问题 <span class="tag-read">细读</span></h2>
+  <ol class="steps">
+    <li><span class="tag tag-must">特征选择</span> — 如何选择最优划分属性？（信息增益 / 增益率）</li>
+    <li><span class="tag tag-key">叶节点类别确定</span> — 最终叶结点对应的分类标签如何确定？</li>
+    <li><span class="tag tag-key">树构建算法</span> — 自上而下的递归分裂（ID3 / C4.5）</li>
+    <li><span class="tag tag-freq">剪枝 (Pruning)</span> — 防止过拟合，提高泛化能力</li>
+  </ol>
+</div>
+
+<!-- ==================== 3. 特征选择 ==================== -->
+<div class="card">
+  <h2>3. 特征选择：熵与信息增益 <span class="tag-read">细读</span></h2>
+
+  <h3>3.1 熵 (Entropy) <span class="tag-read">细读</span></h3>
+  <p>
+    <span class="kp">熵</span>衡量随机变量的<span class="exp">不确定性</span>。熵越大，不确定性越大。
+  </p>
+  <div class="formula">
+    $$H(D) = -\sum_{k=1}^{K} p_k \log_2 p_k$$
+    <div class="formula-text">其中 p<sub>k</sub> = |C<sub>k</sub>| / |D|，即第 k 类样本所占比例。底数为 2 时单位为 bit。</div>
+  </div>
+  <p>
+    <span class="tag tag-info">极端情况：</span> 当所有样本属于同一类时，H(D) = 0（不确定性最小）；当各类均匀分布时，H(D) 最大 = log<sub>2</sub>K。
+  </p>
+
+  <h3>3.2 条件熵 (Conditional Entropy) <span class="tag-read">细读</span></h3>
+  <p>
+    表示在<span class="exp">已知随机变量 X 的条件下，随机变量 Y 的不确定性</span>。
+  </p>
+  <div class="formula">
+    $$H(D \mid A) = \sum_{i=1}^{n} \frac{|D_i|}{|D|} \cdot H(D_i)$$
+    <div class="formula-text">按特征 A 取值将 D 划分为 n 个子集 D<sub>i</sub>，对每个子集加权求和。权重为 |D<sub>i</sub>|/|D|（分支样本越多，权重越大）。</div>
+  </div>
+
+  <h3>3.3 信息增益 (Information Gain) <span class="tag-read">细读</span></h3>
+  <p>
+    <span class="kp">信息增益</span> = <span class="exp">得知特征 A 的信息后，类别 Y 不确定性减少的程度</span>。又称<span class="kp">互信息 (Mutual Information)</span>。
+  </p>
+  <div class="formula-box">
+    <div class="eq">$$g(D, A) = H(D) - H(D \mid A)$$</div>
+    <div style="text-align:center;color:#555;font-size:14px;">信息增益 = 划分前熵 − 划分后条件熵</div>
+  </div>
+  <p>
+    <span class="tag tag-must">ID3 准则：</span>选择信息增益最大的特征作为当前节点的划分属性。
+  </p>
+
+  <h3>3.4 信息增益计算步骤 <span class="tag-read">细读</span></h3>
+  <ol class="steps">
+    <li>计算数据集 D 的经验熵 <span class="highlight">H(D)</span>（划分前的信息熵）</li>
+    <li>对每个特征 A：</li>
+    <ul>
+      <li>计算每个取值 A=a<sub>i</sub> 下的经验条件熵 H(D<sub>i</sub>)</li>
+      <li>加权求和得到 H(D|A)（划分后的信息熵）</li>
+    </ul>
+    <li>计算信息增益：<span class="highlight">g(D,A) = H(D) − H(D|A)</span></li>
+  </ol>
+
+  <h3>3.5 教材示例：买计算机数据集 <span class="tag-read">细读</span></h3>
+  <p>总样本 1024 个，买=641，不买=383：</p>
+  <div class="formula-box">
+    <div class="eq">H(D) = −0.626 × log<sub>2</sub>(0.626) − 0.374 × log<sub>2</sub>(0.374) = <strong>0.9537</strong></div>
+  </div>
+
+  <table class="compare">
+    <tr><th>特征</th><th>H(D|特征)</th><th>信息增益 g(D,A)</th><th>排名</th></tr>
+    <tr><td><span class="kp">年龄</span> {青,中,老}</td><td>0.6877</td><td><strong>0.2660</strong></td><td><span class="highlight-green">1 (最优)</span></td></tr>
+    <tr><td>收入 {高,中,低}</td><td>0.9361</td><td>0.0176</td><td>4</td></tr>
+    <tr><td>学生 {是,否}</td><td>0.7811</td><td>0.1726</td><td>2</td></tr>
+    <tr><td>信誉 {良,优}</td><td>0.9048</td><td>0.0453</td><td>3</td></tr>
+  </table>
+  <p>年龄的信息增益最大 → 选<span class="kp">年龄</span>作为根节点，形成三个分支：青年、中年、老年。</p>
+
+  <h4>以年龄=青年子集为例继续分裂（384个样本）：</h4>
+  <table class="compare">
+    <tr><th>特征</th><th>信息增益</th></tr>
+    <tr><td>学生</td><td><strong>0.9183</strong> (最大 → 选为学生节点)</td></tr>
+    <tr><td>收入</td><td>0.4591</td></tr>
+    <tr><td>信誉</td><td>0.0441</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 4. ID3算法 ==================== -->
+<div class="card">
+  <h2>4. ID3 算法 <span class="tag-read">细读</span></h2>
+
+  <h3>4.1 基本思想 <span class="tag-read">细读</span></h3>
+  <p>
+    从根节点开始，<span class="kp">自顶向下递归</span>构建。每次以<span class="kp">信息增益</span>为准则选择最优划分属性，按其取值建立分支。
+    目标是构建一棵<span class="exp">熵值下降最快</span>的树，希望叶子节点处熵值<a class="highlight-green">为 0</a>（纯净）。
+  </p>
+
+  <h3>4.2 三种停止条件 <span class="tag-read">细读</span></h3>
+  <table class="compare">
+    <tr><th>条件</th><th>情形</th><th>处理</th></tr>
+    <tr><td><span class="highlight-red">(1)</span></td><td>当前节点样本<span class="kp">全属于同一类别</span></td><td>将该节点标记为叶节点，类别为该类</td></tr>
+    <tr><td><span class="highlight-red">(2)</span></td><td>当前<span class="kp">属性集为空</span>（用完所有属性）</td><td>标记为叶节点，类别为<span class="kp">多数类</span></td></tr>
+    <tr><td><span class="highlight-red">(3)</span></td><td>当前节点<span class="kp">样本集合为空</span></td><td>标记为叶节点，类别为<span class="kp">父节点多数类</span></td></tr>
+  </table>
+
+  <h3>4.3 算法策略 <span class="tag-read">细读</span></h3>
+  <p>
+    <span class="tag tag-key">贪心算法 (Greedy Algorithm)</span>：每一步选择当前最优（信息增益最大）的属性，不回溯。
+  </p>
+
+  <h3>4.4 决策边界特性 <span class="tag-read">细读</span></h3>
+  <p>
+    决策树的决策边界<span class="kp">总是与坐标轴平行或垂直</span>——形成阶梯状的划分。
+    这是因为每次分裂仅在单一特征上做条件判断。
+  </p>
+</div>
+
+<!-- ==================== 5. C4.5 算法 ==================== -->
+<div class="card">
+  <h2>5. C4.5 算法与信息增益率 <span class="tag-read">细读</span></h2>
+
+  <h3>5.1 为什么需要 C4.5？ <span class="tag-read">细读</span></h3>
+  <blockquote class="pitfall">
+    <strong>ID3 的信息增益偏向选择取值较多的特征</strong>。例如将"编号"作为属性——每个样本的编号唯一，条件熵 H(D|编号)=0，信息增益 = H(D) 达到最大，但这样的划分毫无泛化能力，树庞大且极浅，根本不合理。
+  </blockquote>
+  <p>
+    ID3 偏向取值多（如身份证号、日期）的特征 → C4.5 引入<span class="kp">信息增益率</span>进行修正。
+  </p>
+
+  <h3>5.2 信息增益率 (Gain Ratio) <span class="tag-read">细读</span></h3>
+  <div class="formula-box">
+    <div class="eq">$$g_R(D, A) = \frac{g(D, A)}{H_A(D)}$$</div>
+  </div>
+  <p>
+    其中分母 <span class="highlight">H<sub>A</sub>(D)</span> 是特征 A 的<span class="kp">固有值 (Intrinsic Value)</span>（即用 D 的样本分布来度量 A 本身的熵）：
+  </p>
+  <div class="formula">
+    $$H_A(D) = -\sum_{i=1}^{n} \frac{|D_i|}{|D|} \log_2 \frac{|D_i|}{|D|}$$
+    <div class="formula-text">特征 A 取值越多 → H<sub>A</sub>(D) 越大 → 增益率被惩罚。</div>
+  </div>
+
+  <h3>5.3 C4.5 对缺失值的处理 <span class="tag-read">细读</span></h3>
+  <p>
+    当某样本在特征 A 上缺失时，C4.5 <span class="kp">根据已知该特征权重的比例，将样本分配到所有子节点中</span>（按概率分配），而非直接丢弃或简单填充。
+  </p>
+
+  <h3>5.4 连续值处理 <span class="tag-read">细读</span></h3>
+  <p>
+    决策树处理连续型特征（如年龄、收入）使用<span class="kp">二分法 (Bi-partition)</span>：将连续值排序后，取相邻值的中间点作为候选划分点，寻找最优划分点。
+  </p>
+</div>
+
+<!-- ==================== 6. ID3 vs C4.5 对比 ==================== -->
+<div class="card">
+  <h2>6. ID3 vs C4.5 对比 <span class="tag-read">细读</span></h2>
+  <table class="compare">
+    <tr>
+      <th>维度</th><th>ID3</th><th>C4.5</th>
+    </tr>
+    <tr>
+      <td><span class="kp">分裂准则</span></td>
+      <td>信息增益 g(D,A)</td>
+      <td><span class="highlight-green">信息增益率</span> g<sub>R</sub>(D,A)</td>
+    </tr>
+    <tr>
+      <td>偏向问题</td>
+      <td><span class="highlight-red">偏向取值多的特征</span></td>
+      <td>通过分母 H<sub>A</sub>(D) <span class="highlight-green">惩罚取值多的特征</span></td>
+    </tr>
+    <tr>
+      <td>连续值处理</td>
+      <td>不支持（需预先离散化）</td>
+      <td><span class="highlight-green">二分法自动处理</span></td>
+    </tr>
+    <tr>
+      <td>缺失值处理</td>
+      <td>不支持</td>
+      <td><span class="highlight-green">按比例分配到子节点</span></td>
+    </tr>
+    <tr>
+      <td>提出年份</td>
+      <td>1979 (Quinlan)</td>
+      <td>1993 (Quinlan)</td>
+    </tr>
+    <tr>
+      <td>地位</td>
+      <td>使决策树成为机器学习主流</td>
+      <td>最常用的决策树算法之一</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ==================== 7. 剪枝 ==================== -->
+<div class="card">
+  <h2>7. 决策树剪枝 <span class="tag-read">细读</span></h2>
+
+  <h3>7.1 过拟合问题 <span class="tag-read">细读</span></h3>
+  <blockquote class="pitfall">
+    决策树递归生长到无法继续为止 → 对训练数据分类很准确，但对未知测试数据不准确（<span class="kp">过拟合</span>）。
+    原因：数据有噪声、训练样本太少 → 为了正确分类所有训练样本，分支过多。
+  </blockquote>
+
+  <h3>7.2 两种剪枝策略 <span class="tag-read">细读</span></h3>
+  <table class="compare">
+    <tr><th>策略</th><th>机制</th><th>优点</th><th>缺点</th></tr>
+    <tr>
+      <td><span class="kp">预剪枝<br>(Pre-pruning)</span></td>
+      <td>提前停止分裂：限定最大深度 / 叶节点最小样本量</td>
+      <td>计算效率<span class="highlight-green">高</span></td>
+      <td><span class="highlight-red">可能欠拟合</span>（错过后续更好的分裂）</td>
+    </tr>
+    <tr>
+      <td><span class="kp">后剪枝<br>(Post-pruning)</span></td>
+      <td>先生成完整树，再自下而上剪去不具代表性的子树</td>
+      <td>泛化性能<span class="highlight-green">更优</span></td>
+      <td>计算开销<span class="highlight-red">较大</span></td>
+    </tr>
+  </table>
+
+  <h3>7.3 后剪枝的损失函数 <span class="tag-read">细读</span></h3>
+  <p>
+    定义决策树 T 的<span class="kp">损失函数</span>为结构化风险：
+  </p>
+  <div class="formula-box">
+    <div class="eq">$$C_\alpha(T) = C(T) + \alpha |T|$$</div>
+  </div>
+  <p>
+    其中：
+  </p>
+  <ul class="steps">
+    <li><span class="kp">C(T)</span> = ∑<sub>t</sub> N<sub>t</sub> · H<sub>t</sub>(T) —— <span class="exp">模型对训练数据的拟合程度（经验风险）</span></li>
+    <li><span class="kp">|T|</span> —— <span class="exp">叶节点个数，衡量模型复杂度</span></li>
+    <li><span class="kp">α ≥ 0</span> —— <span class="exp">调节参数，平衡拟合与复杂度</span></li>
+  </ul>
+  <p>
+    α <span class="highlight-red">越小</span> → 决策树越大（偏向拟合）；α <span class="highlight-green">越大</span> → 决策树越小（偏向简单）。
+  </p>
+  <p>
+    剪枝目标：给定 α 后，选择使 <span class="kp">C<sub>α</sub>(T) 最小</span>的子树。
+  </p>
+</div>
+
+<!-- ==================== 8. 发展历史 ==================== -->
+<div class="card">
+  <h2>8. 决策树算法发展历史 <span class="tag-read">细读</span></h2>
+  <table class="compare">
+    <tr><th>年份</th><th>算法</th><th>提出者</th><th>特点</th></tr>
+    <tr><td>1966</td><td>CLS (概念学习系统)</td><td>Hunt, Marin, Stone</td><td>第一个决策树算法</td></tr>
+    <tr><td>1979</td><td><span class="kp">ID3</span></td><td>J.R. Quinlan</td><td>信息增益准则，使决策树成为主流</td></tr>
+    <tr><td>1984</td><td>CART</td><td>Breiman 等</td><td>二叉树，可回归，Gini 系数</td></tr>
+    <tr><td>1993</td><td><span class="kp">C4.5</span></td><td>J.R. Quinlan</td><td>信息增益率，处理连续值+缺失值</td></tr>
+    <tr><td>~2001</td><td>随机森林</td><td>Breiman</td><td>集成学习，多棵决策树投票</td></tr>
+  </table>
+</div>
+
+<footer>数据挖掘与机器学习 · 第4讲 决策树入门 · 深度学习知识清单</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6讲-知识清单 | Bagging与随机森林</title>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <span>深度学习模式 / <strong>第6讲-知识清单</strong></span>
+  <span><a href="#">← 上一章</a> | <a href="../考试模式/第6讲-考试速查.html">下一章 →</a></span>
+</div>
+
+<h1>第6讲：决策树 — Bagging与随机森林</h1>
+
+<!-- ============ SECTION: Bagging 集成学习 ============ -->
+<h2>一、Bagging 集成学习 <span class="tag tag-must">必考</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>1.1 直觉理解 (Intuition) <span class="tag-read">细读</span></h3>
+  <p>想象一个班级投票决定去哪儿春游。如果只问一个人，可能偏颇；但如果从班级中<strong>随机抽样</strong>多次组成多个小组，每组独立投票，最后统计所有小组的投票结果 —— 这就是 Bagging 的思想。通过"群体的智慧"（Wisdom of Crowds）来降低个体决策的随机误差。</p>
+
+  <h3>1.2 核心定义 (Definition) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">Bagging</span>（Bootstrap Aggregating）是一种<span class="kp">并行式集成学习</span>算法，通过对原始训练集进行<span class="kp">Bootstrap抽样</span>（有放回抽样）生成多个不同的训练子集，在每个子集上独立训练一个基学习器，最后通过投票（分类）或平均（回归）的方式组合预测结果。</p>
+  <span class="exp">Bootstrap Aggregating = Bootstrap（自助抽样）+ Aggregating（聚合），名字本身就说明了它的两个核心步骤。</span>
+
+  <h3>1.3 动机与来源 (Motivation) <span class="tag-read">细读</span></h3>
+  <p>Bagging 由 Leo Breiman 于 1996 年提出。核心动机：</p>
+  <ul style="padding-left:24px;margin:8px 0">
+    <li><strong>降低方差</strong>：单个决策树对训练数据的微小变化很敏感（高方差），Bagging 通过对多个树的预测取平均来平滑这种波动。</li>
+    <li><strong>利用 Bootstrap 的多样性</strong>：有放回抽样使每棵树看到的训练集都不同（约63.2%原始样本），从而产生多样化的基学习器。</li>
+  </ul>
+
+  <blockquote class="pitfall">Bagging 主要降低<strong>方差</strong>而非偏差。如果基学习器本身偏差很大（如欠拟合），Bagging 不会显著改善性能。因此 Bagging 通常搭配"强而高方差"的基学习器（如未剪枝的决策树）。</blockquote>
+
+  <h3>1.4 算法推导 (Derivation / Steps) <span class="tag-read">细读</span></h3>
+  <p><strong>输入：</strong>训练集 <em>D</em> 含 <em>N</em> 个样本；基学习算法（如决策树）；迭代次数 <em>B</em></p>
+  <p><strong>输出：</strong>集成模型 <span class="kp">H(x)</span></p>
+  <table>
+    <tr><th>步骤</th><th>操作</th><th>说明</th></tr>
+    <tr><td><strong>Step 1</strong></td><td>Bootstrap 抽样</td><td>从 <em>D</em> 中有放回地抽取 <em>N</em> 个样本，形成训练子集 <em>D<sub>b</sub></em></td></tr>
+    <tr><td><strong>Step 2</strong></td><td>训练基学习器</td><td>在 <em>D<sub>b</sub></em> 上训练一个基学习器 <em>h<sub>b</sub>(x)</em>（如决策树）</td></tr>
+    <tr><td><strong>Step 3</strong></td><td>重复 <em>B</em> 次</td><td>重复 Step 1~2，得到 <em>B</em> 个基学习器 <em>{h<sub>1</sub>, h<sub>2</sub>, ..., h<sub>B</sub>}</em></td></tr>
+    <tr><td><strong>Step 4</strong></td><td>聚合预测</td><td>分类：多数投票；回归：简单平均</td></tr>
+  </table>
+
+  <h3>1.5 Bootstrap 抽样细节 <span class="tag-read">细读</span></h3>
+  <p>从 <em>N</em> 个样本中有放回抽样 <em>N</em> 次：</p>
+  <div class="formula-block">
+    每个样本被选中的概率：<em>1/N</em><br>
+    每个样本<strong>未被</strong>选中的概率：<em>(1 - 1/N)<sup>N</sup></em><br>
+    当 <em>N → ∞</em> 时：<em>(1 - 1/N)<sup>N</sup> ≈ 1/e ≈ 0.368</em><br>
+    ∴ 每次 Bootstrap 约有 <strong>63.2%</strong> 的样本被选中（袋内样本），<strong>36.8%</strong> 未被选中（袋外样本 袋外 (OOB)）
+  </div>
+
+  <h3>1.6 Bagging 的数学表达 <span class="tag-read">细读</span></h3>
+  <div class="formula-block">
+    <strong>分类：</strong> H(x) = argmax<sub>y</sub> Σ<sub>b=1</sub><sup>B</sup> I(h<sub>b</sub>(x) = y)<br>
+    <strong>回归：</strong> H(x) = (1/B) Σ<sub>b=1</sub><sup>B</sup> h<sub>b</sub>(x)
+  </div>
+</div>
+
+<!-- ============ SECTION: 随机森林 ============ -->
+<h2>二、随机森林 (Random Forest) <span class="tag tag-must">必考</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>2.1 直觉理解 (Intuition) <span class="tag-read">细读</span></h3>
+  <p>Bagging 让每棵树看到<strong>不同的样本</strong>；随机森林进一步让每棵树的每个节点只能看到<strong>特征的随机子集</strong>来分裂。双重随机性使树与树之间的相关性大大降低，从而进一步降低集成模型的方差。可以理解为：Bagging 是"让每棵树读不同的书"，随机森林是"让每棵树不仅读不同的书，还只能看不同章节的摘要"。</p>
+
+  <h3>2.2 核心定义 (Definition) <span class="tag-read">细读</span></h3>
+  <p><span class="kp">随机森林（Random Forest）</span>是在 <span class="kp">Bagging</span> 基础上增加<span class="kp">特征随机选择</span>的集成学习算法。在每棵决策树的每个节点分裂时，不是从全部 <em>M</em> 个特征中选最优，而是先随机抽取 <em>m</em> 个特征（<em>m ≪ M</em>），再从这 <em>m</em> 个特征中选最优分裂特征。</p>
+  <span class="exp">"Forest" = 多棵树 = Bagging；"Random" = 随机样本（Bootstrap）+ 随机特征（节点分裂时的特征子集）。两个随机性缺一不可！</span>
+
+  <h3>2.3 算法步骤 (Algorithm) <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>步骤</th><th>内容</th></tr>
+    <tr><td><strong>Step 1</strong></td><td>对 <em>b = 1, 2, ..., B</em>（共 B 棵树），从 <em>N</em> 个样本中有放回地随机抽取 <em>N</em> 个样本作为第 <em>b</em> 棵树的训练集</td></tr>
+    <tr><td><strong>Step 2</strong></td><td>在每个节点分裂时：① 从全部 <em>M</em> 个特征中随机选择 <em>m</em> 个特征（<em>m ≪ M</em>）；② 从这 <em>m</em> 个特征中按某种策略（如基尼指数/信息增益）选择最优分裂特征和切分点；③ 分裂为两个子节点</td></tr>
+    <tr><td><strong>Step 3</strong></td><td>递归执行 Step 2 直到满足停止条件，生成一棵完整的决策树（通常不剪枝）</td></tr>
+    <tr><td><strong>Step 4</strong></td><td>重复 Step 1~3 共 <em>B</em> 次，构建 <em>B</em> 棵决策树，形成随机森林</td></tr>
+    <tr><td><strong>Step 5</strong></td><td>预测：分类 → 多数投票；回归 → 取平均</td></tr>
+  </table>
+
+  <h3>2.4 关键超参数 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>参数</th><th>含义</th><th>典型取值</th><th>影响</th></tr>
+    <tr><td><em>B</em> (ntree)</td><td>树的数量</td><td>通常 500~1000</td><td>越多越稳定，但边际收益递减</td></tr>
+    <tr><td><em>m</em> (mtry)</td><td>每次分裂随机选取的特征数</td><td>分类：√M；回归：M/3</td><td><em>m</em> 越小，树间相关性越低，但单树强度也越低</td></tr>
+    <tr><td>每棵树的最大深度</td><td>限制树的生长</td><td>通常不限制（充分生长）</td><td>树太浅会欠拟合</td></tr>
+  </table>
+
+  <blockquote class="pitfall">当 <em>m = M</em>（即不随机选特征），随机森林退化为普通的 <strong>Bagging</strong>。随机森林的核心优势正是来自 <em>m ≪ M</em> 带来的特征随机性，使各树之间"去相关"（decorrelation）。</blockquote>
+
+  <h3>2.5 随机森林 vs Bagging 对比 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>维度</th><th>Bagging</th><th>Random Forest</th></tr>
+    <tr><td>随机性来源</td><td>仅 Bootstrap 样本（行抽样）</td><td>Bootstrap 样本 + 特征子集（行+列抽样）</td></tr>
+    <tr><td>树间相关性</td><td>较高</td><td>更低（特征随机减少了相关性）</td></tr>
+    <tr><td>方差</td><td>较低（相对单树）</td><td>更<strong>低</strong></td></tr>
+    <tr><td>基学习器强度</td><td>较强</td><td>略弱（因特征受限），但集成后整体更强</td></tr>
+    <tr><td>计算效率</td><td>较慢</td><td>更快（因每节点只搜索 m 个特征）</td></tr>
+  </table>
+</div>
+
+<!-- ============ SECTION: 偏差-方差分解 ============ -->
+<h2>三、偏差-方差分解 (Bias-Variance Decomposition) <span class="tag tag-key">重点</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>3.1 核心公式 <span class="tag-read">细读</span></h3>
+  <p>对于回归问题，一个模型的泛化误差可以分解为三部分：</p>
+  <div class="formula-block">
+    <strong>E[(y - f̂(x))²] = (Bias[f̂(x)])² + Var[f̂(x)] + σ²</strong><br><br>
+    其中：<br>
+    Bias[f̂(x)] = E[f̂(x)] - f(x) &emsp;（偏差：模型期望预测与真实值的差距）<br>
+    Var[f̂(x)] = E[(f̂(x) - E[f̂(x)])²] &emsp;（方差：模型预测的波动程度）<br>
+    σ² &emsp;（不可约误差：数据本身的噪声）
+  </div>
+
+  <h3>3.2 三种误差的含义 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>误差类型</th><th>含义</th><th>反映什么</th><th>降低方式</th></tr>
+    <tr><td><span class="kp">偏差 (Bias)</span></td><td>模型预测值的期望与真实值之间的差距</td><td>模型本身的拟合能力（准确度）</td><td>增加模型复杂度（如更深的树）</td></tr>
+    <tr><td><span class="kp">方差 (Variance)</span></td><td>用不同训练集训练出的模型，预测值之间的差异</td><td>模型对数据波动的敏感性（稳定性）</td><td>集成学习（Bagging/RF）、正则化、增加数据</td></tr>
+    <tr><td><span class="kp">噪声 (Noise)</span></td><td>数据本身的随机波动</td><td>问题本身的难度下限</td><td>无法通过优化模型降低</td></tr>
+  </table>
+
+  <h3>3.3 偏差-方差权衡 (Bias-Variance Tradeoff) <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>模型</th><th>偏差</th><th>方差</th><th>说明</th></tr>
+    <tr><td>单棵决策树（未剪枝）</td><td>低</td><td><strong>高</strong></td><td>容易过拟合</td></tr>
+    <tr><td>Bagging（决策树基学习器）</td><td>≈ 单棵决策树</td><td><strong>显著降低</strong></td><td>平均操作降低了方差，偏差几乎不变</td></tr>
+    <tr><td>随机森林</td><td>略增（相对 Bagging）</td><td><strong>进一步降低</strong></td><td>特征随机使树间去相关，方差更低</td></tr>
+    <tr><td>AdaBoost / Boosting</td><td><strong>显著降低</strong></td><td>可能略有增加</td><td>Boosting 主要降低偏差（见后续章节）</td></tr>
+  </table>
+
+  <blockquote class="pitfall">Bagging 和随机森林<strong>主要降低方差</strong>（适合高方差的基学习器）；而 Boosting（如 AdaBoost）<strong>主要降低偏差</strong>（将弱学习器逐步提升为强学习器）。这是两者最本质的区别。</blockquote>
+
+  <h3>3.4 数学直觉 <span class="tag-read">细读</span></h3>
+  <p>假设 <em>B</em> 棵树，每棵方差为 σ²，两两相关系数为 ρ，则集成模型的方差为：</p>
+  <div class="formula-block">
+    Var(H) = ρ·σ² + (1-ρ)·σ²/B<br>
+    当 ρ → 0：Var(H) ≈ σ²/B（理想去相关，方差除以 B）<br>
+    当 ρ → 1：Var(H) ≈ σ²（所有树一样，集成无增益）
+  </div>
+  <p>随机森林通过特征随机性降低树间相关性 ρ，从而降低整体方差。</p>
+</div>
+
+<!-- ============ SECTION: 袋外误差 ============ -->
+<h2>四、袋外误差 (袋外误差 (OOB Error)) <span class="tag tag-key">重点</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>4.1 定义 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">袋外误差（Out-of-Bag Error, 袋外误差 (OOB Error)）</span>是利用 Bootstrap 抽样中未被选中的样本（约36.8%）作为验证集来估计模型泛化误差的方法。无需额外划分验证集，是一种"免费"的交叉验证。</p>
+
+  <h3>4.2 计算方式 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>类型</th><th>计算公式</th></tr>
+    <tr><td>袋外 (OOB) 分类误差</td><td>对每个样本 <em>i</em>，用<strong>未包含</strong>该样本的树（袋外树）投票，计算误分类比例</td></tr>
+    <tr><td>袋外 (OOB) 回归误差</td><td>对每个样本 <em>i</em>，用 OOB 树预测值的平均与真实值的均方误差</td></tr>
+  </table>
+
+  <h3>4.3 OOB 误差的用途 <span class="tag-read">细读</span></h3>
+  <ul style="padding-left:24px;margin:8px 0">
+    <li>评估模型泛化性能，无需额外验证集</li>
+    <li>用于调参（如选择最优的 <em>m</em> 和 <em>B</em>）</li>
+    <li>用于特征重要性度量（通过置换 OOB 样本的特征值，观察 OOB 误差的变化）</li>
+  </ul>
+
+  <blockquote class="pitfall">OOB 误差<strong>不是</strong>测试集误差，它是"内嵌的"交叉验证误差，可以提供无偏估计，但不能完全替代独立测试集的评估。</blockquote>
+</div>
+
+<!-- ============ SECTION: AdaBoost ============ -->
+<h2>五、AdaBoost <span class="tag tag-must">必考</span> <span class="tag tag-info">扩展</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>5.1 核心思想 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">AdaBoost（Adaptive Boosting）</span>是一种<span class="kp">串行式</span>集成学习算法。核心思想：</p>
+  <ol style="padding-left:24px;margin:8px 0">
+    <li>每一轮根据上一轮的分类结果，<strong>提高</strong>被错分样本的权重，<strong>降低</strong>被正确分类样本的权重</li>
+    <li>通过<strong>加权多数表决</strong>组合弱分类器：误差率小的分类器获得更大权重</li>
+  </ol>
+  <span class="exp">与 Bagging 的"并行独立训练"不同，AdaBoost 的分类器之间有<strong>依赖关系</strong>：后一个分类器的训练依赖于前一个分类器的结果。</span>
+
+  <h3>5.2 理论基石 <span class="tag-read">细读</span></h3>
+  <p>核心定理（Schapire, 1989）：在PAC学习框架下，<strong>强可学习 ⇔ 弱可学习</strong>。即只要存在一个比随机猜测好的弱学习算法，就可以将其提升为强学习算法。这是所有 Boosting 方法的理论基础。</p>
+
+  <h3>5.3 算法步骤 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>步骤</th><th>内容</th><th>公式</th></tr>
+    <tr><td><strong>初始化</strong></td><td>对 <em>N</em> 个样本赋予均匀权重</td><td><em>w<sub>i</sub><sup>(1)</sup> = 1/N, i = 1,2,...,N</em></td></tr>
+    <tr><td><strong>(a)</strong></td><td>使用当前权重分布训练弱分类器 <em>G<sub>m</sub>(x)</em></td><td>—</td></tr>
+    <tr><td><strong>(b)</strong></td><td>计算分类误差率</td><td><em>e<sub>m</sub> = Σ w<sub>i</sub><sup>(m)</sup> · I(G<sub>m</sub>(x<sub>i</sub>) ≠ y<sub>i</sub>)</em></td></tr>
+    <tr><td><strong>(c)</strong></td><td>计算分类器权重系数</td><td><em>α<sub>m</sub> = ½ ln((1-e<sub>m</sub>)/e<sub>m</sub>)</em></td></tr>
+    <tr><td><strong>(d)</strong></td><td>更新样本权重（错分增加，正确减少）</td><td><em>w<sub>i</sub><sup>(m+1)</sup> ∝ w<sub>i</sub><sup>(m)</sup> · exp(-α<sub>m</sub> · y<sub>i</sub> · G<sub>m</sub>(x<sub>i</sub>))</em></td></tr>
+    <tr><td><strong>最终分类器</strong></td><td>加权投票</td><td><em>G(x) = sign(Σ α<sub>m</sub> · G<sub>m</sub>(x))</em></td></tr>
+  </table>
+
+  <h3>5.4 α<sub>m</sub> 的性质 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>e<sub>m</sub></th><th>α<sub>m</sub></th><th>含义</th></tr>
+    <tr><td>e<sub>m</sub> = 0（完美分类）</td><td>α<sub>m</sub> → +∞</td><td>分类器被赋予极大权重</td></tr>
+    <tr><td>e<sub>m</sub> &lt; 0.5（比随机好）</td><td>α<sub>m</sub> &gt; 0</td><td>分类器有正面贡献</td></tr>
+    <tr><td>e<sub>m</sub> = 0.5（等于随机）</td><td>α<sub>m</sub> = 0</td><td>分类器无贡献，权重为0</td></tr>
+    <tr><td>e<sub>m</sub> &gt; 0.5（比随机差）</td><td>α<sub>m</sub> &lt; 0</td><td>反向使用该分类器即可</td></tr>
+  </table>
+
+  <h3>5.5 AdaBoost 的数学本质 <span class="tag-read">细读</span></h3>
+  <p>AdaBoost 可视为<strong>加法模型</strong>（Additive Model）+ <strong>指数损失函数</strong> + <strong>前向分步算法</strong>的特例：</p>
+  <div class="formula-block">
+    模型：<em>f(x) = Σ α<sub>m</sub> · G<sub>m</sub>(x)</em>（加法模型）<br>
+    损失函数：<em>L(y, f(x)) = exp(-y · f(x))</em>（指数损失）<br>
+    优化方法：前向分步算法（每一步只优化当前轮参数）
+  </div>
+
+  <h3>5.6 训练误差界 <span class="tag-read">细读</span></h3>
+  <p>AdaBoost 的训练误差以指数速度下降：</p>
+  <div class="formula-block">
+    训练误差 ≤ exp(-2 Σ γ<sub>m</sub>²)<br>
+    其中 γ<sub>m</sub> = ½ - e<sub>m</sub>，表示分类器比随机猜测好的程度。<br>
+    若对所有 m 有 γ<sub>m</sub> ≥ γ &gt; 0，则训练误差 ≤ exp(-2Mγ²)
+  </div>
+</div>
+
+<!-- ============ SECTION: Boosting Tree ============ -->
+<h2>六、提升树 (Boosting Tree) <span class="tag tag-freq">常考</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <h3>6.1 定义 <span class="tag-read">细读</span></h3>
+  <p><span class="kp">提升树（Boosting Tree）</span>是以<span class="kp">决策树</span>为基函数的提升方法，采用加法模型 + 前向分步算法。被认为是统计学习中性能最好的方法之一。</p>
+
+  <h3>6.2 分类 vs 回归 <span class="tag-read">细读</span></h3>
+  <table>
+    <tr><th>类型</th><th>基函数</th><th>损失函数</th><th>与 AdaBoost 关系</th></tr>
+    <tr><td>分类提升树</td><td>二叉分类树</td><td>指数损失</td><td>即 AdaBoost 的特例（基分类器为二叉分类树）</td></tr>
+    <tr><td>回归提升树</td><td>二叉回归树</td><td>平方误差损失</td><td>每步拟合<strong>残差</strong>（residual），即当前模型预测值与真实值的差</td></tr>
+  </table>
+
+  <h3>6.3 回归提升树的核心：残差拟合 <span class="tag-read">细读</span></h3>
+  <p>第 <em>m</em> 步需要拟合的目标是：</p>
+  <div class="formula-block">
+    r<sub>mi</sub> = y<sub>i</sub> - f<sub>m-1</sub>(x<sub>i</sub>) &emsp;（当前模型的残差）<br>
+    第 m 棵回归树 T<sub>m</sub>(x) 对残差进行拟合<br>
+    f<sub>m</sub>(x) = f<sub>m-1</sub>(x) + T<sub>m</sub>(x)
+  </div>
+  <span class="exp">回归提升树的每一棵新树都在"修正"前面所有树的累积误差，通过逐步拟合残差来逼近目标函数。</span>
+</div>
+
+<!-- ============ SECTION: 对比总结 ============ -->
+<h2>七、核心对比总结 <span class="tag tag-must">必考</span> <span class="tag-read">细读</span></h2>
+
+<div class="card">
+  <table>
+    <tr><th>维度</th><th>Bagging</th><th>Random Forest</th><th>AdaBoost</th><th>Boosting Tree</th></tr>
+    <tr><td><strong>结构</strong></td><td>并行</td><td>并行</td><td>串行</td><td>串行</td></tr>
+    <tr><td><strong>样本</strong></td><td>Bootstrap（有放回）</td><td>Bootstrap（有放回）</td><td>全样本 + 权重调整</td><td>全样本 + 残差拟合</td></tr>
+    <tr><td><strong>特征</strong></td><td>全部特征</td><td>随机子集 m ≪ M</td><td>全部特征（由弱学习器决定）</td><td>全部特征（由决策树决定）</td></tr>
+    <tr><td><strong>组合方式</strong></td><td>多数投票 / 简单平均</td><td>多数投票 / 简单平均</td><td>加权多数投票（α-weighted）</td><td>加法模型</td></tr>
+    <tr><td><strong>主要降低</strong></td><td>方差</td><td>方差（更低）</td><td>偏差</td><td>偏差</td></tr>
+    <tr><td><strong>过拟合风险</strong></td><td>低</td><td>很低</td><td>B 过大可能过拟合</td><td>B 过大可能过拟合</td></tr>
+    <tr><td><strong>可解释性</strong></td><td>低（丢失单树可解释性）</td><td>低</td><td>低</td><td>低</td></tr>
+    <tr><td><strong>代表算法</strong></td><td>Bagging + 决策树</td><td>Breiman (2001)</td><td>Freund &amp; Schapire (1995)</td><td>梯度提升类算法</td></tr>
+  </table>
+
+  <blockquote class="pitfall">Bagging 和 RF 是 <strong>并行式</strong>集成（树之间无依赖），主要降低<strong>方差</strong>；AdaBoost 和 Boosting 是 <strong>串行式</strong>集成（后一轮依赖前一轮），主要降低<strong>偏差</strong>。这是区分两类集成方法的"分水岭"。</blockquote>
+</div>
+
+<footer>
+  上海对外经贸大学 · 数据挖掘与机器学习 · 第6讲知识清单 · 王昭文老师
+</footer>
+</div>
+</body>
+</html>

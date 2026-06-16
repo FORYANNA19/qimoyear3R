@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>第13讲 · SVM回顾与关联规则 — 知识清单</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+/*
+ * 数据挖掘与机器学习 - 深度学习模式 统一样式
+ * Based on 第1讲 design
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+.container { max-width: none; margin: 0; padding: 0; background: none; }
+nav.breadcrumb, .breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+nav.breadcrumb a, .breadcrumb a { color: #1a237e; text-decoration: none; }
+nav.breadcrumb a:hover, .breadcrumb a:hover { text-decoration: underline; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; padding-bottom: 0; border-bottom: none; }
+h1 .sub { font-size: 16px; color: #666; font-weight: normal; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding: 0 0 6px 0; border-bottom: 2px solid #1a237e; background: none; border-left: none; border-radius: 0; border-top: none; border-right: none; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; padding-left: 0; border-left: none; }
+h4 { font-size: 15px; color: #6a1b9a; margin: 16px 0 6px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; background: none; padding: 0; border-bottom: none; cursor: default; }
+.exp { color: #888; display: inline; background: none; border-left: none; padding: 0; margin: 0; border-radius: 0; font-style: normal; }
+.exp::before { content: none; }
+.kp-line { display: inline-block; }
+.kp-line::before { content: none; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-right: 4px; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-read { display: inline-block; background: #e65100; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-skip { display: inline-block; background: #e0e0e0; color: #9e9e9e; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; font-weight: 600; }
+
+/* Cards (backward compat) */
+.card { background: none; border-radius: 0; padding: 0; margin: 0 0 20px 0; box-shadow: none; border-left: none; }
+.card.green, .card.red, .card.purple { border-left: none; }
+.section-header { display: block; margin-bottom: 8px; }
+.section-title { display: block; margin-bottom: 8px; font-weight: 700; color: #1a237e; }
+
+/* Steps (backward compat) */
+.step { display: flex; gap: 8px; margin: 8px 0; }
+.step-num { min-width: 24px; height: 24px; background: #1a237e; color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700; }
+.step-content { flex: 1; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+tr:hover { background: #e8eaf6; }
+td[colspan] { text-align: center; }
+
+/* Formula */
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; overflow-x: auto; font-size: 16px; text-align: left; border-radius: 0; }
+
+/* Blockquotes */
+blockquote.bad, blockquote.pitfall { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.bad::before, blockquote.pitfall::before { content: "易错："; font-weight: bold; color: #c62828; display: inline; margin-bottom: 0; }
+blockquote.tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; border-radius: 0; }
+blockquote.tip::before { content: "提示："; font-weight: bold; color: #2e7d32; }
+
+/* Misc */
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+.code-block { background: #263238; color: #aed581; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; }
+pre code, pre { background: #f5f5f5; padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: "Consolas","Courier New",monospace; font-size: 13px; line-height: 1.6; display: block; margin: 10px 0; }
+footer { text-align: center; color: #999; font-size: 13px; padding: 30px; margin-top: 40px; border-top: 1px solid #e0e0e0; }
+hr { border: none; border-top: 1px dashed #ddd; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+strong { color: #1a237e; }
+.formula-comment { font-size: 13px; color: #888; margin-top: 4px; }
+em { font-style: italic; color: #555; }
+
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<div class="breadcrumb">
+  深度学习模式 / 第13讲-知识清单
+  <span class="sep">|</span> <a href="../第12讲-知识清单.html">←上一章</a>
+  <span class="sep">|</span> <span class="disabled">下一章(无) →</span>
+</div>
+
+<h1>第13讲 · SVM回顾与关联规则</h1>
+<p style="text-align:center;color:var(--ink-light);font-size:0.9em;">上海对外经贸大学 统计与数据科学学院 王昭文 · 2026年6月8日</p>
+
+<div class="toc">
+  <strong>目录</strong>
+  <ul>
+    <li><a href="#svm">第一部分：支持向量机 回顾</a>
+      <ul>
+        <li><a href="#svm-linear">一、线性可分支持向量机（硬间隔）</a></li>
+        <li><a href="#svm-soft">二、广义线性支持向量机（软间隔）</a></li>
+        <li><a href="#svm-kernel">三、线性不可分SVM与核技巧</a></li>
+        <li><a href="#svm-multi">四、多分类支持向量机</a></li>
+      </ul>
+    </li>
+    <li><a href="#ar">第二部分：关联规则</a>
+      <ul>
+        <li><a href="#ar-intro">五、关联分析概述</a></li>
+        <li><a href="#ar-metrics">六、简单关联规则：支持度、置信度、提升度</a></li>
+        <li><a href="#ar-apriori">七、Apriori算法</a></li>
+        <li><a href="#ar-eclat">八、Eclat算法</a></li>
+        <li><a href="#ar-seq">九、序列关联规则与SPADE算法</a></li>
+        <li><a href="#ar-gen">十、从频繁项集生成关联规则</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<!-- ==================== PART 1: 支持向量机 ==================== -->
+<h2 id="svm">第一部分：支持向量机（支持向量机）回顾 <span class="tag-read">细读</span></h2>
+<p><span class="exp">支持向量机 的核心问题是：在特征空间中找一个最优分离超平面，使得不同类别之间的"间隔"最大化。回顾从小到大三种情况：线性可分（硬间隔）、广义线性可分（软间隔）、线性不可分（核技巧）。</span></p>
+
+<!-- 1. 线性可分 支持向量机 -->
+<h3 id="svm-linear">一、线性可分支持向量机（硬间隔最大化） <span class="tag-must">必考</span></h3>
+
+<p><strong>直觉类比</strong>：想象你要在两组点之间画一条直线把它们分开。你可以画很多条——但哪条最好？直觉上说，离两边都尽量远的中间那条最好，因为新来一个点不容易被分错。这个「尽量远的距离」就是<span class="kp">间隔（Margin）</span>。</p>
+
+<p><span class="kp">核心思想</span>：在所有能将训练数据完全正确分开的分离超平面中，选择与两类样本点的<span class="exp">最小几何距离最大的那个</span>——即最大化间隔。</p>
+
+<h4>1.1 原始问题（Primal Problem）</h4>
+<p>对于线性可分数据集 $\{(\boldsymbol{x}_i, y_i)\}_{i=1}^N,\; y_i \in \{+1,-1\}$：</p>
+$$ \min_{\boldsymbol{w},b} \frac{1}{2} \|\boldsymbol{w}\|^2 \quad \text{s.t.} \quad y_i(\boldsymbol{w}\cdot\boldsymbol{x}_i + b) \geq 1, \; i=1,\dots,N $$
+<p><span class="exp">目标函数 $\frac{1}{2}\|\boldsymbol{w}\|^2$ 对应最大化间隔（间隔 = $2/\|\boldsymbol{w}\|$）；约束条件 $y_i(\boldsymbol{w}\cdot\boldsymbol{x}_i + b) \geq 1$ 表示所有样本必须被正确分类且落在间隔边界之外。</span></p>
+
+<h4>1.2 对偶问题（Dual Problem） <span class="tag-key">重点</span></h4>
+<p><strong>为什么需要转对偶？</strong><span class="exp">原始问题含 $\boldsymbol{w}$ 的维度可能非常高，转对偶后变量个数变成样本数 $N$，且内积形式便于引入核函数。</span></p>
+
+$$ \min_{\boldsymbol{\alpha}} \frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}\alpha_i\alpha_j y_i y_j (\boldsymbol{x}_i\cdot\boldsymbol{x}_j) - \sum_{i=1}^{N}\alpha_i $$
+$$ \text{s.t.} \quad \sum_{i=1}^{N}\alpha_i y_i = 0, \quad \alpha_i \geq 0, \; i=1,\dots,N $$
+
+<p><strong>求解后</strong>：
+  $$\boldsymbol{w}^* = \sum_{i=1}^{N}\alpha_i^* y_i \boldsymbol{x}_i$$
+  $$b^* = y_j - \sum_{i=1}^{N}\alpha_i^* y_i (\boldsymbol{x}_i\cdot\boldsymbol{x}_j) \quad\text{（对某个 $\alpha_j^* > 0$）}$$
+</p>
+
+<h4>1.3 支持向量（Support Vectors） <span class="tag-must">必考</span></h4>
+<p><span class="kp">支持向量</span>：对应于 $\alpha_i^* > 0$ 的样本点 $\boldsymbol{x}_i$。</p>
+<ul>
+  <li><span class="kp">$\alpha_i^* > 0$ 的实例点一定落在间隔边界上</span>，即 $y_i(\boldsymbol{w}^*\cdot\boldsymbol{x}_i + b^*) = 1$</li>
+  <li>最终的超平面 <span class="exp">只由这些支持向量决定，其他样本 $\alpha_i=0$ 对决策边界没有贡献</span></li>
+  <li>$\boldsymbol{w}^*$ 是支持向量的线性组合：$\boldsymbol{w}^* = \sum_{SV}\alpha_i^* y_i \boldsymbol{x}_i$</li>
+</ul>
+
+<blockquote>易错：支持向量是「落在间隔边界上的点」，不是「落在分类面上的点」。$\alpha_i > 0$ 是充要条件。考试常考判断题——说「所有样本都影响 支持向量机 决策边界」是错的，只有支持向量影响。</blockquote>
+
+<table>
+  <tr><th>$\alpha_i$ 值</th><th>位置</th><th>对解的影响</th></tr>
+  <tr><td>$\alpha_i = 0$</td><td>间隔边界外侧（分类正确且远离边界）</td><td>无影响</td></tr>
+  <tr><td>$\alpha_i > 0$</td><td>间隔边界上</td><td>支持向量，决定超平面</td></tr>
+</table>
+
+<h4>1.4 KKT条件与稀疏性</h4>
+<p><span class="kp">KKT互补松弛条件</span>：$\alpha_i\big[y_i(\boldsymbol{w}\cdot\boldsymbol{x}_i + b) - 1\big] = 0$。</p>
+<p><span class="exp">由此可推出：$\alpha_i > 0 \Rightarrow y_i(\boldsymbol{w}\cdot\boldsymbol{x}_i + b) = 1$，即该点必在间隔边界上。$\alpha_i = 0$ 的点可以离边界很远。支持向量机 的解具有稀疏性——大部分 $\alpha_i = 0$。</span></p>
+
+<p><span class="tag-key">重点</span></p>
+
+<!-- 2. 软间隔 支持向量机 -->
+<h3 id="svm-soft">二、广义线性支持向量机（软间隔最大化） <span class="tag-must">必考</span></h3>
+
+<p><strong>为什么需要软间隔？</strong><span class="exp">现实中数据往往不是完全线性可分的——可能有个别异常点或少量噪声使两类无法用一条直线完美分开。如果不做任何妥协，模型会为了迁就那几个噪声点而把间隔压得很窄，丧失泛化能力。引入「软间隔」允许少量样本不满足约束，但以惩罚为代价。</span></p>
+
+<p><span class="kp">核心修改</span>：为每个样本引入松弛变量 $\xi_i \geq 0$，允许样本落在间隔内部甚至被错分；同时用惩罚系数 $C$ 控制「追求大间隔」与「容忍误分」之间的权衡。</p>
+
+<h4>2.1 原始问题</h4>
+$$ \min_{\boldsymbol{w},b,\boldsymbol{\xi}} \frac{1}{2}\|\boldsymbol{w}\|^2 + C\sum_{i=1}^{N}\xi_i $$
+$$ \text{s.t.} \quad y_i(\boldsymbol{w}\cdot\boldsymbol{x}_i + b) \geq 1 - \xi_i, \; \xi_i \geq 0, \; i=1,\dots,N $$
+
+<p><span class="exp">$C > 0$ 是惩罚参数：$C$ 越大，对误分惩罚越重，间隔越窄，越倾向于拟合所有样本（可能过拟合）；$C$ 越小，越容忍误分，间隔越大，模型越简单。</span></p>
+
+<h4>2.2 对偶问题</h4>
+$$ \min_{\boldsymbol{\alpha}} \frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}\alpha_i\alpha_j y_i y_j (\boldsymbol{x}_i\cdot\boldsymbol{x}_j) - \sum_{i=1}^{N}\alpha_i $$
+$$ \text{s.t.} \quad \sum_{i=1}^{N}\alpha_i y_i = 0, \quad 0 \leq \alpha_i \leq C, \; i=1,\dots,N $$
+<p><span class="exp">与硬间隔的对偶问题相比，唯一的变化是 $\alpha_i$ 的上限从 $\infty$ 变成了 $C$。这恰好体现了「容忍」的含义：支持向量不再只是 $\alpha_i > 0$ 的点，而分三种情况。</span></p>
+
+<blockquote>关键区别：硬间隔对偶 $\alpha_i \geq 0$；软间隔对偶 $0 \leq \alpha_i \leq C$。$C$ 充当了 $\alpha_i$ 的上界约束。</blockquote>
+
+<h4>2.3 软间隔支持向量的三种情况 <span class="tag-key">重点</span></h4>
+<table>
+  <tr><th>条件</th><th>位置</th><th>分类</th></tr>
+  <tr><td>$\alpha_i = 0$</td><td>间隔边界外侧</td><td>正确分类，远离边界</td></tr>
+  <tr><td>$0 < \alpha_i < C$</td><td>间隔边界上</td><td>正确分类，恰好在边界上（类型A）</td></tr>
+  <tr><td>$\alpha_i = C,\; 0 < \xi_i < 1$</td><td>间隔边界与超平面之间</td><td>正确分类但在间隔内部（类型B）</td></tr>
+  <tr><td>$\alpha_i = C,\; \xi_i = 1$</td><td>恰好在超平面上</td><td>临界状态</td></tr>
+  <tr><td>$\alpha_i = C,\; \xi_i > 1$</td><td>超平面误分一侧</td><td>被错分（类型C）</td></tr>
+</table>
+
+<p><span class="exp">直观记忆：$0 < \alpha < C$ → 正常支持向量（在间隔边界）；$\alpha = C$ → "犯错"或"靠近边界"的样本。</span></p>
+
+<p><span class="tag-key">重点</span></p>
+
+<!-- 3. 核技巧 -->
+<h3 id="svm-kernel">三、线性不可分SVM与核技巧 <span class="tag-must">必考</span></h3>
+
+<p><strong>直觉</strong>：有些数据在原始二维空间里怎么画直线都分不开（如圆圈套圆圈），但把它们"拎"到三维空间——比如用 $z = x_1^2 + x_2^2$ 这个新坐标——圈内圈外就自动分层了，用一个平面就能切开。这就是核技巧的本质：<span class="kp">把低维不可分的数据映射到高维使之可分</span>。</p>
+
+<p><span class="kp">关键观察</span>：<span class="exp">支持向量机 的对偶问题只涉及样本之间的内积 $\boldsymbol{x}_i\cdot\boldsymbol{x}_j$。如果把每个样本 $\boldsymbol{x}$ 映射到高维 $\phi(\boldsymbol{x})$，我们只需要计算 $\phi(\boldsymbol{x}_i)\cdot\phi(\boldsymbol{x}_j)$——而不需要显式地知道 $\phi$ 是什么。核函数 $K(\boldsymbol{x}_i,\boldsymbol{x}_j) = \phi(\boldsymbol{x}_i)\cdot\phi(\boldsymbol{x}_j)$ 直接代替内积。</span></p>
+
+<h4>3.1 核技巧的数学本质</h4>
+<p>原始空间的内积 $\boldsymbol{x}_i\cdot\boldsymbol{x}_j$ → 特征空间的内积 $\phi(\boldsymbol{x}_i)\cdot\phi(\boldsymbol{x}_j)$ → 用核函数 $K(\boldsymbol{x}_i,\boldsymbol{x}_j)$ 代替。</p>
+$$ \min_{\boldsymbol{\alpha}} \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j K(\boldsymbol{x}_i,\boldsymbol{x}_j) - \sum_{i}\alpha_i $$
+$$ \text{决策函数：} f(\boldsymbol{x}) = \text{sign}\Big(\sum_{i=1}^{N}\alpha_i^* y_i K(\boldsymbol{x}_i, \boldsymbol{x}) + b^*\Big) $$
+
+<h4>3.2 常见核函数 <span class="tag-must">必考</span></h4>
+<table>
+  <tr><th>核函数</th><th>公式 $K(x,z)$</th><th>特点</th></tr>
+  <tr><td>线性核</td><td>$x \cdot z$</td><td>退化为线性 支持向量机，不映射</td></tr>
+  <tr><td>多项式核</td><td>$(x\cdot z + c)^d$</td><td>$d$ 控制复杂度，$d=1$ 退化为线性</td></tr>
+  <tr><td>径向基函数 (RBF)/高斯核</td><td>$\exp(-\gamma\|x-z\|^2)$</td><td>最常用，$\gamma$ 控制局部影响力</td></tr>
+  <tr><td>Sigmoid核</td><td>$\tanh(\kappa(x\cdot z) + \theta)$</td><td>类似神经网络激活函数</td></tr>
+</table>
+
+<blockquote>易错：径向基函数 (RBF) 核的 $\gamma$ 越大，高斯分布越窄，模型越复杂，越容易过拟合；$\gamma$ 越小，越平滑，越容易欠拟合。考试常见题：「增大 $\gamma$ 会导致过拟合还是欠拟合？」答案是过拟合。</blockquote>
+
+<p><span class="tag-must">必考</span></p>
+
+<!-- 4. 多分类 -->
+<h3 id="svm-multi">四、多分类支持向量机 <span class="tag-freq">高频</span></h3>
+
+<p><strong>动机</strong>：标准 支持向量机 是二分类器。对于 $K$ 类问题，需要把二分类器组合成多分类器。</p>
+
+<table>
+  <tr><th>策略</th><th>方法</th><th>分类器数</th><th>投票/决策方式</th></tr>
+  <tr>
+    <td><span class="kp">1对1 (一对一 (OvO))</span></td>
+    <td>第$k$类为+1，其余各类依次为-1</td>
+    <td>$\binom{K}{2} = \frac{K(K-1)}{2}$</td>
+    <td>众数投票（多数决定）</td>
+  </tr>
+  <tr>
+    <td><span class="kp">1对多 (一对剩余 (OvA))</span></td>
+    <td>第$k$类为+1，其余所有类为-1</td>
+    <td>$K$</td>
+    <td>取 $\max_k(b_k + W_k^T\boldsymbol{X})$ 对应的类别</td>
+  </tr>
+</table>
+
+<p><span class="exp">一对一 (OvO) 分类器数量多但每个分类器训练样本少；一对剩余 (OvA) 分类器数量少但存在正负样本不平衡问题。</span></p>
+
+<p><span class="tag-freq">高频</span></p>
+
+<hr style="border: 1px dashed var(--divider); margin: 32px 0;">
+
+<!-- ==================== PART 2: ASSOCIATION RULES ==================== -->
+<h2 id="ar">第二部分：关联规则 <span class="tag-read">细读</span></h2>
+<p><span class="exp">关联分析要回答的问题：从海量交易数据中，自动发现哪些商品经常一起被购买。核心形式是关联规则，分简单关联规则（不管顺序）和序列关联规则（考虑时间顺序）。</span></p>
+
+<!-- 5. 关联分析概述 -->
+<h3 id="ar-intro">五、关联分析概述 <span class="tag-key">重点</span></h3>
+
+<p><span class="kp">关联分析</span>：<span class="exp">揭示数据内在结构特征的手段，基于已有数据找到事物间的简单关联关系或序列关联关系。</span></p>
+
+<p><strong>经典案例——啤酒与尿布</strong>：沃尔玛分析POS数据发现，周末晚上买尿布的年轻男性同时买啤酒的比例高达35%。将两者摆放在相邻货架后，销售额显著提升。</p>
+
+<table>
+  <tr><th>概念</th><th>定义</th><th>示例</th></tr>
+  <tr><td><span class="kp">事务 (Transaction)</span></td><td>一次商业行为，由TID唯一标识</td><td>T1: {牛奶, 面包, 尿布}</td></tr>
+  <tr><td><span class="kp">项集 (Itemset)</span></td><td>项目的集合，包含$k$个项称$k$-项集</td><td>{牛奶, 面包} 是2-项集</td></tr>
+  <tr><td><span class="kp">简单关联规则</span></td><td>$A \rightarrow B$，不管购买顺序</td><td>尿布 → 啤酒</td></tr>
+  <tr><td><span class="kp">序列关联规则</span></td><td>考虑时间先后顺序的规则</td><td>$ \langle\{A\}, \{B\}\rangle$：先买A，后买B</td></tr>
+</table>
+
+<p><span class="tag-key">重点</span></p>
+
+<!-- 6. 度量指标 -->
+<h3 id="ar-metrics">六、简单关联规则的三大度量指标 <span class="tag-must">必考</span></h3>
+
+<p><strong>场景</strong>：5笔交易，分析「尿布 → 啤酒」规则。</p>
+
+<table>
+  <tr><th>TID</th><th>购买物品</th></tr>
+  <tr><td>T1</td><td>牛奶, 面包, 尿布</td></tr>
+  <tr><td>T2</td><td>牛奶, 面包, 啤酒</td></tr>
+  <tr><td>T3</td><td>牛奶, 尿布, 啤酒</td></tr>
+  <tr><td>T4</td><td>面包, 尿布, 啤酒</td></tr>
+  <tr><td>T5</td><td>牛奶, 面包, 尿布, 啤酒</td></tr>
+</table>
+
+<h4>6.1 支持度 Support <span class="tag-must">必考</span></h4>
+<p><span class="kp">支持度</span>衡量规则在全部事务中出现的频率：</p>
+$$ \text{Support}(A \rightarrow B) = P(A \cup B) = \frac{\text{count}(A \cup B)}{N} $$
+<p><span class="exp">例：尿布出现在 T1,T3,T4,T5 → count(尿布)=4；啤酒出现在 T2,T3,T4,T5 → count(啤酒)=4；两者同时出现在 T3,T4,T5 → count(尿布∪啤酒)=3。Support = 3/5 = 60%。</span></p>
+
+<h4>6.2 置信度 Confidence <span class="tag-must">必考</span></h4>
+<p><span class="kp">置信度</span>衡量在 $A$ 出现的前提下 $B$ 也出现的条件概率：</p>
+$$ \text{Confidence}(A \rightarrow B) = P(B|A) = \frac{\text{Support}(A \cup B)}{\text{Support}(A)} = \frac{\text{count}(A \cup B)}{\text{count}(A)} $$
+<p><span class="exp">例：Confidence(尿布→啤酒) = 3/4 = 75%。即在买了尿布的交易中，75% 也买了啤酒。</span></p>
+
+<h4>6.3 提升度 Lift <span class="tag-must">必考</span></h4>
+<p><strong>为什么需要 Lift？</strong><span class="exp">信心度有个盲区：如果啤酒本身就很多人买（支持度很高），那么「尿布→啤酒」的70%信心度可能并不特殊。Lift 衡量的是 $A$ 的出现到底在多大程度上「提升了」$B$ 出现的概率。</span></p>
+$$ \text{Lift}(A \rightarrow B) = \frac{P(B|A)}{P(B)} = \frac{\text{Confidence}(A \rightarrow B)}{\text{Support}(B)} $$
+<table>
+  <tr><th>Lift 值</th><th>含义</th></tr>
+  <tr><td>Lift > 1</td><td>正相关：A的出现提升了B出现的概率（有效规则）</td></tr>
+  <tr><td>Lift = 1</td><td>独立：A和B没有关联</td></tr>
+  <tr><td>Lift < 1</td><td>负相关：A的出现降低了B出现的概率（替代关系）</td></tr>
+</table>
+
+<p><span class="exp">例：Lift(尿布→啤酒) = 75% / (4/5) = 0.75 / 0.8 ≈ 0.94 < 1，说明在这个数据集中尿布和啤酒轻微负相关。</span></p>
+
+<blockquote>易错：Support 小的规则 Confidence 可能很高，但 Lift 揭示了真正的相关性。只靠 Support + Confidence 容易被高频项误导。考试常见题：给两个规则让比较优劣，要同时看三个指标。</blockquote>
+
+<p><span class="tag-must">必考</span></p>
+
+<!-- 7. Apriori -->
+<h3 id="ar-apriori">七、Apriori 算法 <span class="tag-must">必考</span></h3>
+
+<p><strong>动机</strong>：$n$ 个商品的组合数为 $2^n - 1$。$n=100$ 时约 $1.27 \times 10^{30}$，不可能逐个枚举所有项集。Apriori 利用「频繁项集的子集也是频繁的」这个性质剪枝，大幅缩减搜索空间。</p>
+
+<h4>7.1 Apriori 原理 <span class="tag-must">必考</span></h4>
+<ol>
+  <li><span class="kp">频繁项集的子集也是频繁的</span>：若 {牛奶, 面包} 频繁，则 {牛奶} 和 {面包} 也频繁。</li>
+  <li><span class="kp">非频繁项集的超集也是非频繁的</span>：若 {啤酒} 非频繁，则所有包含 {啤酒} 的项集（如 {啤酒, 牛奶}）都非频繁。<span class="exp">这是剪枝的关键依据。</span></li>
+</ol>
+
+<h4>7.2 算法步骤 <span class="tag-key">重点</span></h4>
+<table>
+  <tr><th>步骤</th><th>操作</th><th>说明</th></tr>
+  <tr><td>Step 1</td><td>C1 → L1</td><td>扫描数据库，统计每个1-项集支持度，删掉低于 min_sup 的项</td></tr>
+  <tr><td>Step 2a</td><td>连接 (Join)</td><td>将两个 $(k-1)$-项集连接生成 $k$-项集，要求前 $(k-2)$ 个项相同</td></tr>
+  <tr><td>Step 2b</td><td>剪枝 (Prune)</td><td>若 $k$-项集的任一 $(k-1)$ 子集不在频繁集中，则删除</td></tr>
+  <tr><td>Step 3</td><td>Ck → Lk</td><td>扫描数据库计算每个候选项集的支持度，保留 ≥ min_sup 的</td></tr>
+  <tr><td>Step 4</td><td>迭代</td><td>重复 Step 2-3，直到无法生成新的频繁项集</td></tr>
+</table>
+
+<h4>7.3 实例演算（min_sup = 60% = 3/5）</h4>
+<p><strong>Step 1 — C1 → L1</strong>：每项支持度 4/5 = 80% ≥ 60%，全部保留。L1 = {{牛奶}, {面包}, {尿布}, {啤酒}}。</p>
+<p><strong>Step 2 — C2 → L2</strong>：连接得 6 个候选2-项集，每个支持度均为 3/5 = 60%，全部保留。L2 = {{牛奶,面包}, {牛奶,啤酒}, {牛奶,尿布}, {面包,啤酒}, {面包,尿布}, {啤酒,尿布}}。</p>
+<p><strong>Step 3 — C3 → L3</strong>：连接得 4 个候选3-项集（{牛奶,面包,啤酒}等）。扫描数据库，每个支持度均为 2/5 = 50% < 60%，全部丢弃。算法终止。</p>
+
+<h4>7.4 优缺点</h4>
+<table>
+  <tr><th>优点</th><th>缺点</th></tr>
+  <tr><td>原理简单直观</td><td>需多次扫描数据库（每轮迭代一次）</td></tr>
+  <tr><td>Apriori 性质有效剪枝</td><td>广度优先，时间复杂度高，内存消耗大</td></tr>
+  <tr><td>易于并行化</td><td>数据量增大时性能下降明显</td></tr>
+</table>
+
+<blockquote>易错：Apriori 生成候选k-项集时，连接要求「前(k-2)个项相同」——这是为了保证生成的k-项集的所有(k-1)子集都可能在频繁集中。考试可能考这个连接条件。</blockquote>
+
+<p><span class="tag-must">必考</span></p>
+
+<!-- 8. Eclat -->
+<h3 id="ar-eclat">八、Eclat 算法 <span class="tag-key">重点</span></h3>
+
+<p><strong>动机</strong>：Apriori 每次迭代都要扫描整个数据库，在数据量大时很慢。能不能只扫描一次？Eclat 给出了答案。</p>
+
+<p><span class="kp">核心思想</span>：<span class="exp">将水平数据格式（TID → Items）转换为垂直数据格式（Item → Tidset），之后所有支持度计算都通过 Tidset 的交集运算完成，无需反复扫描原始数据库。</span></p>
+
+<h4>8.1 水平格式 vs 垂直格式</h4>
+<table>
+  <tr><th>格式</th><th>结构</th><th>使用</th></tr>
+  <tr><td>水平格式</td><td>TID → 项集列表</td><td>Apriori 使用</td></tr>
+  <tr><td>垂直格式</td><td>项 → 包含该项的事务ID集合（Tidset）</td><td>Eclat 使用</td></tr>
+</table>
+
+<h4>8.2 算法流程</h4>
+<ol>
+  <li><span class="kp">数据转换</span>：将水平数据转为垂直格式。如牛奶 → {T1, T2, T3, T5}。</li>
+  <li><span class="kp">计算支持度</span>：每个1-项集的支持度 = Tidset的大小。</li>
+  <li><span class="kp">筛选频繁1-项集</span>：删除小于 min_sup 的项。</li>
+  <li><span class="kp">DFS 递归生成</span>：对于频繁1-项集，通过 Tidset 的交集运算构造候选2-项集；候选2-项集的支持度 = 两个 Tidset 交集的大小；递归产生更高级别项集。</li>
+</ol>
+
+<h4>8.3 实例</h4>
+<p>牛奶 Tidset = {T1,T2,T3,T5}，面包 Tidset = {T1,T2,T4,T5}</p>
+<p>牛奶 ∩ 面包 = {T1, T2, T5}，计数 = 3（频繁）。继续求 (牛奶∩面包)∩尿布 = {T1, T5}，计数 = 2（不频繁，丢弃）。</p>
+
+<table>
+  <tr><th>对比</th><th>Apriori</th><th>Eclat</th></tr>
+  <tr><td>数据格式</td><td>水平</td><td>垂直</td></tr>
+  <tr><td>搜索策略</td><td>广度优先 BFS</td><td>深度优先 DFS</td></tr>
+  <tr><td>数据库扫描</td><td>每轮一次，多次扫描</td><td>仅一次</td></tr>
+  <tr><td>支持度计算</td><td>扫描数据库计数</td><td>求 Tidset 交集大小</td></tr>
+  <tr><td>速度</td><td>较慢</td><td>较快</td></tr>
+</table>
+
+<blockquote>易错：Eclat 并不是在所有情况下都比 Apriori 快——当 Tidset 很大时交集运算同样耗时。但对于稠密数据，垂直格式通常更高效。</blockquote>
+
+<p><span class="tag-key">重点</span></p>
+
+<!-- 9. 序列关联规则 -->
+<h3 id="ar-seq">九、序列关联规则与 SPADE 算法 <span class="tag-key">重点</span></h3>
+
+<h4>9.1 序列关联 vs 简单关联</h4>
+<table>
+  <tr><th>维度</th><th>简单关联规则</th><th>序列关联规则</th></tr>
+  <tr><td>关注点</td><td>哪些商品一起买</td><td>商品购买的先后顺序</td></tr>
+  <tr><td>数据结构</td><td>事务集合（无序）</td><td>序列：有序的项集列表</td></tr>
+  <tr><td>表示</td><td>{A, B}</td><td>$\langle s_1, s_2, \dots, s_n \rangle$</td></tr>
+  <tr><td>典型算法</td><td>Apriori, Eclat</td><td>SPADE</td></tr>
+  <tr><td>应用</td><td>货架摆放、捆绑销售</td><td>金融风控、医疗诊断、网页路径分析</td></tr>
+</table>
+
+<p><span class="kp">序列</span>：$S = \langle s_1, s_2, \dots, s_n \rangle$，其中每个 $s_i$ 是一个项集。例如 $\langle \{A,B\}, \{C\}, \{D\} \rangle$ 表示该顾客在第一个时间点买了A和B，然后买了C，最后买了D。</p>
+
+<h4>9.2 SPADE 算法 <span class="tag-key">重点</span></h4>
+<p><span class="kp">全称</span>：<span class="exp">Sequential Pattern Discovery using Equivalence classes</span>。</p>
+<p><strong>核心思想</strong>：采用垂直数据格式，每个项关联一个 <span class="kp">ID-List</span>（由 (SID, EID) 对组成）。通过 ID-List 的交集运算（Join）统计支持度，避免反复扫描数据库。</p>
+
+<h4>9.3 SPADE 算法步骤</h4>
+<ol>
+  <li><strong>垂直化转换</strong>：将原始数据（SID, EID, Items）转换为以商品为核心的 ID-List —— 每一项包含 (SID, EID)。例如 Item A: {(1,10), (2,10), (4,10)}，Support = 3。</li>
+  <li><strong>筛选频繁1-序列</strong>：删除支持度小于 min_sup 的项。</li>
+  <li><strong>生成频繁2-序列——两种Join</strong>：
+    <table>
+      <tr><th>Join 类型</th><th>条件</th><th>结果</th><th>示例</th></tr>
+      <tr><td><span class="kp">等值连接 (Equality Join)</span></td><td>同一 SID，相同 EID</td><td>合并项如 (AB)</td><td>A和B在同一时间购买</td></tr>
+      <tr><td><span class="kp">顺序连接 (Temporal Join)</span></td><td>同一 SID，EID1 < EID2</td><td>顺序项如 A→C</td><td>先买A后买C</td></tr>
+    </table>
+  </li>
+  <li><strong>等价类划分与递归</strong>：一个等价类由其公共前缀标识。如 [A] 等价类 = 所有以 A 开头的频繁序列。在等价类内递归生成更长的频繁序列。</li>
+  <li><strong>逐级构造</strong>：由频繁 k-序列构造候选 (k+1)-序列，通过 ID-List 运算验证支持度。</li>
+</ol>
+
+<h4>9.4 SPADE vs Apriori 在序列挖掘中的区别</h4>
+<blockquote>易错：Apriori 处理的是「项集」，顺序无关（{A,B} 和 {B,A} 相同）；SPADE 处理的是「序列」，顺序有关（⟨A,B⟩ 和 ⟨B,A⟩ 不同）。如果在 Apriori 中 {A,B} 频繁则 {A} 频繁；但在 SPADE 中 A→B 频繁，并不意味着 B→A 频繁。</blockquote>
+
+<p><span class="tag-freq">高频</span></p>
+
+<!-- 10. 生成关联规则 -->
+<h3 id="ar-gen">十、从频繁项集生成关联规则 <span class="tag-key">重点</span></h3>
+
+<p><span class="kp">生成规则的基本方法</span>：<span class="exp">对每个频繁项集 $X$，枚举其所有非空真子集 $Y$，构造规则 $Y \rightarrow (X - Y)$，计算置信度并筛选出 ≥ 最小置信度阈值的规则。</span></p>
+
+$$ \text{Confidence}(Y \rightarrow X-Y) = \frac{\text{Support}(X)}{\text{Support}(Y)} $$
+
+<p><strong>实例</strong>（min_conf = 80%）：频繁项集 L = {牛奶, 面包}，Support = 3/5。</p>
+<ul>
+  <li>规则1 牛奶→面包：Confidence = 3/4 = 75% < 80%，规则无效</li>
+  <li>规则2 面包→牛奶：Confidence = 3/4 = 75% < 80%，规则无效</li>
+</ul>
+
+<p><span class="exp">这个例子中虽然 {牛奶,面包} 是频繁项集，但两个方向的置信度都不够高，无法生成有效关联规则。</span></p>
+
+<blockquote>易错：频繁项集不一定能产生强关联规则。频繁项集只看支持度，强关联规则还要看置信度。所以 max frequent itemset 不能保证生成的规则就有效。</blockquote>
+
+<p><span class="tag-key">重点</span></p>
+
+<h2>综合对比表 <span class="tag-read">细读</span></h2>
+<table>
+  <tr><th>维度</th><th>Apriori</th><th>Eclat</th><th>SPADE</th></tr>
+  <tr><td>分析对象</td><td>事务（无序）</td><td>事务（无序）</td><td>序列（有序）</td></tr>
+  <tr><td>数据格式</td><td>水平</td><td>垂直</td><td>垂直（ID-List）</td></tr>
+  <tr><td>搜索方式</td><td>广度优先 BFS</td><td>深度优先 DFS</td><td>等价类+DFS</td></tr>
+  <tr><td>DB扫描次数</td><td>多次（每轮迭代）</td><td>一次</td><td>一次</td></tr>
+  <tr><td>核心运算</td><td>扫描计数</td><td>Tidset 交集</td><td>ID-List Join</td></tr>
+  <tr><td>剪枝依据</td><td>Apriori 性质</td><td>支持度阈值</td><td>支持度阈值</td></tr>
+  <tr><td>输出形式</td><td>{A,B} → C</td><td>{A,B} → C</td><td>⟨A⟩→⟨B⟩→⟨C⟩</td></tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6讲-考试速查 | Bagging与随机森林</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#fafafa;color:#222;font-size:14px;line-height:1.7}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.breadcrumb{font-size:13px;color:#777;padding:8px 14px;background:#fff;border-radius:6px;margin-bottom:14px;display:flex;justify-content:space-between}
+h1{font-size:22px;color:#c62828;margin-bottom:6px;padding-bottom:8px;border-bottom:2px solid #c62828}
+h2{font-size:17px;color:#c62828;margin:20px 0 10px;padding:6px 10px;background:#ffebee;border-left:4px solid #c62828;border-radius:0 6px 6px 0}
+h3{font-size:15px;color:#b71c1c;margin:14px 0 8px}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin-bottom:12px}
+.highlight{background:#fff9c4;padding:2px 6px;border-radius:3px;font-weight:600}
+.formula{background:#f5f5f5;padding:8px 14px;margin:8px 0;border-radius:6px;font-family:"Cambria Math","Times New Roman",serif;font-size:15px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+th{background:#c62828;color:#fff;padding:6px 10px;text-align:left}
+td{padding:6px 10px;border:1px solid #e0e0e0}
+tr:nth-child(even){background:#fff5f5}
+ol,ul{padding-left:22px;margin:6px 0}
+li{margin:3px 0}
+.important{background:#ffcdd2;border-left:3px solid #b71c1c;padding:8px 12px;margin:10px 0;border-radius:0 6px 6px 0}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="breadcrumb">
+  <span>考试模式 / <strong>第6讲-考试速查</strong></span>
+  <span><a href="../深度学习模式/第6讲-知识清单.html">← 知识清单</a> | <a href="../章节测试/第6讲-章节测试.html">章节测试 →</a></span>
+</div>
+
+<h1>第6讲：Bagging与随机森林 — 考试速查</h1>
+
+<!-- ===== Bagging ===== -->
+<h2>一、Bagging 核心速查</h2>
+<div class="card">
+  <h3>算法步骤（4步）</h3>
+  <ol>
+    <li><strong>Bootstrap抽样</strong>：从N个样本中有放回抽N个 → 约63.2%样本被选中</li>
+    <li><strong>训练基学习器</strong>：在抽样子集上独立训练一棵决策树</li>
+    <li><strong>重复B次</strong>：得到B棵不同的决策树</li>
+    <li><strong>聚合</strong>：分类→多数投票；回归→简单平均</li>
+  </ol>
+
+  <div class="formula">
+    <strong>分类投票：</strong> H(x) = argmax<sub>y</sub> Σ<sub>b=1</sub><sup>B</sup> I(h<sub>b</sub>(x) = y)<br>
+    <strong>回归平均：</strong> H(x) = (1/B) Σ<sub>b=1</sub><sup>B</sup> h<sub>b</sub>(x)
+  </div>
+
+  <div class="important">
+    <strong>关键点：</strong>Bagging是<strong>并行式</strong>集成，树之间<strong>无依赖</strong>；主要<strong>降低方差</strong>，偏差几乎不变。
+  </div>
+</div>
+
+<!-- ===== Random Forest ===== -->
+<h2>二、随机森林 核心速查</h2>
+<div class="card">
+  <h3>算法步骤（5步）</h3>
+  <ol>
+    <li>对每棵树，Bootstrap抽样N个样本</li>
+    <li>在每个<strong>节点分裂</strong>时：从M个特征中<strong>随机选m个</strong>（m ≪ M）</li>
+    <li>从m个特征中选最优分裂特征（如基尼指数最小）</li>
+    <li>递归分裂直到停止，生成完整决策树（<strong>不剪枝</strong>）</li>
+    <li>重复B次 → B棵树投票/平均</li>
+  </ol>
+
+  <table>
+    <tr><th>参数</th><th>推荐值</th><th>说明</th></tr>
+    <tr><td>B（树数量）</td><td>500~1000</td><td>越大越好，但边际递减</td></tr>
+    <tr><td>m（mtry）</td><td>分类：√M；回归：M/3</td><td>m=M时退化为Bagging</td></tr>
+  </table>
+
+  <div class="important">
+    <strong>RF = Bagging + 特征随机</strong>。双重随机性（样本+特征）使树间去相关，方差比Bagging更低。当mtry接近总特征数时 → <strong>退化为传统Bagging</strong>。
+  </div>
+</div>
+
+<!-- ===== 偏差方差 ===== -->
+<h2>三、偏差-方差分解 速查</h2>
+<div class="card">
+  <div class="formula">
+    <strong>泛化误差 = Bias² + Variance + σ²</strong>
+  </div>
+
+  <table>
+    <tr><th>误差</th><th>含义</th><th>高意味着</th></tr>
+    <tr><td>Bias²</td><td>预测期望 vs 真实值差距</td><td>欠拟合 → 增加模型复杂度</td></tr>
+    <tr><td>Variance</td><td>预测值在不同训练集上的波动</td><td>过拟合 → 集成/正则化/增数据</td></tr>
+    <tr><td>σ²</td><td>数据固有噪声</td><td>不可降低</td></tr>
+  </table>
+
+  <table>
+    <tr><th>模型</th><th>偏差</th><th>方差</th><th>策略</th></tr>
+    <tr><td>单棵决策树（深）</td><td>低</td><td>高</td><td>—</td></tr>
+    <tr><td>Bagging</td><td>≈单树</td><td>↓ 显著降</td><td>并行 + 投票平均</td></tr>
+    <tr><td>随机森林</td><td>略增</td><td>↓ 进一步降</td><td>+ 特征随机 → 去相关</td></tr>
+    <tr><td>AdaBoost / Boosting</td><td>↓ 显著降</td><td>略增</td><td>串行纠错 → 降低偏差</td></tr>
+  </table>
+
+  <div class="important">
+    <strong>核心结论：</strong>Bagging/RF 降<strong>方差</strong>（适合复杂基学习器）；Boosting 降<strong>偏差</strong>（将弱学习器变强）。
+  </div>
+</div>
+
+<!-- ===== 袋外 (OOB) ===== -->
+<h2>四、OOB袋外误差 速查</h2>
+<div class="card">
+  <ul>
+    <li><strong>定义：</strong>利用Bootstrap中未被选中的36.8%样本作为验证集</li>
+    <li><strong>分类：</strong>对每个样本i，仅用不包含i的树投票，计算误分率</li>
+    <li><strong>回归：</strong>对每个样本i，用袋外树预测均值，计算MSE</li>
+    <li><strong>用途：</strong>无需单独验证集的模型评估、调参、特征重要性</li>
+  </ul>
+</div>
+
+<!-- ===== AdaBoost ===== -->
+<h2>五、AdaBoost 核心速查（串行对比）</h2>
+<div class="card">
+  <h3>核心思想</h3>
+  <ol>
+    <li><strong>错分样本权重大</strong>：每轮提高上一轮错分样本的权重</li>
+    <li><strong>好分类器权重大</strong>：误差率低的弱分类器在投票时权重更大</li>
+  </ol>
+
+  <h3>关键公式</h3>
+  <div class="formula">
+    误差率：e<sub>m</sub> = Σ w<sub>i</sub> · I(G<sub>m</sub>(x<sub>i</sub>) ≠ y<sub>i</sub>)<br>
+    分类器权重：α<sub>m</sub> = ½ ln((1-e<sub>m</sub>)/e<sub>m</sub>)<br>
+    最终分类器：G(x) = sign(Σ α<sub>m</sub>·G<sub>m</sub>(x))
+  </div>
+
+  <table>
+    <tr><th>e<sub>m</sub></th><th>α<sub>m</sub></th><th>说明</th></tr>
+    <tr><td>0.5</td><td>0</td><td>等同于随机，无贡献</td></tr>
+    <tr><td>&lt;0.5</td><td>&gt;0</td><td>误差越小，权重越大</td></tr>
+  </table>
+
+  <h3>数学本质</h3>
+  <p>AdaBoost = 加法模型 + 指数损失 + 前向分步算法</p>
+</div>
+
+<!-- ===== Boosting Tree ===== -->
+<h2>六、提升树 速查</h2>
+<div class="card">
+  <table>
+    <tr><th>类型</th><th>基函数</th><th>损失</th><th>每步目标</th></tr>
+    <tr><td>分类提升树</td><td>二叉分类树</td><td>指数损失</td><td>= AdaBoost特例</td></tr>
+    <tr><td>回归提升树</td><td>二叉回归树</td><td>平方误差</td><td>拟合<strong>残差</strong> r = y - f<sub>m-1</sub>(x)</td></tr>
+  </table>
+</div>
+
+<!-- ===== 快速对比表 ===== -->
+<h2>七、终极对比速查表</h2>
+<div class="card">
+  <table>
+    <tr><th></th><th>Bagging</th><th>Random Forest</th><th>AdaBoost</th></tr>
+    <tr><td>结构</td><td>并行</td><td>并行</td><td>串行</td></tr>
+    <tr><td>样本</td><td>有放回Bootstrap</td><td>有放回Bootstrap</td><td>全样本+权重</td></tr>
+    <tr><td>特征</td><td>全部M个</td><td>随机m个(m≪M)</td><td>由弱学习器决定</td></tr>
+    <tr><td>组合</td><td>投票/平均</td><td>投票/平均</td><td>加权投票(α)</td></tr>
+    <tr><td>降低</td><td>方差</td><td>方差(更低)</td><td>偏差</td></tr>
+    <tr><td>过拟合</td><td>低风险</td><td>很低风险</td><td>B过大有风险</td></tr>
+    <tr><td>可解释性</td><td>差</td><td>差</td><td>差</td></tr>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>第13讲 · SVM回顾与关联规则 — 考试速查</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root {
+  --paper: #fdf6e3; --paper-dark: #f5ecd7; --ink: #2c2c2c; --ink-light: #555;
+  --accent: #2563eb; --divider: #d6c8a8; --card-bg: #fef9ef; --card-border: #e8dcc8;
+  --correct: #22c55e; --wrong: #ef4444; --radius: 6px;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 11pt; line-height: 1.65; color: var(--ink);
+  max-width: 820px; margin: auto; padding: 20px 18px 50px;
+  background: var(--paper);
+}
+@media print { body { font-size: 10pt; background: #fff; } }
+h1 { font-size: 1.5em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 6px; margin: 0 0 16px; }
+h2 { font-size: 1.18em; border-bottom: 1px solid var(--divider); padding-bottom: 3px; margin-top: 22px; }
+h3 { font-size: 1.05em; margin-top: 16px; color: var(--ink); }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.93em; }
+td, th { border: 1px solid var(--card-border); padding: 4px 8px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+.kp { font-weight: 700; color: var(--ink); }
+.exp { font-weight: 400; color: var(--ink-light); font-size: 0.95em; }
+blockquote { border-left: 3px solid #c0392b; background: #fef9ef; padding: 4px 12px; margin: 6px 0; font-size: 0.93em; }
+code { background: #f0ede0; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+.tag-must { background:#fee2e2;color:#991b1b;padding:1px 5px;border-radius:3px;font-size:0.8em;font-weight:600; }
+.tag-key  { background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:0.8em;font-weight:600; }
+.tag-freq { background:#dbeafe;color:#1e40af;padding:1px 5px;border-radius:3px;font-size:0.8em;font-weight:600; }
+.tag-info { background:#f0fdf4;color:#166534;padding:1px 5px;border-radius:3px;font-size:0.8em;font-weight:600; }
+.fbox { background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius); padding:10px 14px; margin:8px 0; }
+</style>
+</head>
+<body>
+
+<h1>SVM回顾与关联规则 · 考试速查</h1>
+<p style="text-align:center;color:var(--ink-light);font-size:0.85em;">第13讲（6月8日）| 王昭文 | 上海对外经贸大学</p>
+
+<!-- ====== 支持向量机 ====== -->
+<h2>一、支持向量机 核心公式速查 <span class="tag-must">必考</span></h2>
+
+<div class="fbox">
+<p><strong>线性可分 — 硬间隔原始问题：</strong></p>
+$$\min_{w,b} \frac{1}{2}\|w\|^2 \quad \text{s.t.} \quad y_i(w\cdot x_i + b) \ge 1$$
+
+<p><strong>线性可分 — 对偶问题：</strong></p>
+$$\min_\alpha \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j (x_i\cdot x_j) - \sum_i\alpha_i \quad \text{s.t.} \quad \sum_i\alpha_i y_i = 0,\; \alpha_i \ge 0$$
+
+<p><strong>软间隔 — 原始问题（引入松弛变量 $\xi_i$）：</strong></p>
+$$\min_{w,b,\xi} \frac{1}{2}\|w\|^2 + C\sum_i\xi_i \quad \text{s.t.} \quad y_i(w\cdot x_i + b) \ge 1-\xi_i,\; \xi_i \ge 0$$
+
+<p><strong>软间隔 — 对偶（仅增加 $\alpha_i \le C$ 约束）：</strong></p>
+$$0 \le \alpha_i \le C$$
+
+<p><strong>带核函数 — 对偶（内积替换为核函数）：</strong></p>
+$$\min_\alpha \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j K(x_i,x_j) - \sum_i\alpha_i$$
+
+<p><strong>决策函数：</strong> $f(x) = \text{sign}\big(\sum_{i}\alpha_i^* y_i K(x_i, x) + b^*\big)$</p>
+</div>
+
+<div class="fbox">
+<p><strong>支持向量条件：</strong></p>
+<table>
+  <tr><th>硬间隔</th><th>软间隔</th><th>位置</th></tr>
+  <tr><td>$\alpha_i > 0$</td><td>$0 < \alpha_i < C$</td><td>间隔边界上（正常SV）</td></tr>
+  <tr><td>—</td><td>$\alpha_i = C,\; 0<\xi_i<1$</td><td>间隔边界与超平面之间</td></tr>
+  <tr><td>—</td><td>$\alpha_i = C,\; \xi_i>1$</td><td>误分一侧</td></tr>
+</table>
+<p>$\alpha_i = 0$ 的点对解无贡献。$w^* = \sum_{SV} \alpha_i^* y_i x_i$ 为支持向量的线性组合。</p>
+</div>
+
+<div class="fbox">
+<p><strong>常见核函数：</strong></p>
+<table>
+  <tr><th>名称</th><th>$K(x,z)$</th><th>参数影响</th></tr>
+  <tr><td>线性核</td><td>$x\cdot z$</td><td>无额外参数</td></tr>
+  <tr><td>多项式核</td><td>$(x\cdot z + c)^d$</td><td>$d$↑ 越复杂</td></tr>
+  <tr><td>径向基函数 (RBF)/高斯核</td><td>$\exp(-\gamma\|x-z\|^2)$</td><td>$\gamma$↑ 越复杂→易过拟合</td></tr>
+  <tr><td>Sigmoid核</td><td>$\tanh(\kappa(x\cdot z)+\theta)$</td><td>类似神经网络</td></tr>
+</table>
+</div>
+
+<div class="fbox">
+<p><strong>多分类SVM：</strong></p>
+<table>
+  <tr><th>策略</th><th>分类器数</th><th>决策方式</th></tr>
+  <tr><td>1对1 (一对一 (OvO))</td><td>$K(K-1)/2$</td><td>众数投票</td></tr>
+  <tr><td>1对多 (一对剩余 (OvA))</td><td>$K$</td><td>$\max_k(b_k + W_k^T X)$</td></tr>
+</table>
+</div>
+
+<!-- ====== 关联规则 ====== -->
+<h2>二、关联规则核心公式速查 <span class="tag-must">必考</span></h2>
+
+<div class="fbox">
+<p><strong>三大度量指标公式：</strong></p>
+<table>
+  <tr><th>指标</th><th>公式</th><th>含义</th></tr>
+  <tr><td>支持度</td><td>$\text{Support}(A \to B) = \frac{\text{count}(A \cup B)}{N}$</td><td>规则在全部事务中的频率</td></tr>
+  <tr><td>置信度</td><td>$\text{Conf}(A \to B) = \frac{\text{Support}(A \cup B)}{\text{Support}(A)} = \frac{\text{count}(A \cup B)}{\text{count}(A)}$</td><td>给定A时B的条件概率</td></tr>
+  <tr><td>提升度</td><td>$\text{Lift}(A \to B) = \frac{\text{Conf}(A \to B)}{\text{Support}(B)}$</td><td>A对B概率的"提升"倍数</td></tr>
+</table>
+<p><strong>判断标准：</strong>Lift > 1 正相关（有效规则）；Lift = 1 独立（无关联）；Lift < 1 负相关（替代关系）。</p>
+</div>
+
+<blockquote>陷阱：Support低+Confidence高 ≠ 好规则。必须看Lift是否大于1。</blockquote>
+
+<div class="fbox">
+<p><strong>Apriori 原理（两条）：</strong></p>
+<ol>
+  <li>频繁项集的子集也是频繁的</li>
+  <li>非频繁项集的超集也是非频繁的（<span class="kp">剪枝依据</span>）</li>
+</ol>
+<p><strong>步骤：</strong>C1→L1 → 连接(前k-2项相同)→剪枝 → Ck→Lk → 迭代至无新频繁项集。</p>
+<p><strong>缺点：</strong>多次扫描DB、广度优先、大样本下性能差。</p>
+</div>
+
+<div class="fbox">
+<p><strong>算法对比：</strong></p>
+<table>
+  <tr><th></th><th>Apriori</th><th>Eclat</th><th>SPADE</th></tr>
+  <tr><td>对象</td><td>事务(无序)</td><td>事务(无序)</td><td>序列(有序)</td></tr>
+  <tr><td>格式</td><td>水平</td><td>垂直(Tidset)</td><td>垂直(ID-List)</td></tr>
+  <tr><td>搜索</td><td>BFS</td><td>DFS</td><td>等价类+DFS</td></tr>
+  <tr><td>DB扫描</td><td>多次</td><td>一次</td><td>一次</td></tr>
+  <tr><td>核心运算</td><td>扫描计数</td><td>Tidset交集</td><td>ID-List Join</td></tr>
+  <tr><td>输出</td><td>{A,B}→C</td><td>{A,B}→C</td><td>⟨A⟩→⟨B⟩→⟨C⟩</td></tr>
+</table>
+</div>
+
+<div class="fbox">
+<p><strong>SPADE 两种Join：</strong></p>
+<table>
+  <tr><th>类型</th><th>条件</th><th>结果</th></tr>
+  <tr><td>等值连接 (Equality Join)</td><td>同一SID，相同EID</td><td>合并项 (AB)</td></tr>
+  <tr><td>顺序连接 (Temporal Join)</td><td>同一SID，EID1 < EID2</td><td>顺序项 A→B</td></tr>
+</table>
+</div>
+
+<div class="fbox">
+<p><strong>生成关联规则：</strong>对每个频繁项集 $X$，枚举其所有非空真子集 $Y$，构造规则 $Y \to (X-Y)$，计算 $\text{Conf} = \frac{\text{Support}(X)}{\text{Support}(Y)}$，筛选 ≥ min_conf 的规则。</p>
+</div>
+
+<blockquote>关键易错：频繁项集不一定能生成强关联规则！频繁只看Support，规则还要看Confidence。Apriori中{A,B}频繁→{A}频繁；但SPADE中A→B频繁≠B→A频繁。</blockquote>
+
+<div class="fbox">
+<p><strong>练习速答：</strong></p>
+<ol>
+  <li>Apriori中{A,B}频繁 → {A}频繁（√）。SPADE中A→B频繁 → B→A频繁（×），因为序列有顺序。</li>
+  <li>慢病预警（高血压→冠心病）应选SPADE（序列模式挖掘），因为涉及症状出现的先后顺序。</li>
+  <li>$\text{Conf}(A \to B) = \frac{\text{Support}(A \to B)}{\text{Support}(A)} = \frac{8\%}{10\%} = 80\%$。</li>
+</ol>
+</div>
+
+</body>
+</html>

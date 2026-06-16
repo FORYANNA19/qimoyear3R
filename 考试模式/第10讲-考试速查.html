@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10讲 考试速查 — 神经网络：感知机</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#fafafa;color:#212121;line-height:1.7;}
+.container{max-width:820px;margin:0 auto;padding:16px;}
+.header{background:#c62828;color:#fff;padding:20px 28px;border-radius:10px;margin-bottom:16px;text-align:center;}
+.header h1{font-size:24px;margin-bottom:4px;}
+.header .sub{font-size:13px;opacity:.85;}
+.section{background:#fff;border-left:4px solid #c62828;padding:16px 20px;margin-bottom:12px;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.section h2{font-size:18px;color:#c62828;margin-bottom:10px;}
+.formula{background:#fff3e0;padding:10px 14px;margin:8px 0;border-radius:4px;font-size:15px;overflow-x:auto;border:1px solid #ffe0b2;}
+.formula .var{color:#c62828;font-weight:600;}
+.note{color:#6a1b9a;font-size:13px;margin-top:4px;}
+ol.steps{margin:8px 0;padding-left:22px;}
+ol.steps li{margin:4px 0;font-size:14px;}
+ol.steps li strong{color:#c62828;}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+th{background:#c62828;color:#fff;padding:7px 10px;text-align:left;}
+td{padding:6px 10px;border-bottom:1px solid #eee;}
+tr:nth-child(even){background:#fff5f5;}
+.alert{background:#ffebee;border:1px solid #ef9a9a;padding:10px 14px;border-radius:4px;margin:8px 0;font-size:13px;}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:2px 4px;}
+.tag-hot{background:#ffcdd2;color:#c62828;}
+.tag-exam{background:#c8e6c9;color:#2e7d32;}
+.highlight{background:#ffeb3b;padding:1px 4px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>第10讲 考试速查</h1>
+  <div class="sub">神经网络 — 感知机模型、学习算法与 多层感知机 (MLP)/反向传播 基础 | 上海对外经贸大学 | 2026</div>
+</div>
+
+<!-- 感知机模型 -->
+<div class="section">
+  <h2>一、感知机模型 <span class="tag tag-hot">必考</span></h2>
+  <p><strong>定义：</strong>f(x) = <strong>sign</strong>(w·x + b)，x ∈ ℝⁿ, y ∈ {-1, +1}</p>
+  <div class="formula">
+    <strong>分离超平面：</strong><span class="var">w·x + b = 0</span><br>
+    w 是法向量，b 是截距，sign 是符号函数
+  </div>
+  <p><strong>本质：</strong><span class="highlight">线性分类模型，判别模型</span></p>
+  <p><strong>收敛条件：</strong>数据集必须<span class="highlight">线性可分</span>（Linearly Separable）</p>
+</div>
+
+<!-- 核心公式 -->
+<div class="section">
+  <h2>二、核心公式速查 <span class="tag tag-hot">必背</span></h2>
+  <table>
+    <tr><th>公式名称</th><th>表达式</th></tr>
+    <tr><td>点 x₀ 到超平面距离</td><td class="highlight">|w·x₀ + b| / ‖w‖</td></tr>
+    <tr><td>误分类点距离</td><td class="highlight">−yᵢ(w·xᵢ + b) / ‖w‖</td></tr>
+    <tr><td>损失函数 L(w,b)</td><td class="highlight">−Σ yᵢ(w·xᵢ + b) , xᵢ∈M</td></tr>
+    <tr><td>∇_w L(w,b)</td><td class="highlight">−Σ yᵢ xᵢ , xᵢ∈M</td></tr>
+    <tr><td>∇_b L(w,b)</td><td class="highlight">−Σ yᵢ , xᵢ∈M</td></tr>
+    <tr><td>权重更新（随机梯度下降 (SGD)）</td><td class="highlight">w ← w + η yᵢ xᵢ</td></tr>
+    <tr><td>偏置更新（随机梯度下降 (SGD)）</td><td class="highlight">b ← b + η yᵢ</td></tr>
+  </table>
+</div>
+
+<!-- 随机梯度下降 (SGD) 算法步骤 -->
+<div class="section">
+  <h2>三、感知机 随机梯度下降 (SGD) 算法 <span class="tag tag-hot">必考</span></h2>
+  <ol class="steps">
+    <li><strong>初始化：</strong>w₀ = 0（或任意初值），b₀ = 0；学习率 η ∈ (0, 1]</li>
+    <li><strong>随机选取</strong>训练数据 (xᵢ, yᵢ)</li>
+    <li><strong>判断误分类：</strong>若 <span class="highlight">yᵢ(w·xᵢ + b) ≤ 0</span>：
+      <div class="formula">
+        w ← w + <span class="var">η · yᵢ · xᵢ</span><br>
+        b ← b + <span class="var">η · yᵢ</span>
+      </div>
+    </li>
+    <li><strong>重复</strong>步骤 2-3，直至训练集中没有误分类点。</li>
+  </ol>
+  <p class="note">📌 记忆口诀："有错就改，w 加 ηyx，b 加 ηy"</p>
+</div>
+
+<!-- 激活函数对比 -->
+<div class="section">
+  <h2>四、激活函数对比 <span class="tag tag-exam">高频</span></h2>
+  <table>
+    <tr><th>激活函数</th><th>公式</th><th>输出范围</th><th>特点</th><th>使用场景</th></tr>
+    <tr><td><strong>符号函数 (Sign) (符号)</strong></td><td>±1</td><td>{-1, +1}</td><td>不连续不光滑</td><td class="highlight">感知机</td></tr>
+    <tr><td><strong>Sigmoid激活函数</strong></td><td>1/(1+e⁻ᶻ)</td><td>(0, 1)</td><td>光滑，导数 max 0.25，深层梯度消失</td><td>多层感知机 (MLP) 传统</td></tr>
+    <tr><td><strong>ReLU激活函数</strong></td><td>max(0, z)</td><td>[0, +∞)</td><td>x&gt;0 导数为 1，缓解梯度消失</td><td class="highlight">现代深度学习</td></tr>
+    <tr><td><strong>Tanh激活函数</strong></td><td>tanh(z)</td><td>(-1, 1)</td><td>零中心输出</td><td>RNN/LSTM</td></tr>
+  </table>
+  <div class="alert">
+    <strong>注意：</strong>感知机激活函数 = Sign 函数（不是 Sigmoid激活函数、ReLU激活函数、Tanh激活函数）。Sigmoid激活函数 是 多层感知机 (MLP) 传统激活函数，用于 反向传播 算法推导。
+  </div>
+</div>
+
+<!-- 反向传播 算法 -->
+<div class="section">
+  <h2>五、反向传播 (BP) 算法速查</h2>
+  <p><strong>两个阶段：</strong></p>
+  <ul>
+    <li><strong>前向传播：</strong>输入 → 隐层 → 输出，计算损失</li>
+    <li><strong>反向传播：</strong>损失 → 梯度（链式法则），更新权值</li>
+  </ul>
+  <div class="formula">
+    <strong>链式法则核心公式：</strong><br>
+    <span class="var">∂E_k / ∂w_hj = (∂E_k / ∂ŷⱼ) · (∂ŷⱼ / ∂βⱼ) · (∂βⱼ / ∂w_hj)</span>
+  </div>
+  <p class="note">📌 反向传播 权值更新公式（Sigmoid 激活）：Δw_hj = η · gⱼ · b_h，其中 gⱼ = ŷ(1-ŷ)(y - ŷ)</p>
+</div>
+
+<!-- 反向传播 三种变体 -->
+<div class="section">
+  <h2>六、反向传播 三种变体对比 <span class="tag tag-hot">必考对比</span></h2>
+  <table>
+    <tr><th>特性</th><th>标准 反向传播 (随机梯度下降 (SGD))</th><th>累积 反向传播 (Batch)</th><th>Mini-batch BP</th></tr>
+    <tr><td>更新频率</td><td><span class="highlight">每样本</span></td><td><span class="highlight">每 Epoch</span></td><td>每小批量</td></tr>
+    <tr><td>收敛路径</td><td>剧烈震荡</td><td>非常平滑</td><td>略震荡方向明确</td></tr>
+    <tr><td>内存需求</td><td>极低</td><td>极高</td><td>适中（可调）</td></tr>
+    <tr><td>跳出局部最优</td><td>最强</td><td>几乎没有</td><td>较强</td></tr>
+    <tr><td>GPU 适用</td><td>差（无并行）</td><td>差（内存不足）</td><td class="highlight">最佳</td></tr>
+  </table>
+  <p class="note">🔑 Mini-batch 反向传播 是现代深度学习工业标准。Batch Size 通常取 32、64 或 128。</p>
+</div>
+
+<!-- 关键性质 -->
+<div class="section">
+  <h2>七、核心性质速记 <span class="tag tag-exam">常考</span></h2>
+  <table>
+    <tr><th>问题</th><th>答案</th></tr>
+    <tr><td>感知机收敛的前提？</td><td class="highlight">数据集线性可分</td></tr>
+    <tr><td>损失函数最小化什么？</td><td>误分类点到超平面的总距离</td></tr>
+    <tr><td>η 影响收敛性吗？</td><td>不影响，仅影响迭代次数</td></tr>
+    <tr><td>单层感知机的局限？</td><td>不能解决 XOR（线性不可分）</td></tr>
+    <tr><td>多层感知机 (MLP) 解决 XOR 的关键？</td><td>引入隐藏层</td></tr>
+    <tr><td>反向传播 核心数学工具？</td><td class="highlight">链式法则 (Chain Rule)</td></tr>
+    <tr><td>梯度消失的原因？</td><td>Sigmoid激活函数 导数 max 0.25，连乘后指数衰减</td></tr>
+    <tr><td>ReLU激活函数 的主要优点？</td><td class="highlight">x&gt;0 导数为 1，缓解梯度消失</td></tr>
+    <tr><td>万能近似定理条件？</td><td>1个隐藏层 + 足够神经元 + 非多项式激活函数</td></tr>
+    <tr><td>线性激活函数的后果？</td><td>多层等价于单层线性模型</td></tr>
+  </table>
+</div>
+
+<!-- 多层感知机 (MLP) 结构速查 -->
+<div class="section">
+  <h2>八、多层感知机 (MLP) 结构要点</h2>
+  <table>
+    <tr><th>概念</th><th>说明</th></tr>
+    <tr><td><strong>多层前馈网络</strong></td><td>同层无连接、跨层无连接、仅相邻层全互连</td></tr>
+    <tr><td><strong>参数数量（输入 d、隐层 q、输出 l）</strong></td><td class="highlight">(d+1+l)q + l 个参数<br>隐层权值 d×q，隐层阈值 q 个，输出权值 q×l，输出阈值 l 个</td></tr>
+    <tr><td><strong>万能近似定理</strong></td><td>1个隐藏层 + 足够神经元 = 可近似任何连续函数<br>但深层网络更高效（维数灾难）</td></tr>
+  </table>
+</div>
+
+<!-- 历史关键词 -->
+<div class="section">
+  <h2>九、AI 历史节点速记</h2>
+  <table>
+    <tr><th>时期</th><th>事件</th></tr>
+    <tr><td>1958</td><td class="highlight">Rosenblatt → 感知机</td></tr>
+    <tr><td>1969</td><td class="highlight">Minsky &amp; Papert → XOR 难题 → 第一次 AI 寒冬</td></tr>
+    <tr><td>1980s</td><td>反向传播 算法 / LeNet / LSTM</td></tr>
+    <tr><td>1990s</td><td>支持向量机 崛起 → 第二次 AI 寒冬</td></tr>
+    <tr><td>2006</td><td>Hinton → DBN → 深度学习</td></tr>
+    <tr><td>2017</td><td class="highlight">Transformer → 大模型基石</td></tr>
+    <tr><td>2024</td><td>Hinton → 诺贝尔物理学奖</td></tr>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

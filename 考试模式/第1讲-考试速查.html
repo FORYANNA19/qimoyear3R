@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1讲-考试速查 — 课程简介与机器学习概论</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Han Serif CN', 'Noto Serif CJK SC', Georgia, 'Times New Roman', serif;
+  max-width: 900px; margin: 0 auto; padding: 20px; color: #222; background: #fafafa;
+  line-height: 1.8;
+}
+nav.breadcrumb { font-size: 14px; color: #666; margin-bottom: 24px; padding: 8px 0; border-bottom: 1px solid #ddd; }
+nav.breadcrumb a { color: #1a237e; text-decoration: none; }
+h1 { font-size: 26px; color: #1a237e; margin-bottom: 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+h2 { font-size: 20px; color: #1a237e; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #1a237e; }
+h3 { font-size: 17px; color: #2e7d32; margin: 20px 0 8px; }
+p { margin-bottom: 10px; }
+.kp { font-weight: bold; color: #000; }
+.exp { color: #888; }
+.tag-must { display: inline-block; background: #c62828; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-key { display: inline-block; background: #FF6F00; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-freq { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+.tag-info { display: inline-block; background: #6a1b9a; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; font-weight: bold; }
+blockquote.bad { background: #fff3e0; border-left: 4px solid #c62828; padding: 8px 14px; margin: 10px 0; font-size: 14px; color: #555; }
+blockquote.bad::before { content: "易错："; font-weight: bold; color: #c62828; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th { background: #1a237e; color: #fff; padding: 8px 12px; text-align: left; }
+td { border: 1px solid #ddd; padding: 8px 12px; }
+tr:nth-child(even) { background: #f5f5f5; }
+.formula-block { background: #f9f9f9; border-left: 3px solid #1a237e; padding: 8px 14px; margin: 10px 0; font-family: 'Cambria Math', 'Latin Modern Math', serif; overflow-x: auto; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+.note { background: #e8eaf6; padding: 8px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; }
+hr { border: none; border-top: 1px dashed #ccc; margin: 24px 0; }
+@media (max-width: 600px) { body { padding: 10px; font-size: 14px; } h1 { font-size: 20px; } h2 { font-size: 17px; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<nav class="breadcrumb">
+  考试模式 / <strong>第1讲-考试速查</strong> | 上一章(无) | <a href="#">下一章 →</a>
+</nav>
+
+<h1>第1讲-考试速查</h1>
+<p class="subtitle">课程简介与机器学习概论 · 核心公式 & 考点</p>
+
+<!-- ═══════════ 必背定义 ═══════════ -->
+<h2>一、必背定义 <span class="tag-must">必考</span></h2>
+
+<h3>1.1 Mitchell 机器学习定义</h3>
+<div class="formula-block">
+  <span class="kp">三要素</span>：<span class="kp">T</span>（Task 任务）、<span class="kp">P</span>（Performance Measure 性能度量）、<span class="kp">E</span>（Experience 经验）
+</div>
+<p>英文：A computer program is said to <span class="kp">learn</span> from <span class="kp">experience E</span> with respect to <span class="kp">task T</span> and <span class="kp">performance measure P</span>, if its performance at T improves with E.</p>
+
+<blockquote class="bad">问"P是什么"，答"预测天气"是错误的。P必须是可度量的性能指标，如"预测正确的概率"。</blockquote>
+
+<h3>1.2 监督学习 vs 无监督学习</h3>
+<table>
+  <tr><th></th><th><span class="kp">监督学习</span></th><th><span class="kp">无监督学习</span></th></tr>
+  <tr><td>训练数据</td><td>$$\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$$</td><td>$$\{\mathbf{x}_i\}_{i=1}^{N}$$</td></tr>
+  <tr><td>特征</td><td>有输入X + 输出标签Y</td><td>只有输入X，没有Y</td></tr>
+  <tr><td>目标</td><td>学习 X→Y 的映射</td><td>描述数据的组织/聚集方式</td></tr>
+  <tr><td>典型任务</td><td>分类、回归</td><td>聚类、降维</td></tr>
+</table>
+
+<h3>1.3 分类 vs 回归</h3>
+<p><span class="kp">分类</span>：输出Y是<span class="kp">离散类别</span>（垃圾/正常邮件、数字0-9）</p>
+<p><span class="kp">回归</span>：输出Y是<span class="kp">连续数值</span>（股价、交易量、温度）</p>
+
+<hr>
+
+<!-- ═══════════ 核心公式 ═══════════ -->
+<h2>二、核心公式速记 <span class="tag-must">必考</span></h2>
+
+<h3>2.1 损失函数一览</h3>
+<table>
+  <tr><th>名称</th><th>公式</th></tr>
+  <tr><td>0-1 损失</td><td>$$L(Y, f(X)) = \mathbf{1}\{Y \neq f(X)\}$$</td></tr>
+  <tr><td>平方损失</td><td>$$L(Y, f(X)) = (Y - f(X))^2$$</td></tr>
+  <tr><td>绝对值损失</td><td>$$L(Y, f(X)) = |Y - f(X)|$$</td></tr>
+  <tr><td>对数损失</td><td>$$L(Y, P(Y \mid X)) = -\log P(Y \mid X)$$</td></tr>
+</table>
+
+<h3>2.2 经验风险 vs 期望风险 vs 结构风险</h3>
+
+<div class="formula-block">
+  <strong>期望风险</strong>（理论）：
+  $$R_{\text{exp}}(f) = \mathbb{E}[L(Y, f(X))]$$
+  <strong>经验风险</strong>（实际）：
+  $$R_{\text{emp}}(f) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, f(\mathbf{x}_i))$$
+  <strong>结构风险</strong>（防过拟合）：
+  $$R_{\text{str}}(f) = R_{\text{emp}}(f) + \lambda \cdot J(f)$$
+</div>
+
+<blockquote class="bad">期望损失依赖P(X,Y)不可知，实际用经验损失近似。样本量小时经验风险最小化容易过拟合，需用结构风险加正则化项。</blockquote>
+
+<h3>2.3 线性回归（三要素）</h3>
+<table>
+  <tr><th>要素</th><th>内容</th></tr>
+  <tr><td>模型</td><td>$$f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b = \boldsymbol{\beta}^T \mathbf{x}$$</td></tr>
+  <tr><td>策略</td><td>$$\min_{\boldsymbol{\beta}} \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2$$ （最小二乘 / L2损失）</td></tr>
+  <tr><td>算法</td><td>解析解：$$\hat{\boldsymbol{\beta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$（正规方程）<br>迭代：梯度下降</td></tr>
+</table>
+
+<h3>2.4 梯度下降法</h3>
+<div class="formula-block">
+  <strong>迭代公式</strong>：
+  $$\boldsymbol{\beta}^{(k+1)} = \boldsymbol{\beta}^{(k)} - \eta \cdot \nabla J(\boldsymbol{\beta}^{(k)})$$
+  其中 $$\eta$$ 是学习率（步长）。
+</div>
+
+<h3>2.5 岭回归（Ridge Regression）</h3>
+<div class="formula-block">
+  $$\hat{\boldsymbol{\beta}}_{\text{ridge}} = (\mathbf{X}^T \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^T \mathbf{y}$$
+  等价于：$$\min_{\boldsymbol{\beta}} \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2 + \lambda \|\boldsymbol{\beta}\|_2^2$$
+</div>
+
+<h3>2.6 逻辑回归</h3>
+<div class="formula-block">
+  <strong>Sigmoid激活函数：</strong>$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+  <strong>模型：</strong>$$P(Y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b)$$
+  <strong>对数几率：</strong>$$\log\frac{p}{1-p} = \mathbf{w}^T \mathbf{x} + b$$
+  <strong>负对数似然：</strong>$$\ell(\mathbf{w}) = -\sum_{i=1}^{N} [y_i \log p_i + (1-y_i)\log(1-p_i)]$$
+  <strong>梯度：</strong>$$\nabla \ell(\mathbf{w}) = -\mathbf{X}^T (\mathbf{y} - \mathbf{p})$$
+  <strong>分类规则：</strong>$$\hat{y}=1 \iff P(Y=1|\mathbf{x}) \ge 0.5 \iff \mathbf{w}^T\mathbf{x}+b \ge 0$$
+</div>
+
+<blockquote class="bad">逻辑回归是<strong>线性分类器</strong>！决策边界是超平面 $$\mathbf{w}^T \mathbf{x} + b = 0$$，不要被Sigmoid函数迷惑。</blockquote>
+
+<hr>
+
+<!-- ═══════════ 术语对照 ═══════════ -->
+<h2>三、术语对照 <span class="tag-key">重点</span></h2>
+<table>
+  <tr><th>统计学</th><th>机器学习</th></tr>
+  <tr><td>Estimation</td><td>Learning / Training</td></tr>
+  <tr><td>Data point / Sample</td><td>Example / Instance</td></tr>
+  <tr><td>Covariate / Predictor</td><td>Feature / Input</td></tr>
+  <tr><td>Response</td><td>Label / Output</td></tr>
+  <tr><td>Fit a model</td><td>Learn / Train</td></tr>
+  <tr><td>Regression / Classification</td><td>Supervised Learning</td></tr>
+</table>
+
+<hr>
+
+<!-- ═══════════ 易错点 ═══════════ -->
+<h2>四、考试易错陷阱 <span class="tag-freq">高频</span></h2>
+
+<blockquote class="bad">
+  1. 将"预测任务本身"误作P。要求给出P时应该回答<strong>性能度量指标</strong>（如正确率、误差率），而非任务描述。<br><br>
+  2. 分类 vs 回归的误判：输出是离散类别 → 分类；输出是连续数值 → 回归（与输入变量类型无关）。<br><br>
+  3. 混淆监督学习和无监督学习的数据格式：有无标签Y是唯一判断标准。<br><br>
+  4. 经验风险最小化在<strong>小样本</strong>下容易过拟合，解决方法是<strong>结构风险最小化</strong>（加正则化项）。<br><br>
+  5. 以为逻辑回归是非线性分类器。实际上它是<strong>线性分类器</strong>，Sigmoid仅用于概率映射。
+</blockquote>
+
+<hr>
+
+<!-- ═══════════ 必记清单 ═══════════ -->
+<h2>五、考前必背清单</h2>
+<ol>
+  <li><span class="kp">ML = 数据 + 模型 + 策略 + 算法</span></li>
+  <li><span class="kp">Mitchell定义的三要素：T、P、E</span></li>
+  <li><span class="kp">经验风险公式</span>：$$R_{\text{emp}}(f) = \frac{1}{N}\sum L(y_i, f(x_i))$$</li>
+  <li><span class="kp">结构风险 = 经验风险 + λ·J(f)</span></li>
+  <li><span class="kp">线性回归解析解</span>：$$\hat{\beta} = (X^TX)^{-1}X^Ty$$</li>
+  <li><span class="kp">梯度下降迭代式</span>：$$\beta^{(k+1)} = \beta^{(k)} - \eta \nabla J$$</li>
+  <li><span class="kp">Sigmoid函数</span>：$$\sigma(z) = 1/(1+e^{-z})$$</li>
+  <li><span class="kp">逻辑回归负对数似然</span>：$$-\sum[y_i\log p_i + (1-y_i)\log(1-p_i)]$$</li>
+  <li><span class="kp">逻辑回归 = 线性分类器</span>（决策边界：$$w^Tx+b=0$$）</li>
+  <li><span class="kp">No Free Lunch Theorem</span>：没有一致最优算法</li>
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KNN专题-章节测试</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  chtml: { scale: 0.92 }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root {
+  --paper: #fdf6e3; --paper-dark: #f5ecd7; --ink: #2c2c2c; --ink-light: #555;
+  --accent: #2563eb; --accent-hover: #1d4ed8; --divider: #d6c8a8;
+  --card-bg: #fef9ef; --card-border: #e8dcc8;
+  --correct: #22c55e; --correct-bg: #f0fdf4; --wrong: #ef4444; --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7; --tag-text: #92400e; --radius: 6px;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  h1, h2, h3 { page-break-after: avoid; }
+  .no-print { display: none !important; }
+}
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+h1 { font-size: 1.45em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.2em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.05em; margin-top: 20px; color: #1a1a2e; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.breadcrumb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; margin: 0 0 18px 0;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); font-size: 0.9em;
+}
+.breadcrumb .mode { color: #059669; font-weight: 700; }
+.breadcrumb .sep { color: #aaa; margin: 0 6px; }
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+.q-card.partial { border-color: #f59e0b; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+.q-code {
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 0.88em; line-height: 1.5; background: #1e1e2e; color: #e0e0e0;
+  tab-size: 4; white-space: pre;
+  min-height: 160px;
+}
+.q-code:focus { border-color: var(--accent); }
+
+.fill-input {
+  border: 1px solid var(--card-border); border-radius: 3px;
+  padding: 3px 8px; font-family: inherit; font-size: 0.93em;
+  background: #fefcf5; min-width: 120px;
+}
+.fill-input:focus { outline: none; border-color: var(--accent); }
+.fill-input.fill-ok { border-color: var(--correct); background: var(--correct-bg); }
+.fill-input.fill-no { border-color: var(--wrong); background: var(--wrong-bg); }
+
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+.badge-partial { background: #fef3c7; color: #92400e; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<div class="breadcrumb">
+  <div><span class="mode">章节测试</span><span class="sep">/</span><strong>KNN专题-章节测试</strong></div>
+  <div><a href="#">&#8592;上一章</a> | 下一章(无) &#8594;</div>
+</div>
+
+<h1>KNN专题 — 章节测试</h1>
+
+<div id="score-box">
+  <div class="score-label">总分</div>
+  <div class="score-num"><span id="score-num">0</span> / 100 分</div>
+</div>
+
+<div id="questions-container"></div>
+
+<div class="grading-bar no-print">
+  <button id="grade-btn" onclick="gradeAll()">提交批改</button>
+</div>
+
+<script>
+var LABELS = {
+  "page_title": "KNN专题-章节测试",
+  "section": {
+    "choice": "一、选择题（每题5分，共25分）",
+    "tf": "二、判断题（每题4分，共12分）",
+    "fill": "三、填空题（每题5分，共15分）",
+    "short": "四、简答题（每题10分，共20分）",
+    "calc": "五、计算题（每题13分，共13分）",
+    "code": "六、代码题（每题15分，共15分）"
+  },
+  "section_order": ["choice","tf","fill","short","calc","code"],
+  "points_suffix": "分",
+  "true_label": "正确",
+  "false_label": "错误",
+  "placeholder": "在此作答...",
+  "code_placeholder": "在此编写R代码...",
+  "pitfall_prefix": "易错提醒：",
+  "correct_label": "正确",
+  "wrong_label": "错误",
+  "partial_label": "部分正确",
+  "answer_prefix": "正确答案：",
+  "reference_label": "参考答案",
+  "graded_label": "已批改",
+  "grade_button": "提交批改",
+  "score_label": "总分"
+};
+
+var Q = [
+  {
+    "type": "choice", "points": 5,
+    "question": "在KNN分类模拟中，使用<strong>回代法（Resubstitution）</strong>且 $K=1$ 时，为什么错判率恰好为0%？",
+    "options": [
+      "因为每个样本的最近邻恰好就是它自身，模型'记住'了所有训练数据",
+      "因为KNN分类器的预测能力极强，能完美区分所有类别",
+      "因为训练数据和测试数据来自不同分布，不会发生错判",
+      "因为类别分布是0.7:0.3的偏斜分布，多数类自然占优"
+    ],
+    "answer": 0,
+    "explanation": "回代法用同一份数据既训练又测试。当 $K=1$ 时，每个样本的最近邻就是它自己，预测类别必然等于真实类别，因此误判率为0%——但这恰恰说明<strong>严重过拟合</strong>，不代表模型泛化能力好。",
+    "pitfall": "误选A或D：0%误判率是因为模型记住了训练数据，而非模型本身优秀。这一点是KNN评估中的核心考点。"
+  },
+  {
+    "type": "choice", "points": 5,
+    "question": "下列关于<strong>留一交叉验证 (LOOCV)（留一交叉验证）</strong>的描述中，哪一项是<strong>错误</strong>的？",
+    "options": [
+      "每次留一个样本作为测试集，其余n-1个作为训练集",
+      "LOOCV的偏差最小，估计结果接近真实泛化误差",
+      "LOOCV只需训练一次模型即可得到所有评估结果",
+      "对于60个样本的数据，LOOCV需要训练模型60次"
+    ],
+    "answer": 2,
+    "explanation": "LOOCV需要训练 $n$ 次模型（本实验中 $n=60$ 次），而非一次。选项C的说法是错误的，因为它混淆了LOOCV和Holdout的计算复杂度。",
+    "pitfall": "LOOCV计算开销大（$O(n)$ 次训练），但评估最可靠。考试中常以判断题形式考察这一特性。"
+  },
+  {
+    "type": "choice", "points": 5,
+    "question": "在KNN分类模拟图中，三条错判率曲线（回代法/留出法/留一法）随 $K$ 值增加的变化趋势不同。以下描述正确的是：",
+    "options": [
+      "三条曲线的误差率在 $K$ 增大时都单调下降",
+      "回代法的误差率在 $K$ 增大时单调上升，留出法和LOOCV的误差率在 $K$ 很小时较高、随后下降并趋于稳定或回升，整体呈U形",
+      "留出法和LOOCV的误差率曲线完全相同，因为它们都使用独立的测试数据",
+      "回代法的误差率曲线始终高于留出法和LOOCV，因为它使用的数据量最大"
+    ],
+    "answer": 1,
+    "explanation": "回代法：$K=1$ 时误差为0%，随 $K$ 增大单调上升（平滑后难以完美拟合训练数据）。留出法和LOOCV：$K$ 很小→过拟合→误差高；$K$ 增大→方差降低→误差先降，$K$ 过大→偏差增加→误差回升或趋平，整体呈U形。选项A错在'都单调下降'，选项C错在两者曲线不同（LOOCV更平滑），选项D方向反了（回代法最低、而非最高）。",
+    "pitfall": "回代法 $K=1$ 时误差为0% 、$K$ 增大单调上升；LOOCV和Holdout在 $K$ 很小时误差高、增大后下降并趋于稳定。三条曲线的相对位置：回代法最低（最乐观），LOOCV居中偏上。"
+  },
+  {
+    "type": "choice", "points": 5,
+    "question": "KNN回归任务中，以下哪个函数<strong>不能</strong>用来进行正确的回归预测？",
+    "options": [
+      "caret::knnreg()",
+      "FNN::knn.reg()",
+      "以上都可以",
+      "class::knn()"
+    ],
+    "answer": 3,
+    "explanation": "<code>class::knn()</code> 只能用于分类任务。如果传入连续数值型目标变量，它会强制转换为无意义的因子，导致错误结果。回归必须用 <code>caret::knnreg()</code> 或 <code>FNN::knn.reg()</code>。",
+    "pitfall": "这是考试高频陷阱题。KNN分类用 class::knn，回归用 caret::knnreg，两者不可互换。"
+  },
+  {
+    "type": "choice", "points": 5,
+    "question": "在案例分析中，使用 <code>caret::train()</code> 进行KNN模型训练时，<code>preProcess = c('center', 'scale')</code> 的作用是：",
+    "options": [
+      "将分类变量编码为哑变量（dummy variables）",
+      "对数值型预测变量进行中心化和标准化",
+      "自动选择最优的 $K$ 值",
+      "将目标变量转换为数值类型"
+    ],
+    "answer": 1,
+    "explanation": "<code>preProcess = c('center', 'scale')</code> 对数值型变量执行中心化（减均值）和标准化（除以标准差），使所有特征处于同一量纲。这对KNN至关重要，因为KNN基于距离度量，未经标准化的不同量纲会导致距离计算被大数值变量主导。",
+    "pitfall": "preProcess 不处理分类变量编码（那是 formula 或 dummyVars 的工作），也不选择 K 值（那是 tuneGrid 的工作）。"
+  },
+  {
+    "type": "tf", "points": 4,
+    "question": "回代法（Resubstitution）的错判率总是低于留一法（留一交叉验证 (LOOCV)），因此回代法是更可靠的模型评估方法。",
+    "options": [],
+    "answer": 1,
+    "explanation": "错。回代法虽然错判率低于LOOCV，但这是因为它在训练数据上评估自己——严重低估了真实泛化误差。LOOCV虽然误差估计值更高，但更接近真实泛化误差，因此更可靠。",
+    "pitfall": "低误差 ≠ 好评估。回代法的低误差是'自欺欺人'，LOOCV才是可靠的评估。"
+  },
+  {
+    "type": "tf", "points": 4,
+    "question": "KNN回归的预测值等于 $K$ 个最近邻目标值的加权中位数。",
+    "options": [],
+    "answer": 1,
+    "explanation": "错。基础KNN回归取 $K$ 个最近邻目标值的<strong>算术平均</strong>：$\\hat{y} = \\frac{1}{K}\\sum_{i=1}^K y_{(i)}$。加权中位数不是标准KNN回归的做法。",
+    "pitfall": "KNN回归用平均而非中位数。带核函数的加权版也是加权平均，不是中位数。"
+  },
+  {
+    "type": "tf", "points": 4,
+    "question": "在kknn模型中，核函数（kernel）'rectangular'表示所有 $K$ 个邻居的权重相等，而'triangular'和'gaussian'按距离远近分配不同权重。",
+    "options": [],
+    "answer": 0,
+    "explanation": "正确。rectangular核（矩形核）给 $K$ 个邻居等权重（即标准KNN），triangular核权重随距离线性衰减，gaussian核权重随距离按高斯函数衰减。",
+    "pitfall": ""
+  },
+  {
+    "type": "fill", "points": 5,
+    "question": "在R中，执行KNN的留一交叉验证（留一交叉验证 (LOOCV)）应使用 ________ 函数，而非 ________ 函数。",
+    "options": [],
+    "answer": [["knn.cv","knn.cv()"],["knn","knn()"]],
+    "explanation": "<code>knn.cv()</code> 是 class 包中专为留一交叉验证设计的函数，无需手动指定测试集。而 <code>knn()</code> 需要显式传入 train 和 test 参数。",
+    "pitfall": "<code>knn.cv()</code> 的参数中没有 test 参数——它自动用留一法循环评估。"
+  },
+  {
+    "type": "fill", "points": 5,
+    "question": "KNN分类的错判率在R中计算为：<code>err[i] &lt;- ________(fit != data_clf[, 3]) * 100</code>",
+    "options": [],
+    "answer": "mean",
+    "explanation": "<code>mean()</code> 计算逻辑向量的平均值，等价于计算误判的比例（TRUE=1，FALSE=0）。乘以100转换为百分比。",
+    "pitfall": "不能用 sum()/length() 而不用 mean()——两者效果等价但 mean() 更简洁。公式本质是 $\\frac{1}{n}\\sum \\mathbb{I}(\\hat{y}_i\\neq y_i) \\times 100\\%$。"
+  },
+  {
+    "type": "fill", "points": 5,
+    "question": "KNN回归的评估指标是 ________，其全称为 ________。",
+    "options": [],
+    "answer": [["均方误差 (MSE)","mse"],["Mean Squared Error","均方误差"]],
+    "explanation": "均方误差 (MSE)（Mean Squared Error，均方误差）= $\\frac{1}{n}\\sum_{i=1}^{n}(y_i-\\hat{y}_i)^2$。与分类的错判率不同，MSE衡量的是连续预测值与真实值之间的平均平方差距。",
+    "pitfall": "分类用错判率（Error Rate），回归用MSE或RMSE。两者不可混淆。"
+  },
+  {
+    "type": "short", "points": 10,
+    "question": "简述KNN分类中三种模型评估方法（回代法、留出法、留一法）的核心区别，以及为什么LOOCV的评估结果最接近真实泛化误差。",
+    "options": [],
+    "answer": -1,
+    "explanation": "<strong>参考答案：</strong><br><br><strong>回代法</strong>：用全量数据同时训练和测试。$K=1$ 时误差为0%，严重低估真实误差。<br><br><strong>留出法</strong>：将数据划分为训练集和测试集，训练集训练、测试集评估。测试数据未参与训练，但仅依赖一次划分，方差较大。<br><br><strong>留一法（留一交叉验证 (LOOCV)）</strong>：每次留一个样本作为测试，其余n-1个训练，重复n次取平均误差。由于每个样本都恰好被用作一次测试、n-1次训练，充分利用了有限数据，评估的偏差最小。<br><br><strong>LOOCV最接近真实泛化误差的原因</strong>：每次评估使用的训练集几乎等于全量数据，极大减少了因训练集大小不足带来的偏差；同时n次评估取平均降低了随机性。",
+    "pitfall": "简答题要答出'偏差小'和'利用全部数据'两个关键点。不要遗漏'回代法K=1误差为0%'这一标志性特征。"
+  },
+  {
+    "type": "short", "points": 10,
+    "question": "解释 $K$ 值太小时产生'过拟合'、$K$ 值太大时产生'欠拟合'的原因，并说明如何选择最优的 $K$ 值。",
+    "options": [],
+    "answer": -1,
+    "explanation": "<strong>参考答案：</strong><br><br>$K$ <strong>太小（过拟合）</strong>：模型只参考极少邻居的类别，决策边界被随机噪声所主导，凹凸不平。训练数据中的个别异常点会导致周围的分类结果完全错误。在LOOCV曲线上表现为高错误率。<br><br>$K$ <strong>太大（欠拟合）</strong>：模型参考过多邻居，决策边界过度平滑，真实的局部模式被平均掉。极端情况 $K=n$ 时，所有样本的预测结果相同（恒为多数类）。回代法误差也相应升高。<br><br><strong>最优 $K$ 的选择</strong>：使用交叉验证（如LOOCV或k-fold CV），计算不同 $K$ 值下的错判率，选择使误差最低的 $K$。在实际中，$K$ 通常取奇数（避免平票），本模拟中的最优范围约为 $K=5\\sim15$。",
+    "pitfall": "要明确指出 $K$ 太小→方差大（过拟合），$K$ 太大→偏差大（欠拟合）。选择最优 $K$ 的方法必须提到'交叉验证'。"
+  },
+  {
+    "type": "calc", "points": 13,
+    "question": "某KNN分类模型在测试集（共20个样本）上的预测结果如下：真实标签为 [0,1,1,0,1,0,0,1,1,0, 1,1,0,1,0,1,0,0,1,1]，预测标签为 [0,1,0,0,1,0,1,1,1,0, 1,1,0,0,0,1,0,0,1,1]。<br><br>(1) 分别计算分类正确和分类错误的样本数。<br>(2) 计算该模型在测试集上的错判率（Error Rate）。<br>(3) 给出错判率的标准公式（用指示函数表示）。",
+    "options": [],
+    "answer": -1,
+    "explanation": "<strong>解：</strong><br><br><strong>(1) 逐对比较：</strong><br>样本1: 0 vs 0 √&nbsp;&nbsp;2: 1 vs 1 √&nbsp;&nbsp;3: 1 vs 0 ✗&nbsp;&nbsp;4: 0 vs 0 √&nbsp;&nbsp;5: 1 vs 1 √<br>6: 0 vs 0 √&nbsp;&nbsp;7: 0 vs 1 ✗&nbsp;&nbsp;8: 1 vs 1 √&nbsp;&nbsp;9: 1 vs 1 √&nbsp;&nbsp;10: 0 vs 0 √<br>11: 1 vs 1 √&nbsp;&nbsp;12: 1 vs 1 √&nbsp;&nbsp;13: 0 vs 0 √&nbsp;&nbsp;14: 1 vs 0 ✗&nbsp;&nbsp;15: 0 vs 0 √<br>16: 1 vs 1 √&nbsp;&nbsp;17: 0 vs 0 √&nbsp;&nbsp;18: 0 vs 0 √&nbsp;&nbsp;19: 1 vs 1 √&nbsp;&nbsp;20: 1 vs 1 √<br><br>分类正确：17个 &emsp; 分类错误：3个（样本3、7、14）<br><br><strong>(2) 错判率：</strong>$$\\text{Error Rate} = \\frac{3}{20} \\times 100\\% = 15\\%$$<br><br><strong>(3) 标准公式：</strong>$$\\text{Error Rate} = \\frac{1}{n} \\sum_{i=1}^{n} \\mathbb{I}(\\hat{y}_i \\neq y_i) \\times 100\\%$$其中 $\\mathbb{I}(\\cdot)$ 为指示函数，当预测与真实不同时取1。<br><br><strong>评分要点：</strong>逐对比较3分，错判率计算4分，公式6分（公式形式4分+符号说明2分）。",
+    "pitfall": "常见错误：忘记乘以100%导致结果写为0.15；或指示函数条件写反（写成 $\\mathbb{I}(\\hat{y}_i = y_i)$ 但前面没改成1减）。"
+  },
+  {
+    "type": "code", "points": 15,
+    "question": "某数据集 <code>data_clf</code> 有60个样本、2个特征（Fx1, Fx2）和1个类别变量（Fy，因子类型）。请编写R代码：<br>(1) 对 $K=1$ 到 $K=30$ 循环执行留出法评估（已有训练集 data_train 和测试集 data_test）；<br>(2) 计算并存储每个 $K$ 值对应的错判率（百分比）；<br>(3) 用ggplot2绘制错判率 vs K 的折线图，设置标题为\"K近邻法 Holdout Error Rate\"。",
+    "options": [],
+    "answer": -1,
+    "explanation": "<strong>参考代码：</strong><pre><code>library(class)\nlibrary(ggplot2)\n\nerr_holdout &lt;- numeric(30)\nset.seed(12345)\n\nfor(i in 1:30) {\n  fit &lt;- knn(train = data_train[, 1:2],\n             test = data_test[, 1:2],\n             cl = data_train[, 3],\n             k = i)\n  err_holdout[i] &lt;- mean(fit != data_test[, 3]) * 100\n}\n\nerror_df &lt;- data.frame(K = 1:30, ErrorRate = err_holdout)\n\nggplot(error_df, aes(x = K, y = ErrorRate)) +\n  geom_line(color = \"steelblue\", size = 1) +\n  geom_point(color = \"steelblue\") +\n  theme_minimal() +\n  labs(title = \"K近邻法 Holdout Error Rate\",\n       x = \"K\", y = \"Error Rate (%)\")</code></pre><br><strong>关键点：</strong><br>1. <code>knn()</code> 的 train/test 参数只取特征列 [1:2]，cl 参数取训练集类别列 [3]<br>2. <code>mean(fit != data_test[, 3]) * 100</code> 计算误判比例并转百分比<br>3. 循环前初始化 numeric(30) 向量提高效率<br>4. ggplot 中 aes 指定 x=K, y=ErrorRate，geom_line 画折线",
+    "pitfall": "常见错误：忘记 cl 参数只取训练集的类别列；train 和 test 参数不小心包含了类别列；误用 knnreg 而非 knn（这是分类任务）。"
+  }
+];
+
+// ─── Answer normalization ────────────────────────────────────────
+function tfAnswerIndex(ans) {
+  if (typeof ans === 'boolean') return ans ? 0 : 1;
+  if (typeof ans === 'number') return ans === 0 ? 0 : 1;
+  var s = ('' + ans).trim().toLowerCase();
+  var truthy = ['0', 't', 'true', '正确', '对', '是', 'yes', 'y', '√', '✓'];
+  var falsy  = ['1', 'f', 'false', '错误', '错', '否', 'no', 'n', '×', 'x'];
+  if (truthy.indexOf(s) !== -1) return 0;
+  if (falsy.indexOf(s) !== -1) return 1;
+  return ans ? 0 : 1;
+}
+
+function choiceAnswerIndex(ans, options) {
+  if (typeof ans === 'number') return ans;
+  var s = ('' + ans).trim();
+  if (/^[A-Za-z]$/.test(s)) return s.toUpperCase().charCodeAt(0) - 65;
+  if (/^\d+$/.test(s)) return parseInt(s, 10);
+  if (options) {
+    for (var i = 0; i < options.length; i++) {
+      if (('' + options[i]).trim() === s) return i;
+    }
+  }
+  return parseInt(s, 10);
+}
+
+function multiAnswerSet(ans, options) {
+  var arr = Array.isArray(ans) ? ans : [ans];
+  var set = {};
+  for (var i = 0; i < arr.length; i++) { set[choiceAnswerIndex(arr[i], options)] = true; }
+  return set;
+}
+
+function normText(s) {
+  s = ('' + s).trim().toLowerCase();
+  s = s.replace(/[\s　]+/g, '');
+  s = s.replace(/[.,;:!?。，、；：！？“”"'（）()【】\[\]<>《》]/g, '');
+  s = s.replace(/[！-～]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xfee0); });
+  return s;
+}
+
+function fillBlankCount(question) {
+  var m = ('' + question).match(/(_{2,}|＿+)/g);
+  return m ? m.length : 0;
+}
+
+function fillBlankAnswers(ans, nBlanks) {
+  if (nBlanks < 1) nBlanks = 1;
+  if (!Array.isArray(ans)) return padBlanks([[ans]], nBlanks);
+  if (ans.length && Array.isArray(ans[0])) return padBlanks(ans, nBlanks);
+  if (nBlanks === 1) return [ans];
+  if (ans.length === nBlanks) { return ans.map(function (a) { return [a]; }); }
+  return padBlanks([ans], nBlanks);
+}
+function padBlanks(arr, n) {
+  var out = arr.slice(0, n);
+  while (out.length < n) out.push(['']);
+  return out;
+}
+
+// ─── Build ──────────────────────────────────────────────────────
+function build() {
+  var container = document.getElementById('questions-container');
+  if (!container) return;
+
+  var order = LABELS.section_order || [];
+  Q.forEach(function (q, i) { q._i = i; });
+  Q.sort(function (a, b) {
+    var oa = order.indexOf(a.type); if (oa === -1) oa = 99;
+    var ob = order.indexOf(b.type); if (ob === -1) ob = 99;
+    return oa - ob || a._i - b._i;
+  });
+
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    if (q.type !== sec) {
+      sec = q.type;
+      if (titles[q.type]) h += '<h3>' + titles[q.type] + '</h3>';
+    }
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i + 1) + '. (' + q.points + ' 分)</div>';
+    if (q.type === 'fill') {
+      h += '<div class="q-text">' + renderFill(q, qid) + '</div>';
+    } else {
+      h += '<div class="q-text">' + q.question + '</div>';
+    }
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65 + j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'multi') {
+      var mopts = q.options || [];
+      for (var k = 0; k < mopts.length; k++) {
+        h += '<label class="option" id="opt-' + qid + '-' + k + '" onclick="toggle(\'' + qid + '\',' + k + ')">';
+        h += '<input type="checkbox" name="' + qid + '" value="' + k + '">' + String.fromCharCode(65 + k) + '. ' + mopts[k] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">正确</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">错误</label>';
+    } else if (q.type === 'code') {
+      h += '<textarea class="q-textarea q-code" id="text-' + qid + '" placeholder="在此编写R代码..." rows="10" spellcheck="false"></textarea>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="在此作答..." rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + (q.explanation || '') + '</div>';
+    if (q.pitfall) { h += '<div class="pitfall">易错提醒：' + q.pitfall + '</div>'; }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function (err) { console.error(err); });
+  }
+}
+
+function renderFill(q, qid) {
+  var nBlanks = fillBlankCount(q.question);
+  var k = 0;
+  var html = ('' + q.question).replace(/(_{2,}|＿+)/g, function () {
+    var inp = '<input type="text" class="fill-input" id="fill-' + qid + '-' + k + '" autocomplete="off" spellcheck="false">';
+    k++;
+    return inp;
+  });
+  if (k === 0) {
+    var n = fillBlankAnswers(q.answer, 1).length;
+    if (n < 1) n = 1;
+    html += '<div class="fill-row">';
+    for (var b = 0; b < n; b++) {
+      html += '<input type="text" class="fill-input" id="fill-' + qid + '-' + b + '" autocomplete="off" spellcheck="false">';
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') { build(); }
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) target.classList.add('selected');
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) radio.checked = true;
+}
+function toggle(qid, idx) {
+  var box = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  var label = document.getElementById('opt-' + qid + '-' + idx);
+  if (!box) return;
+  box.checked = !box.checked;
+  if (label) label.classList.toggle('selected', box.checked);
+}
+
+// ─── Grading ────────────────────────────────────────────────────
+function gradeAll() {
+  var score = 0;
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      score += gradeSingle(q, qid, card, badge, correctEl);
+    } else if (q.type === 'multi') {
+      score += gradeMulti(q, qid, card, badge, correctEl);
+    } else if (q.type === 'fill') {
+      score += gradeFill(q, qid, card, badge, correctEl);
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = '参考答案';
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = Math.round(score * 10) / 10;
+    sb.scrollIntoView({ behavior: 'smooth' });
+  }
+  var opts = document.querySelectorAll('.option');
+  for (var a = 0; a < opts.length; a++) opts[a].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var b = 0; b < tas.length; b++) tas[b].disabled = true;
+  var fis = document.querySelectorAll('.fill-input');
+  for (var c = 0; c < fis.length; c++) fis[c].disabled = true;
+  var btn = document.getElementById('grade-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '已批改'; }
+  if (window.MathJax && MathJax.typesetPromise) { MathJax.typesetPromise().catch(function (e) { console.error(e); }); }
+}
+
+function gradeSingle(q, qid, card, badge, correctEl) {
+  var ansIdx = q.type === 'tf' ? tfAnswerIndex(q.answer) : choiceAnswerIndex(q.answer, q.options);
+  var radio = document.querySelector('input[name="' + qid + '"]:checked');
+  if (radio && parseInt(radio.value, 10) === ansIdx) {
+    card.classList.add('correct');
+    badge.className = 'badge badge-ok';
+    badge.textContent = '正确';
+    correctEl.innerHTML = '';
+    var ok = document.getElementById('opt-' + qid + '-' + ansIdx);
+    if (ok) ok.classList.add('correct-answer');
+    return q.points;
+  }
+  card.classList.add('wrong');
+  badge.className = 'badge badge-no';
+  badge.textContent = '错误';
+  var ansText = q.type === 'choice'
+    ? String.fromCharCode(65 + ansIdx) + '. ' + (q.options ? q.options[ansIdx] : '')
+    : (ansIdx === 0 ? '正确' : '错误');
+  correctEl.innerHTML = '正确答案：' + ansText;
+  if (radio) {
+    var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+    if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+  }
+  var corr = document.getElementById('opt-' + qid + '-' + ansIdx);
+  if (corr) corr.classList.add('correct-answer');
+  return 0;
+}
+
+function gradeMulti(q, qid, card, badge, correctEl) {
+  var want = multiAnswerSet(q.answer, q.options);
+  var wantKeys = Object.keys(want).map(Number);
+  var checked = document.querySelectorAll('input[name="' + qid + '"]:checked');
+  var picked = [];
+  for (var i = 0; i < checked.length; i++) picked.push(parseInt(checked[i].value, 10));
+  var anyWrong = false, hitCorrect = 0;
+  for (var p = 0; p < picked.length; p++) {
+    if (want[picked[p]]) hitCorrect++; else anyWrong = true;
+  }
+  var mopts = q.options || [];
+  for (var j = 0; j < mopts.length; j++) {
+    var el = document.getElementById('opt-' + qid + '-' + j);
+    if (!el) continue;
+    if (want[j]) el.classList.add('correct-answer');
+    else if (picked.indexOf(j) !== -1) el.classList.add('wrong-answer');
+  }
+  var earned;
+  if (!anyWrong && hitCorrect === wantKeys.length && picked.length === wantKeys.length) {
+    earned = q.points; card.classList.add('correct');
+    badge.className = 'badge badge-ok'; badge.textContent = '正确'; correctEl.innerHTML = '';
+  } else if (!anyWrong && hitCorrect > 0) {
+    earned = Math.round(q.points * hitCorrect / wantKeys.length * 10) / 10;
+    card.classList.add('partial'); badge.className = 'badge badge-partial'; badge.textContent = '部分正确';
+    correctEl.innerHTML = '正确答案：' + multiAnswerText(wantKeys, mopts);
+  } else {
+    earned = 0; card.classList.add('wrong');
+    badge.className = 'badge badge-no'; badge.textContent = '错误';
+    correctEl.innerHTML = '正确答案：' + multiAnswerText(wantKeys, mopts);
+  }
+  return earned;
+}
+
+function multiAnswerText(keys, options) {
+  return keys.sort(function (a, b) { return a - b; }).map(function (k) {
+    return String.fromCharCode(65 + k) + '. ' + (options ? options[k] : '');
+  }).join('  ');
+}
+
+function gradeFill(q, qid, card, badge, correctEl) {
+  var nBlanks = fillBlankCount(q.question);
+  var blanks = fillBlankAnswers(q.answer, nBlanks);
+  var n = blanks.length;
+  var hit = 0;
+  var displays = [];
+  for (var b = 0; b < n; b++) {
+    var inp = document.getElementById('fill-' + qid + '-' + b);
+    var accepted = blanks[b] || [''];
+    var user = inp ? normText(inp.value) : '';
+    var ok = false;
+    for (var a = 0; a < accepted.length; a++) {
+      if (accepted[a] !== '' && normText(accepted[a]) === user && user !== '') { ok = true; break; }
+    }
+    if (inp) inp.classList.add(ok ? 'fill-ok' : 'fill-no');
+    if (ok) hit++;
+    displays.push((n > 1 ? (b + 1) + '. ' : '') + accepted.filter(function (x) { return x !== ''; }).join(' / '));
+  }
+  var earned = Math.round(q.points * hit / n * 10) / 10;
+  correctEl.innerHTML = '正确答案：' + displays.join('   ');
+  if (hit === n) { card.classList.add('correct'); badge.className = 'badge badge-ok'; badge.textContent = '正确'; }
+  else if (hit > 0) { card.classList.add('partial'); badge.className = 'badge badge-partial'; badge.textContent = '部分正确'; }
+  else { card.classList.add('wrong'); badge.className = 'badge badge-no'; badge.textContent = '错误'; }
+  return earned;
+}
+</script>
+</body>
+</html>
