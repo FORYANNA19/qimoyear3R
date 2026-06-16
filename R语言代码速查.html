@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R语言代码速查 — 数据挖掘与机器学习</title>
+<style>
+:root {--deep-blue:#1a237e;--green:#2e7d32;--orange:#e65100;--bg:#f5f7fa;--card-bg:#fff;--border:#e0e0e0;--text:#333;--lt:#888;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+.breadcrumb{font-size:13px;color:var(--lt);padding:12px 16px;background:var(--card-bg);border-radius:8px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.breadcrumb a{color:var(--deep-blue);text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+h1{font-size:26px;color:var(--deep-blue);margin-bottom:4px;}
+.sub{color:var(--lt);font-size:14px;margin-bottom:20px;}
+.toc{background:var(--card-bg);border-radius:10px;padding:20px 24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.toc h2{font-size:18px;color:var(--deep-blue);margin-bottom:10px;}
+.toc ol{padding-left:20px;}
+.toc li{margin:4px 0;}
+.toc a{color:var(--deep-blue);text-decoration:none;}
+.toc a:hover{text-decoration:underline;}
+
+.chapter{margin-bottom:32px;background:var(--card-bg);border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.chapter h2{font-size:22px;color:var(--deep-blue);padding-bottom:8px;margin-bottom:16px;border-bottom:2px solid var(--deep-blue);display:flex;align-items:center;gap:10px;}
+.chapter .ch-num{display:inline-block;background:var(--deep-blue);color:#fff;width:36px;height:36px;border-radius:50%;text-align:center;line-height:36px;font-size:16px;font-weight:700;}
+.chapter .ch-desc{color:var(--lt);font-size:14px;margin-bottom:16px;padding:10px 14px;background:#f5f5f5;border-radius:6px;}
+
+.code-block{margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.code-block .code-title{background:var(--deep-blue);color:#fff;padding:8px 16px;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+.code-block .code-title .pkg{font-size:11px;opacity:0.85;font-weight:400;}
+.code-block pre{margin:0;padding:16px 20px;background:#263238;color:#aed581;overflow-x:auto;font-family:"Consolas","Cascadia Code","Courier New",monospace;font-size:13px;line-height:1.7;}
+.code-block pre .comment{color:#78909c;}
+.code-block .explain{padding:12px 16px;background:#f9fbe7;font-size:13px;color:#555;border-top:1px solid var(--border);}
+.code-block .explain strong{color:var(--orange);}
+.code-block .explain ul{margin:4px 0 0 16px;}
+.code-block .explain li{margin:2px 0;}
+
+footer{text-align:center;color:var(--lt);font-size:13px;padding:30px;border-top:1px solid var(--border);margin-top:20px;}
+.src{font-size:11px;color:#aaa;}
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="breadcrumb"><a href="index.html">复习导航</a> / <strong>R语言代码速查</strong></nav>
+<h1>R语言代码速查</h1>
+<p class="sub">数据挖掘与机器学习 · 上海对外经贸大学 · 范彩云 · 全部课堂PPT中的R代码汇总</p>
+
+<div class="toc">
+<h2>目录</h2>
+<ol>
+<li><a href="#ch1">R语言基础与数据挖掘概述</a></li>
+<li><a href="#ch2">K近邻法 (KNN) 分类与预测</a></li>
+<li><a href="#ch3">决策树、袋装、推进、随机森林</a></li>
+<li><a href="#ch4">人工神经网络 (neuralnet / nnet)</a></li>
+<li><a href="#ch5">支持向量机 (SVM)</a></li>
+<li><a href="#ch6">关联规则分析</a></li>
+<li><a href="#ch7">时间序列与机器学习</a></li>
+</ol>
+</div>
+
+<!-- ============================ 一 ============================ -->
+<div class="chapter" id="ch1">
+<h2><span class="ch-num">1</span>R语言基础与数据挖掘概述</h2>
+<div class="ch-desc">来源：《R语言数据挖掘》第一章 · 介绍R的基本操作、包的安装与使用</div>
+
+<div class="code-block">
+<div class="code-title"><span>基本赋值与随机数</span><span class="pkg">base</span></div>
+<pre><code>n &lt;- 10 + 2
+n
+# [1] 12
+
+n &lt;- 3 + rnorm(1)   # rnorm(1) 生成1个标准正态分布随机数
+n
+# [1] 2.208807</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>&lt;-</code> 是 R 的赋值符号</li>
+<li><code>rnorm(n)</code> 生成 n 个服从标准正态分布 N(0,1) 的随机数</li>
+<li>每次运行结果不同（因为是随机数）</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>安装与加载程序包</span><span class="pkg">vegan / ade4 / picante</span></div>
+<pre><code>install.packages("picante")   # 安装包（只需一次）
+library(vegan)                # 加载包（每次使用前都要加载）
+library(ade4)
+# 之后就可以使用 vegan 和 ade4 包中的所有函数</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>install.packages()</code> 从 CRAN 镜像下载安装包，只需要执行一次</li>
+<li><code>library()</code> 在每次 R 会话中加载已安装的包才能使用其中的函数</li>
+<li>常用生态学/多元统计包：vegan（群落分析）、ade4（欧几里得生态分析）、picante（系统发育多样性）</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 二 ============================ -->
+<div class="chapter" id="ch2">
+<h2><span class="ch-num">2</span>K近邻法 (KNN) 分类与预测</h2>
+<div class="ch-desc">来源：lec3KNN.pdf · class包实现KNN分类，kknn包实现加权KNN</div>
+
+<div class="code-block">
+<div class="code-title"><span>KNN核心函数语法</span><span class="pkg">class</span></div>
+<pre><code>knn(train=训练样本集, test=测试样本集, cl=输出变量, k=近邻个数K)
+knn1(train=训练样本集, test=测试样本集, cl=输出变量)        # K=1的特例
+knn.cv(train=训练样本集, cl=输出变量, k=近邻个数)           # 留一交叉验证</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>train</code> 训练集特征矩阵，<code>test</code> 测试集特征矩阵，<code>cl</code> 训练集的类别标签</li>
+<li><code>knn.cv()</code> 自动执行留一交叉验证（Leave-One-Out CV），无需手动划分测试集</li>
+<li><code>prob=TRUE</code> 可返回各观测属于各类别的比例</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>KNN 模拟数据生成</span><span class="pkg">class</span></div>
+<pre><code>set.seed(12345)
+x1 &lt;- runif(60, -1, 1)                          # 生成60个[-1,1]均匀分布数
+x2 &lt;- runif(60, -1, 1)
+y &lt;- sample(c(0,1), size=60, replace=TRUE, prob=c(0.3, 0.7))  # 0.7:0.3随机指派类别
+Data &lt;- data.frame(Fx1=x1, Fx2=x2, Fy=y)
+SampleId &lt;- sample(x=1:60, size=18)             # 随机抽取18个样本
+DataTest &lt;- Data[SampleId,]                     # 测试集
+DataTrain &lt;- Data[-SampleId,]                   # 训练集（取反）</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>set.seed()</code> 固定随机种子，确保结果可重复</li>
+<li><code>runif(n, min, max)</code> 生成均匀分布随机数</li>
+<li><code>sample()</code> 随机抽样，<code>prob</code>参数指定各类比例</li>
+<li><code>Data[-SampleId,]</code> 用负索引排除测试集样本，得到训练集</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>KNN 三种评估方法：旁置法错判率</span><span class="pkg">class</span></div>
+<pre><code>library("class")
+errRatio1 &lt;- vector()                     # 初始化错判率向量
+for(i in 1:30){                           # K从1到30
+  KnnFit &lt;- knn(train=DataTrain[,1:2], test=DataTest[,1:2],
+                cl=DataTrain[,3], k=i)    # 训练集≠测试集
+  CT &lt;- table(DataTest[,3], KnnFit)       # 混淆矩阵
+  errRatio1 &lt;- c(errRatio1, (1-sum(diag(CT))/sum(CT))*100)
+}
+plot(errRatio1, type="l", xlab="近邻个数K", ylab="错判率(%)")</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><strong>旁置法(Holdout)</strong>：训练集和测试集不同，是最简单的评估方式</li>
+<li><code>table(真实值, 预测值)</code> 生成混淆矩阵，对角线元素为正确分类数</li>
+<li><code>sum(diag(CT))/sum(CT)</code> 计算正确率，(1-正确率)*100 得到错判率(%)</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>KNN 留一法 (LOOCV) 错判率</span><span class="pkg">class</span></div>
+<pre><code>set.seed(12345)
+errRatio2 &lt;- vector()
+for(i in 1:30){
+  KnnFit &lt;- knn.cv(train=Data[,1:2], cl=Data[,3], k=i)  # 留一法
+  CT &lt;- table(Data[,3], KnnFit)
+  errRatio2 &lt;- c(errRatio2, (1-sum(diag(CT))/sum(CT))*100)
+}
+lines(1:30, errRatio2, col=2)            # 红色线叠加到图上</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><strong>留一法(LOOCV)</strong>：<code>knn.cv()</code> 对每个样本用其余 N-1 个样本训练，对该样本预测，循环N次</li>
+<li>评估结果更接近真实泛化误差，但计算量最大</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>加权KNN (kknn包) 与核函数比较</span><span class="pkg">kknn</span></div>
+<pre><code>install.packages("kknn")
+library("kknn")
+fit &lt;- train.kknn(formula=BuyOrNot~., data=Tmall_train, kmax=11, 
+                   distance=2, 
+                   kernel=c("rectangular", "triangular", "gaussian"))
+plot(fit$MISCLASS[,1]*100, type="l", main="不同核函数的错判率曲线")
+lines(fit$MISCLASS[,2]*100, lty=2, col=1)
+lines(fit$MISCLASS[,3]*100, lty=3, col=2)</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>train.kknn()</code> 自动训练不同K值和核函数下的模型</li>
+<li><code>kernel=</code>可选三种核函数：rectangular(均匀核)、triangular(三角核)、gaussian(高斯核)</li>
+<li><code>distance=2</code> 使用欧氏距离（闵可夫斯基距离 p=2）</li>
+<li>除均匀核外，其他核函数的预测误差差异不明显</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 三 ============================ -->
+<div class="chapter" id="ch3">
+<h2><span class="ch-num">3</span>决策树、袋装、推进、随机森林</h2>
+<div class="ch-desc">来源：lec4-DT.pdf · 这是R代码最丰富的一章，涵盖rpart/ipred/adabag/randomForest</div>
+
+<div class="code-block">
+<div class="code-title"><span>rpart() 建立分类回归树</span><span class="pkg">rpart / rpart.plot</span></div>
+<pre><code>install.packages("rpart")
+install.packages("rpart.plot")
+library("rpart")
+library("rpart.plot")
+
+BuyOrNot &lt;- read.table(file="消费决策数据.txt", header=TRUE)
+BuyOrNot$Income  &lt;- as.factor(BuyOrNot$Income)    # 转为因子型
+BuyOrNot$Gender  &lt;- as.factor(BuyOrNot$Gender)
+
+Ctl &lt;- rpart.control(minsplit=2, maxcompete=4, xval=10, 
+                      maxdepth=10, cp=0)            # 设置控制参数
+set.seed(12345)
+TreeFit1 &lt;- rpart(Purchase~., data=BuyOrNot, method="class",
+                  parms=list(split="gini"), control=Ctl)
+rpart.plot(TreeFit1, type=4, branch=0, extra=2)     # 可视化决策树
+plotcp(TreeFit1)                                      # 可视化CP值</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>rpart()</code> 是R中建立决策树的核心函数</li>
+<li><code>method="class"</code> 建立分类树，"anova"建立回归树</li>
+<li><code>split="gini"</code> 用基尼系数选择分裂，"information"用信息熵</li>
+<li><strong>rpart.control参数：</strong><code>minsplit</code>节点最小样本量/<code>maxdepth</code>最大深度/<code>cp</code>复杂度参数/<code>xval</code>交叉验证折数</li>
+<li><code>rpart.plot(type=4, extra=2)</code> 显示每个节点的预测类别和比例</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>剪枝：prune() 最小代价复杂度剪枝</span><span class="pkg">rpart</span></div>
+<pre><code>TreeFit3 &lt;- prune(TreeFit1, cp=0.008)      # 按指定CP值剪枝
+rpart.plot(TreeFit3, type=4, branch=0, extra=2)
+printcp(TreeFit3)                            # 浏览CP值与误差关系
+# CP值越大，剪掉的枝越多，树越简单</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>prune(tree, cp=0.008)</code> 剪掉复杂度参数大于0.008的子树</li>
+<li>CP(Complexity Parameter)控制代价复杂度：R<sub>α</sub>(T)=R(T)+α|T|，α=CP</li>
+<li>CP越大，树越简单（叶节点越少），但预测误差可能增大</li>
+<li><code>printcp()</code> 输出交叉验证误差xerror，选xerror最小时的CP值</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>Bagging 袋装技术 (ipred包)</span><span class="pkg">ipred</span></div>
+<pre><code>install.packages("ipred")
+library("ipred")
+
+Ctl &lt;- rpart.control(minsplit=20, maxcompete=4, maxdepth=30, 
+                      cp=0.01, xval=10)
+set.seed(12345)
+BagM1 &lt;- bagging(MAILSHOT~., data=MailShot, nbagg=25, 
+                  coob=TRUE, control=Ctl)
+# OOB estimate of misclassification error: 44.67%
+
+CFit2 &lt;- predict(BagM1, MailShot)           # 预测
+ConfM2 &lt;- table(MailShot$MAILSHOT, CFit2)
+(E2 &lt;- (sum(ConfM2)-sum(diag(ConfM2)))/sum(ConfM2))
+# 0.2233333 = 22.3% 误判率</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>bagging()</code> 实现Bootstrap Aggregating（袋装技术）</li>
+<li><code>nbagg=25</code> Bootstrap重复25次，生成25棵决策树</li>
+<li><code>coob=TRUE</code> 基于袋外(Out-Of-Bag)观测计算预测误差（约36.8%样本未被抽中）</li>
+<li>Bagging通过多个模型的投票(分类)或平均(回归)降低方差</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>Boosting 推进技术 (adabag包)</span><span class="pkg">adabag</span></div>
+<pre><code>install.packages("adabag")
+library("adabag")
+
+Ctl &lt;- rpart.control(minsplit=20, maxcompete=4, maxdepth=30, 
+                      cp=0.01, xval=10)
+set.seed(12345)
+BoostM &lt;- boosting(MAILSHOT~., data=MailShot, boos=TRUE,
+                    mfinal=25, coeflearn="Breiman", control=Ctl)
+BoostM$importance              # 变量重要性得分
+ConfM4 &lt;- table(MailShot$MAILSHOT, BoostM$class)
+(E4 &lt;- (sum(ConfM4)-sum(diag(ConfM4)))/sum(ConfM4))
+# 0.0267 = 2.7% 误判率 (远优于单棵树28.3%和Bagging22.3%)</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>boosting()</code> 实现AdaBoost算法，属于串行集成</li>
+<li><code>mfinal=25</code> 迭代25轮，每轮训练一个弱分类器</li>
+<li><code>boos=TRUE</code> 每轮根据上一轮误判情况调整样本权重（错分样本权重增大）</li>
+<li>返回值包括<code>trees</code>(各棵树)、<code>weights</code>(各模型投票权重)、<code>importance</code>(变量重要性)</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>随机森林 randomForest()</span><span class="pkg">randomForest</span></div>
+<pre><code>install.packages("randomForest")
+library("randomForest")
+
+set.seed(12345)
+rFM &lt;- randomForest(MAILSHOT~., data=MailShot, 
+                     importance=TRUE, proximity=TRUE)
+# Type: classification  Number of trees: 500
+# No. of variables tried at each split: 2
+# OOB estimate of error rate: 43.67%
+
+plot(rFM, main="随机森林的OOB错判率和决策树棵树")
+Fit &lt;- predict(rFM, MailShot)
+ConfM5 &lt;- table(MailShot$MAILSHOT, Fit)
+(E5 &lt;- (sum(ConfM5)-sum(diag(ConfM5)))/sum(ConfM5))   # 0.03
+
+head(treesize(rFM))           # 各棵树的大小（叶节点数）
+barplot(rFM$importance[,3])   # 变量重要性柱形图</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>randomForest()</code> 默认500棵树，每节点随机选取特征子集（双重随机性）</li>
+<li><code>mtry</code>参数控制每次分裂随机选几个特征：分类默认√p，回归默认p/3</li>
+<li><code>importance=TRUE</code> 计算变量重要性（MDA：平均准确率下降；MDI：平均纯度下降）</li>
+<li><code>treesize()</code>查看每棵决策树的叶节点数；<code>getTree()</code>提取指定树的结构</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 四 ============================ -->
+<div class="chapter" id="ch4">
+<h2><span class="ch-num">4</span>人工神经网络 (neuralnet / nnet)</h2>
+<div class="ch-desc">来源：lec6-AN.pdf · neuralnet包实现可视化BP网络，nnet包实现传统三层BP网络</div>
+
+<div class="code-block">
+<div class="code-title"><span>neuralnet() 建立BP神经网络</span><span class="pkg">neuralnet</span></div>
+<pre><code>install.packages("neuralnet")
+library("neuralnet")
+
+BuyOrNot &lt;- read.table(file="消费决策数据.txt", header=TRUE)
+BPnet1 &lt;- neuralnet(Purchase~Age+Gender+Income, data=BuyOrNot,
+                     hidden=2, err.fct="ce", linear.output=FALSE)
+BPnet1$result.matrix        # 查看连接权重和迭代信息
+plot(BPnet1)                # 绘制神经网络拓扑图</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>hidden=2</code> 单个隐藏层，2个隐节点</li>
+<li><code>err.fct="ce"</code> 使用交叉熵(Cross-Entropy)作为损失函数（分类问题推荐）</li>
+<li><code>linear.output=FALSE</code> 输出层使用非线性激活函数（分类），TRUE用于回归</li>
+<li><code>$result.matrix</code>包含各层连接权重，如Age.to.1layhid1、1layhid.1.to.Purchase</li>
+<li><code>$weight</code>是列表形式存储的各层权重矩阵</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>广义权重 gwplot() — 评价输入变量重要性</span><span class="pkg">neuralnet</span></div>
+<pre><code>head(BPnet1$generalized.weights[[1]])   # 前6个观测的广义权重
+par(mfrow=c(2,2))
+gwplot(BPnet1, selected.covariate="Age")
+gwplot(BPnet1, selected.covariate="Gender")
+gwplot(BPnet1, selected.covariate="Income")</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><strong>广义权重(Generalized Weights)</strong>：衡量每个输入变量对输出变量预测的边际影响</li>
+<li><code>gwplot()</code> 绘制广义权重随输入变量取值的分布图</li>
+<li>广义权重的绝对值越大，该输入变量对预测越重要</li>
+<li>权重接近0意味着该变量对输出几乎没有影响</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>compute() 模拟不同输入组合的预测</span><span class="pkg">neuralnet</span></div>
+<pre><code>newData &lt;- matrix(c(39,1,1, 39,1,2, 39,1,3,
+                     39,2,1, 39,2,2, 39,2,3), 
+                   nrow=6, ncol=3, byrow=TRUE)
+new.output &lt;- compute(BPnet1, covariate=newData)
+new.output$net.result          # 查看不同组合的预测概率</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>compute()</code> 计算任意输入变量组合下输出节点的预测值</li>
+<li>可用于对比分析：如固定年龄=39，改变性别和收入，观察购买概率变化</li>
+<li>典型发现：女性购买概率普遍高于男性，高收入人群购买概率更低</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>ROC曲线确定最优概率分割值</span><span class="pkg">ROCR</span></div>
+<pre><code>install.packages("ROCR")
+library("ROCR")
+summary(BPnet1$net.result[[1]])          # 浏览预测概率分布
+pred &lt;- prediction(predictions=as.vector(BPnet1$net.result),
+                   labels=BPnet1$response)
+par(mfrow=c(2,1))
+perf &lt;- performance(pred, measure="tpr", x.measure="fpr")
+plot(perf, colorize=TRUE, print.cutoffs.at=c(0.2,0.45,0.46,0.47))
+perf &lt;- performance(pred, measure="acc")
+plot(perf)    # 概率分割值与预测精度的关系</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>prediction()</code> 将预测概率和真实标签打包</li>
+<li><code>performance(measure="tpr", x.measure="fpr")</code> 计算ROC曲线的真阳率vs假阳率</li>
+<li>ROC曲线越接近左上角，模型分类性能越好</li>
+<li>选TPR大且FPR小的概率值作为分割阈值（不一定是0.5）</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>nnet() 传统三层BP反向传播网络</span><span class="pkg">nnet</span></div>
+<pre><code>install.packages("nnet")
+library("nnet")
+set.seed(1000)
+BPnet2 &lt;- nnet(Purchase~Age+Gender+Income, data=BuyOrNot,
+                size=2, entropy=TRUE, abstol=0.01)
+predict(BPnet2, BuyOrNot, type="class")   # 输出预测类别（不是概率）</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>nnet()</code> 建立传统三层BP网络（输入层→单隐藏层→输出层）</li>
+<li><code>size=2</code> 隐藏层2个节点</li>
+<li><code>entropy=TRUE</code> 使用交叉熵损失函数；FALSE使用误差平方和</li>
+<li><code>maxit=100</code> 默认最大迭代次数100</li>
+<li><strong>neuralnet vs nnet区别：</strong>neuralnet支持多隐藏层+可视化，nnet只支持单隐藏层但更轻量</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 五 ============================ -->
+<div class="chapter" id="ch5">
+<h2><span class="ch-num">5</span>支持向量机 (SVM)</h2>
+<div class="ch-desc">来源：lec9-Mlearning.pdf · e1071包实现SVM分类，tune.svm()自动超参数调优</div>
+
+<div class="code-block">
+<div class="code-title"><span>svm() 核心函数语法</span><span class="pkg">e1071</span></div>
+<pre><code>svm(formula=公式, data=数据框名, scale=TRUE/FALSE, 
+    type=支持向量机类型, kernel=核函数名, 
+    gamma=g, degree=d, cost=C)
+# type: "C-classification"(分类), "eps-regression"(回归)
+# kernel: "linear"(线性核), "polynomial"(多项式核), "radial"(径向基核)
+# gamma: 径向基核/多项式核的参数  cost: 损失惩罚参数C</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>scale=TRUE</code> 建模前自动对数据标准化（推荐打开，因为SVM依赖距离度量）</li>
+<li><code>cost=C</code> 控制软间隔的惩罚力度：C大→过拟合（强制完美分类），C小→欠拟合（容忍误分）</li>
+<li><strong>返回值</strong>：<code>$SV</code>支持向量、<code>$index</code>支持向量索引、<code>$decision.values</code>决策函数值</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>线性可分SVM：比较不同cost的影响</span><span class="pkg">e1071</span></div>
+<pre><code>library("e1071")
+# cost=10: 惩罚大，要求更精确分类，支持向量少
+SvmFit &lt;- svm(Fy~., data=data_train, type="C-classification",
+              kernel="linear", cost=10, scale=FALSE)
+SvmFit$index        # 16个支持向量
+# cost=0.1: 惩罚小，容忍更多误分，支持向量多
+SvmFit2 &lt;- svm(Fy~., data=data_train, type="C-classification",
+               kernel="linear", cost=0.1, scale=FALSE)
+SvmFit2$index       # 25个支持向量（更多！）
+plot(x=SvmFit, data=data_train, formula=Fx1~Fx2, 
+     svSymbol="#", dataSymbol="*", grid=100)   # 可视化决策边界</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li>cost越大→惩罚越重→间隔越小→支持向量越少→模型越复杂</li>
+<li>cost越小→惩罚越轻→间隔越大→支持向量越多→模型越简单</li>
+<li><code>plot(x=svm对象)</code> 自动绘制决策边界和支持向量（支持向量用#标记）</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>tune.svm() 自动10折交叉验证调优</span><span class="pkg">e1071</span></div>
+<pre><code>set.seed(12345)
+tObj &lt;- tune.svm(Fy~., data=data_train, type="C-classification",
+                  kernel="linear", 
+                  cost=c(0.001, 0.01, 0.1, 1, 5, 10, 100, 1000),
+                  scale=FALSE)
+summary(tObj)
+# best parameters: cost = 1
+# best performance: 0.15 (15%误差率)
+
+BestSvm &lt;- tObj$best.model       # 提取最优模型
+yPred &lt;- predict(BestSvm, data_test)
+(ConfM &lt;- table(yPred, data_test$Fy))
+(Err &lt;- (sum(ConfM)-sum(diag(ConfM)))/sum(ConfM))   # 0.1</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>tune.svm()</code> 对cost和gamma的每个组合做10折交叉验证，找出最优参数</li>
+<li><code>$best.parameters</code>最优参数组合、<code>$best.performance</code>最优性能、<code>$best.model</code>最优模型</li>
+<li>cost参数向量覆盖[0.001, 1000]的宽范围，确保找到全局最优</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>非线性SVM + 径向基核 调优</span><span class="pkg">e1071</span></div>
+<pre><code>set.seed(12345)
+tObj &lt;- tune.svm(Fy~., data=data_train, type="C-classification",
+                  kernel="radial", 
+                  cost=c(0.001, 0.01, 0.1, 1, 5, 10, 100, 1000),
+                  gamma=c(0.5, 1, 2, 3, 4), scale=FALSE)
+plot(tObj, xlab=expression(gamma), ylab="损失惩罚参数C",
+     main="不同参数组合下的预测错误率", 
+     nlevels=10, color.palette=terrain.colors)
+BestSvm &lt;- tObj$best.model
+yPred &lt;- predict(BestSvm, data_test)
+(Err &lt;- (sum(ConfM)-sum(diag(ConfM)))/sum(ConfM))   # 0.08</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li>径向基核(RBF Kernel)可以处理线性不可分问题</li>
+<li><code>gamma</code>控制单个样本的影响范围：gamma越大→决策边界越弯曲→过拟合风险越大</li>
+<li><code>plot(tObj)</code>生成参数网格的热力图，颜色越深表示误差越低</li>
+<li>非线性SVM(径向基核)的预测误差(0.08)通常低于线性SVM</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>多分类SVM (3类)</span><span class="pkg">e1071</span></div>
+<pre><code># 生成3类数据 (0,1,2)
+set.seed(12345)
+x &lt;- matrix(rnorm(n=400, mean=0, sd=1), ncol=2, byrow=TRUE)
+x[1:100,] &lt;- x[1:100,] + 2
+x[101:150,] &lt;- x[101:150,] - 2
+x &lt;- rbind(x, matrix(rnorm(n=100), ncol=2))
+y &lt;- c(rep(1,150), rep(2,50), rep(0,50))
+x[y==0, 2] &lt;- x[y==0, 2] + 3
+
+tObj &lt;- tune.svm(Fy~., data=data, type="C-classification",
+                  kernel="radial", cost=c(0.001,...,1000),
+                  gamma=c(0.5,1,2,3,4))
+BestSvm &lt;- tObj$best.model
+# Number of Support Vectors: 133 (70+31+32)  对应3个类别
+
+head(SvmFit$decision.values)   # 每行3列: 1/2, 1/0, 2/0 的决策值
+yPred &lt;- predict(SvmFit, data)
+(Err &lt;- (sum(ConfM)-sum(diag(ConfM)))/sum(ConfM))  # 0.084</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li>e1071的svm()默认使用"一对一"(OvO)策略处理多分类</li>
+<li>3个类别：C(3,2)=3 对二分类器，<code>decision.values</code>有3列</li>
+<li>支持向量总数=各类别支持向量之和(70+31+32=133)</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 六 ============================ -->
+<div class="chapter" id="ch6">
+<h2><span class="ch-num">6</span>关联规则分析</h2>
+<div class="ch-desc">来源：Lec10关联规则.pdf · arules包实现Apriori算法挖掘关联规则</div>
+
+<div class="code-block">
+<div class="code-title"><span>Apriori算法核心函数</span><span class="pkg">arules</span></div>
+<pre><code># 读入交易数据
+read.transactions(file=文本文件名, format=组织形式, 
+                   cols=数值或字符向量, sep=分割符)
+
+# 挖掘频繁项集并生成关联规则
+apriori(data=transactions类对象, parameter=NULL, appearance=NULL)
+
+# 查看和筛选规则
+size(x=关联规则对象)              # 规则条数
+sort(x=关联规则对象, decreasing=TRUE, by=排序依据)  # 排序
+subset(x=关联规则对象, subset=条件)                  # 筛选
+
+# 可视化
+plot(x=规则对象, method="graph", control=list(main=标题))</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>apriori(parameter=list(supp=0.001, conf=0.5))</code> 设定最小支持度和最小置信度</li>
+<li><code>sort(by="lift")</code> 按提升度排序找到最有意义的规则</li>
+<li><code>subset(rules, lhs %in% "牛奶")</code> 筛选前件包含"牛奶"的规则</li>
+<li>序列关联用<code>cspade()</code>：先<code>read_baskets()</code>读入含sequenceID的数据</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ============================ 七 ============================ -->
+<div class="chapter" id="ch7">
+<h2><span class="ch-num">7</span>时间序列与机器学习</h2>
+<div class="ch-desc">来源：8 第八章 时间序列与机器学习.pdf · 用神经网络/回归树/随机森林预测上证指数收益率和VIX恐慌指数</div>
+
+<div class="code-block">
+<div class="code-title"><span>数据准备：计算对数收益率 + 划分训练集</span><span class="pkg">NTS / neuralnet</span></div>
+<pre><code>data &lt;- read.csv("上证指数月度.csv", header=TRUE)
+rate &lt;- diff(log(data[,2]))          # 对数差分 = 对数收益率
+require(NTS)
+set.seed(12345)
+m1 &lt;- NNsetting(rate, nfore=30, lags=c(1:3))  # 滞后3阶，预测30期
+X &lt;- m1$X; y &lt;- m1$y            # 训练集特征/目标
+predX &lt;- m1$predX; predY &lt;- m1$predY  # 测试集特征/目标
+df &lt;- data.frame(cbind(y, X))
+colnames(df) &lt;- c("rate", "rate1", "rate2", "rate3")</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>diff(log(x))</code> 对数差分=对数收益率，常用于金融时间序列的平稳化</li>
+<li><code>NNsetting()</code> 将时序数据组织为监督学习格式（滞后特征+预测目标），并划分训练/测试集</li>
+<li><code>lags=c(1:3)</code> 用前3期的值预测当期（自回归阶数=3）</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>神经网络预测时间序列</span><span class="pkg">neuralnet / nnet</span></div>
+<pre><code>library(neuralnet)
+net &lt;- neuralnet(rate~rate1+rate2+rate3, df, hidden=1,
+                  threshold=0.005, learningrate=0.1, 
+                  err.fct="sse")
+plot(net)
+pm3 &lt;- predict(net, newdata=predX)   # 测试集预测
+er2 &lt;- pm3 - predY                   # 预测误差
+sqrt(mean(er2^2))                      # RMSE: 4.82
+mean(abs(er2))                         # MAE:  3.76</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li>神经网络用于时间序列预测时，输入为滞后值，输出为当期值</li>
+<li><code>err.fct="sse"</code> 回归问题使用误差平方和(Sum of Squared Errors)</li>
+<li>评估指标：RMSE(均方根误差)=sqrt(mean((pred-actual)²))、MAE(平均绝对误差)</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>回归树预测时间序列 + 交叉验证剪枝</span><span class="pkg">tree</span></div>
+<pre><code>require(tree)
+t1 &lt;- tree(rate~., data=data.frame(X))
+summary(t1)       # 11个叶节点，残差均方46.44
+plot(t1); text(t1, pretty=0)
+
+# 交叉验证选择最佳叶节点数
+cv.t1 &lt;- cv.tree(t1)
+plot(cv.t1$size, cv.t1$dev, type="b")   # 偏差随叶节点数变化
+prune.t1 &lt;- prune.tree(t1, best=5)      # 剪到5个叶节点最优
+plot(prune.t1); text(prune.t1, pretty=0)
+prun &lt;- predict(prune.t1, newdata=data.frame(predX))
+per &lt;- predY - prun
+mean(abs(per))                           # 评估绝对误差</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li><code>tree()</code> 建立回归树（注意：不是rpart！tree包使用不同的算法）</li>
+<li><code>cv.tree()</code> 交叉验证确定最优树大小，plot画偏差~节点数</li>
+<li><code>prune.tree(best=5)</code> 保留5个叶节点</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-title"><span>随机森林预测VIX恐慌指数</span><span class="pkg">randomForest / nnet / tseries</span></div>
+<pre><code>mydata &lt;- read.csv("VIX恐慌指数历史数据10年.csv", header=T)
+dvix &lt;- mydata[,7]
+date &lt;- as.Date(mydata[,1], "%m/%d/%Y")
+plot(date, dvix, type="l", ylab="DVIX")
+
+library(tseries)
+require(NTS)
+m1 &lt;- NNsetting(dvix, nfore=252, lags=c(1:9))   # 滞后9阶
+
+# 线性回归 (baseline)
+m2 &lt;- lm(y~-1+X)
+yhat &lt;- predX %*% matrix(m2$coefficients, 9, 1)
+er1 &lt;- yhat - predY   # RMSE: 3.27
+
+# 神经网络 nnet
+require(nnet)
+m3 &lt;- nnet(X, y, size=1, skip=T, linout=T, maxit=1000)
+pm3 &lt;- predict(m3, newdata=predX)     # RMSE: 3.27
+
+# 随机森林 Bagging (mtry=9→使用全部特征)
+rf2 &lt;- randomForest(y~., data=data.frame(X), mtry=9, ntree=1000)
+prf2 &lt;- predict(rf2, newdata=data.frame(predX))   # RMSE: 3.25
+
+# 随机森林 (mtry=3→每节点随机选3个特征)
+rf3 &lt;- randomForest(y~., data=data.frame(X), mtry=3, ntree=1000)
+prf3 &lt;- predict(rf3, newdata=data.frame(predX))   # RMSE: 3.24</code></pre>
+<div class="explain">
+<strong>说明：</strong>
+<ul>
+<li>对比四种时间序列预测方法：线性回归(baseline)、nnet、Bagging(mtry=9)、随机森林(mtry=3)</li>
+<li><strong>nnet中的特殊参数：</strong><code>skip=T</code>添加输入到输出的直接连接(跳跃连接)，<code>linout=T</code>输出层用线性函数(回归)</li>
+<li><strong>mtry=9→Bagging</strong>：每个节点使用全部9个特征=退化为Bagging</li>
+<li><strong>mtry=3→随机森林</strong>：每节点随机选3个≈√9≈3</li>
+<li>预测精度的微小差异反映了不同模型的适用性</li>
+</ul>
+</div>
+</div>
+</div>
+
+<footer>
+数据挖掘与机器学习 · R语言代码速查 · 来源：范彩云老师课堂PPT<br>
+<span class="src">涵盖7个章节 · 全部R代码来自《R语言数据挖掘》配套课件</span>
+</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
